@@ -1,0 +1,462 @@
+﻿@page "/RFacturas";
+@page "/RFacturas/{FacturaId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+
+<EditForm Model="facturas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de facturas</h1>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <label>Factura ID:</label>
+                <div class="input-group col-md-6">
+                    <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
+                    <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                </div>
+                <div class="col-md-6">
+                    <label>Fecha:</label>
+                    <InputDate @bind-Value="facturas.Fecha" class="form-control"></InputDate>
+                    <ValidationMessage For="@(() => facturas.Fecha)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Pago:</label>
+                    <InputNumber @bind-Value="facturas.Pago" class="form-control"></InputNumber>
+                    <ValidationMessage For="@(() => facturas.Pago)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Devoluci&oacute;n:</label>
+                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control"></InputNumber>
+                    <ValidationMessage For="@(() => facturas.Devolucion)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Seguro Medico:</label>
+                    <InputSelect @bind-Value="facturas.SeguroMedicoId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var s in ListaSeguros)
+                        {
+                            <option value="@s.SeguroMedicoId">@s.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => facturas.Pago)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Sucursal:</label>
+                    <InputSelect @bind-Value="facturas.SucursalId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var s in ListaSucursales)
+                        {
+                            <option value="@s.SucursalId">@s.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => facturas.SucursalId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Empleado:</label>
+                    <InputSelect @bind-Value="facturas.EmpleadoId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var e in ListaEmpleados)
+                        {
+                            <option value="@e.EmpleadoId">@e.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => facturas.EmpleadoId)" />
+                </div>
+            </div>
+        </div>
+        @*Detalles:*@
+        <div class="card card-header">
+            <h3>Productos</h3>
+        </div>
+        <div class="card-body border border-1">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Producto</label>
+                    <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var p in ListaProductos)
+                        {
+                            <option value="@p.ProductoId">@p.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Detalles.ProductoId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Cantidad</label>
+                    <div class="input-group">
+                        <InputNumber @bind-Value="Detalles.Cantidad" class="form-control"></InputNumber>
+                        <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                        <ValidationMessage For="@(() => Detalles.Cantidad)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class='table table-striped table-hover'>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Laboratorio</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in facturas.FacturasDetalles)
+                {
+                    <tr>
+                        <td>@ObtenerNombre(detalle.ProductoId)</td>
+                        <td>@ObtenerDescripción(detalle.ProductoId)</td>
+                        <td>@ObtenerNombreLaboratorio(detalle.ProductoId)</td>
+                        <td>@detalle.Cantidad</td>
+                        <td>@ObtenerPrecio(detalle.ProductoId)</td>
+                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                    </tr>
+                }
+                <tr>
+                    <td>Monto Total:$ @PrecioT</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+    [Parameter]
+
+    public int FacturaId { get; set; }
+    public Facturas facturas { get; set; } = new Facturas();
+    public FacturasDetalles Detalles { get; set; } = new FacturasDetalles();
+
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
+    public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+    public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
+
+    public List<FacturasDetalles> DetallesRemovidos { get; set; } = new List<FacturasDetalles>();
+    public List<FacturasDetalles> ListaDetalles { get; set; } = new List<FacturasDetalles>();
+
+    public float PrecioT { get; set; } = 0;
+    public int ReducirProducido = 0;
+    public bool idVacio;
+    public bool cantidadCero;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
+        var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+        var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+
+        if(laboratorios is not null)
+        {
+            ListaLaboratorios = laboratorios;
+        }
+
+        if( empleados is not null)
+        {
+            ListaEmpleados = empleados;
+        }
+        if(sucursales is not null)
+        {
+            ListaSucursales = sucursales;
+        }
+        if(seguros is not null)
+        {
+            ListaSeguros = seguros;
+        }
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        if (FacturaId > 0)
+        {
+            this.facturas.FacturaId = FacturaId;
+            await Buscar();
+        }
+    }
+
+    private async Task<Facturas> BuscarFactura(int FacturaId)
+    {
+        Facturas Facturas = new Facturas();
+        var facturaEncontrada = await httpClient.GetFromJsonAsync<Facturas>($"api/Facturas/{FacturaId}");
+        if (facturaEncontrada != null)
+            return Facturas = facturaEncontrada;
+        return new Facturas();
+    }
+
+    public float ObtenerPrecio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
+    }
+    public int ObtenerLaboratorio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!; 
+    }
+
+    public string ObtenerNombre(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Nombre!;
+    }
+
+    public string ObtenerDescripción(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Descripcion!;
+    }
+
+    public string ObtenerNombreLaboratorio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+
+        if (producto != null)
+        {
+            var laboratorio = ListaLaboratorios.FirstOrDefault(l => l.LaboratorioId == producto.LaboratorioId);
+
+            if (laboratorio != null)
+            {
+                return laboratorio.Nombre!;
+            }
+        }
+
+        return "Lab Not Found";
+    }
+
+    public async Task Buscar()
+    {
+        ListaDetalles = new List<FacturasDetalles>();
+        DetallesRemovidos = new List<FacturasDetalles>();
+        var FacturaIdEncontrada = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!
+        .ToList()
+        .Any(e => e.FacturaId == facturas.FacturaId);
+        if (FacturaIdEncontrada)
+        {
+            var facturaEncontrada = await httpClient.GetFromJsonAsync<Facturas>($"api/Facturas/{facturas.FacturaId}");
+            if (facturaEncontrada != null)
+            {
+                this.facturas = facturaEncontrada;
+                PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se encontro ninguna factura",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+    }
+
+    public void Notificaciones()
+    {
+
+    }
+
+    public async Task Guardar()
+    {
+        facturas.MontoTotal = PrecioT;
+        if (facturas.FacturaId < 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La FacturaId no puede ser Negativa.",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        if(facturas.FacturasDetalles.Count <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debe agregar al menos un detalle a la factura",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        using var response = await httpClient.PostAsJsonAsync("api/Facturas", facturas);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo Guardar correctamente, verifique los campos",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var facturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
+        if (facturaDevuelta is not null)
+        {
+            //cuando eliminamos un detalle de un registro y guardamos se devuelve al inventario lo que se habia utilizado
+            if (DetallesRemovidos.Count > 0)
+            {
+                foreach (var detalle in DetallesRemovidos)
+                {
+                    await httpClient.DeleteAsync($"api/Facturas/DeleteDetalles/{detalle.FacturaDetalleId}");
+                }
+            }
+            //cuando creamos un registro se reduce del inventario lo que se utilizo
+            if (ListaDetalles.Count > 0)
+            {
+                foreach (var detalle in ListaDetalles)
+                {
+                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
+                    reducir!.Existencia = reducir.Existencia - detalle.Cantidad;
+                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
+                }
+            }
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Factura Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            facturas = facturaDevuelta;
+            StateHasChanged();
+            this.Nuevo();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.facturas = new Facturas();
+        this.Detalles = new FacturasDetalles();
+        DetallesRemovidos = new List<FacturasDetalles>();
+        ListaDetalles = new List<FacturasDetalles>();
+        PrecioT = 0;
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Facturas/{facturas.FacturaId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La factura no fue Eliminada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Factura Eliminada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+        }
+        this.Nuevo();
+    }
+
+    public bool Validar()
+    {
+        idVacio = (Detalles.ProductoId <= 0);
+        cantidadCero = (Detalles.Cantidad <= 0);
+        return idVacio || cantidadCero;
+    }
+
+    public async Task AgregarDetalle()
+    {
+        if (Validar())
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Llene los campos del detalle Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var producto = await BuscarProductos(Detalles.ProductoId);
+        if (producto != null)
+        {
+            if (Detalles.Cantidad > producto.Existencia)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = $"No hay suficiente cantidad de {producto.Nombre} en el inventario ({producto.Existencia})",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+        }
+
+        if (facturas != null)
+        {
+            var detalleEncontrado = await httpClient.GetFromJsonAsync<List<FacturasDetalles>>($"api/Facturas");
+            //aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
+            var detalleExiste = detalleEncontrado!.Any(d => d.FacturaDetalleId == Detalles.FacturaDetalleId);
+
+            Detalles.FacturaId = facturas.FacturaId;
+            facturas.FacturasDetalles.Add(Detalles);
+            if (detalleExiste)
+            {
+                ListaDetalles.Add(Detalles);
+
+            }
+            if (DetallesRemovidos.Any(d => d.FacturaDetalleId == Detalles.FacturaDetalleId))
+                DetallesRemovidos.Remove(Detalles);
+            Detalles = new FacturasDetalles();
+            PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
+
+        }
+        StateHasChanged();
+    }
+
+    public void RemoverDetalle(FacturasDetalles detalle)
+    {
+        Detalles = detalle;
+        facturas.FacturasDetalles.Remove(detalle);
+        DetallesRemovidos.Add(detalle);
+        if (ListaDetalles.Any(d => d.FacturaDetalleId == detalle.FacturaDetalleId))
+            ListaDetalles.Remove(detalle);
+        PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
+        StateHasChanged();
+    }
+
+    private async Task<Productos> BuscarProductos(int ProductoId)
+    {
+        var producto = await httpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}");
+
+        return producto ?? new Productos();
+    }
+}

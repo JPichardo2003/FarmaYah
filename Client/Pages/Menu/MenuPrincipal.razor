@@ -1,0 +1,52 @@
+﻿@page "/MenuPrincipal"
+
+@inject NavigationManager NavigationManager
+<PageTitle>Home</PageTitle>
+<div class="card" style="width:1000px">
+    <div class="card-header d-flex align-items-center justify-content-center">
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>FarmaYah - Menú Principal</h1>
+    </div>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-md-4 text-center">
+                <button type="button" @onclick="NavigateToFacturas" class="d-block mx-auto">
+                    <img src="Images/icons8-factura-50.png" class="icon" />Factura
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto">
+                    <img src="Images/iconslaboratorio.png" class="icon" />Laboratorio
+                </button>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <button class="d-block mx-auto">
+                    <img src="Images/icons8-trabajo-permanente-100.png" class="icon" />Empleado
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto">
+                    <img src="Images/icons8-presupuesto-100.png" class="icon" />Cliente
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto">
+                    <img src="Images/icons8-producto-100.png" class="icon" />Producto
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto">
+                    <img src="Images/icons8-tienda-100.png" class="icon" />Sucursal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private void NavigateToFacturas()
+    {
+        NavigationManager.NavigateTo("/RFacturas");
+    }
+}
