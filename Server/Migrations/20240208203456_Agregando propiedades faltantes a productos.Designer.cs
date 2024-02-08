@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240208203456_Agregando propiedades faltantes a productos")]
+    partial class Agregandopropiedadesfaltantesaproductos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.15");
@@ -158,8 +161,9 @@ namespace FarmaYah.Server.Migrations
                     b.Property<float>("Precio")
                         .HasColumnType("REAL");
 
-                    b.Property<int>("UnidadId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Unidad")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ProductoId");
 
@@ -176,7 +180,7 @@ namespace FarmaYah.Server.Migrations
                             LaboratorioId = 1,
                             Nombre = "Ibuprofeno",
                             Precio = 100f,
-                            UnidadId = 0
+                            Unidad = "Jarabe"
                         });
                 });
 
@@ -258,21 +262,6 @@ namespace FarmaYah.Server.Migrations
                             Nombre = "Sucursal 1",
                             Telefono = "8094587412"
                         });
-                });
-
-            modelBuilder.Entity("FarmaYah.Shared.Models.Unidad", b =>
-                {
-                    b.Property<int>("UnidadId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("UnidadId");
-
-                    b.ToTable("Unidad");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Empleados", b =>

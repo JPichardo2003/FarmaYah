@@ -326,7 +326,7 @@
                 foreach (var detalle in ListaDetalles)
                 {
                     var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
-                    reducir!.Existencia = reducir.Existencia - detalle.Cantidad;
+                    reducir!.Existencia = reducir.Existencia - Convert.ToInt32(detalle.Cantidad);
                     using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
                 }
             }

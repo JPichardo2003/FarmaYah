@@ -30,7 +30,7 @@
 					<div class="col-4">
 						<label for="Descripcion">Decripci&oacute;n Producto:</label>
 						<InputSelect id="Descripcion" @bind-Value="Producto.Descripcion" class="form-select">
-							<option disabled selected value="">Seleccione...</option>
+							<option >Seleccione...</option>
 							<option value="Analgésicos">Analgésicos</option>
 							<option value="Antiinflamatorios">Antiinflamatorios</option>
 							<option value="Antialérgicos">Antialérgicos</option>
@@ -43,14 +43,14 @@
 						<ValidationMessage For="@(() => Producto.Descripcion)" />
 					</div>
 
-					<div class="col-4">
+					@* <div class="col-4">
 						<label for="Existencia">Cantidad de producto:</label>
 						<InputNumber id="Existencia" @bind-Value="Producto.Existencia" class="form-control" min="0" />
 						<ValidationMessage For="@(() => Producto.Existencia)" />
-					</div>
+					</div> *@
 				</div>
 
-				<div class="row">
+				@* <div class="row">
 					<div class="col-4">
 						<label for="Precio">Precio del producto:</label>
 						<InputNumber id="Precio" @bind-Value="Producto.Precio" class="form-control" min="0" />
@@ -58,7 +58,7 @@
 					</div>
 
 					
-				</div>
+				</div> *@
 
 				<div class="row">
 					<div class="col-4">
@@ -69,11 +69,21 @@
 
 						</InputSelect>
 						<ValidationMessage For="@(() => Producto.UnidadId)" /> *@
+						<InputSelect id="Unidad" @bind-Value="Producto.UnidadId" class="form-select">
+                            <option value="">Seleccione...</option>
+							@foreach(var unidad in Unidads ?? new List<Unidad>())
+                            {
+                                <option value="@unidad.UnidadId">@unidad.Descripcion</option>
+                            }
+                          
+						</InputSelect>
+						<ValidationMessage For="@(() => Producto.UnidadId)" /> 
+
 					</div>
 					<div class="col"
 						<laberl>Laboratorio Id</laberl>
 						<InputSelect class="form-select" id="Laboratorios" @bind-Value="Producto.LaboratorioId">
-							<option value="0">Seleccione...</option>
+							<option >Seleccione...</option>
                             @foreach (var laboratorio in Laboratorios?? new List<Laboratorios> ())
                             {
                                 <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
@@ -107,6 +117,7 @@
 	public int ProductoId { get; set; }
 	public Productos Producto { get; set; } = new Productos();
 	public List<Laboratorios>? Laboratorios { get; set; }
+	public List<Unidad> Unidads { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -115,6 +126,7 @@
 			Producto = await HttpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}")?? new Productos();
 		}
 		Laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios") ?? new List<Laboratorios>();
+		Unidads = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades") ?? new List<Unidad>();
 	}
 
 	public async void Guardar()
