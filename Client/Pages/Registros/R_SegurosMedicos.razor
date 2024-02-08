@@ -1,69 +1,26 @@
-﻿@page "/RFacturas";
-@page "/RFacturas/{FacturaId:int}";
+﻿@page "/RSMedicos";
+@page "/RSMedicos/{SeguroMedicoId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
 
-<EditForm Model="facturas" OnValidSubmit="Guardar">
+<EditForm Model="segurosmedicos" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header d-flex align-items-center">
             <img src="Images/pngwing.com.png" class="img-logo" />
-            <h1>Registro de facturas</h1>
+            <h1>Registro de SegurosMedicos</h1>
         </div>
         <div class="card-body">
             <div class="row">
-                <label>Factura ID:</label>
+                <label>Seguro Medico ID:</label>
                 <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
+                    <InputNumber @bind-Value="segurosmedicos.SeguroMedicoId" class="id-input"></InputNumber>
                     <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
                 </div>
                 <div class="col-md-6">
-                    <label>Fecha:</label>
-                    <InputDate @bind-Value="facturas.Fecha" class="form-control"></InputDate>
-                    <ValidationMessage For="@(() => facturas.Fecha)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Pago:</label>
-                    <InputNumber @bind-Value="facturas.Pago" class="form-control"></InputNumber>
-                    <ValidationMessage For="@(() => facturas.Pago)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Devoluci&oacute;n:</label>
-                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control"></InputNumber>
-                    <ValidationMessage For="@(() => facturas.Devolucion)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Seguro Medico:</label>
-                    <InputSelect @bind-Value="facturas.SeguroMedicoId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var s in ListaSeguros)
-                        {
-                            <option value="@s.SeguroMedicoId">@s.Nombre</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => facturas.Pago)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Sucursal:</label>
-                    <InputSelect @bind-Value="facturas.SucursalId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var s in ListaSucursales)
-                        {
-                            <option value="@s.SucursalId">@s.Nombre</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => facturas.SucursalId)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Empleado:</label>
-                    <InputSelect @bind-Value="facturas.EmpleadoId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var e in ListaEmpleados)
-                        {
-                            <option value="@e.EmpleadoId">@e.Nombre</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => facturas.EmpleadoId)" />
+                    <label>Nombre:</label>
+                    <InputText @bind-Value="segurosmedicos.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => segurosmedicos.Nombre)" />
                 </div>
             </div>
         </div>
@@ -85,11 +42,11 @@
                     <ValidationMessage For="@(() => Detalles.ProductoId)" />
                 </div>
                 <div class="col-md-6">
-                    <label>Cantidad</label>
+                    <label>Descuento (%)</label>
                     <div class="input-group">
-                        <InputNumber @bind-Value="Detalles.Cantidad" class="form-control"></InputNumber>
+                        <InputNumber @bind-Value="Detalles.Descuento" class="form-control"></InputNumber>
                         <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
-                        <ValidationMessage For="@(() => Detalles.Cantidad)" />
+                        <ValidationMessage For="@(() => Detalles.Descuento)" />
                     </div>
                 </div>
             </div>
@@ -100,26 +57,23 @@
                     <th>Nombre</th>
                     <th>Descripci&oacute;n</th>
                     <th>Laboratorio</th>
-                    <th>Cantidad</th>
                     <th>Precio</th>
+                    <th>Descuento (%)</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var detalle in facturas.FacturasDetalles)
+                @foreach (var detalle in segurosmedicos.SegurosMedicosDetalles)
                 {
                     <tr>
                         <td>@ObtenerNombre(detalle.ProductoId)</td>
                         <td>@ObtenerDescripción(detalle.ProductoId)</td>
                         <td>@ObtenerNombreLaboratorio(detalle.ProductoId)</td>
-                        <td>@detalle.Cantidad</td>
                         <td>@ObtenerPrecio(detalle.ProductoId)</td>
+                        <td>@detalle.Descuento %</td>
                         <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
                     </tr>
                 }
-                <tr>
-                    <td>Monto Total:$ @PrecioT</td>
-                </tr>
             </tbody>
         </table>
         <div class="card-footer text-center">
@@ -134,18 +88,17 @@
 {
     [Parameter]
 
-    public int FacturaId { get; set; }
-    public Facturas facturas { get; set; } = new Facturas();
-    public FacturasDetalles Detalles { get; set; } = new FacturasDetalles();
+    public int SeguroMedicoId { get; set; }
+    public SegurosMedicos segurosmedicos { get; set; } = new SegurosMedicos();
+    public SegurosMedicosDetalles Detalles { get; set; } = new SegurosMedicosDetalles();
 
     public List<Productos> ListaProductos { get; set; } = new List<Productos>();
-    public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
     public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
 
-    public List<FacturasDetalles> DetallesRemovidos { get; set; } = new List<FacturasDetalles>();
-    public List<FacturasDetalles> ListaDetalles { get; set; } = new List<FacturasDetalles>();
+    public List<SegurosMedicosDetalles> DetallesRemovidos { get; set; } = new List<SegurosMedicosDetalles>();
+    public List<SegurosMedicosDetalles> ListaDetalles { get; set; } = new List<SegurosMedicosDetalles>();
 
     public float PrecioT { get; set; } = 0;
     public int ReducirProducido = 0;
@@ -155,46 +108,41 @@
     protected override async Task OnInitializedAsync()
     {
         var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
-        var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
 
-        if(laboratorios is not null)
+        if (laboratorios is not null)
         {
             ListaLaboratorios = laboratorios;
         }
 
-        if( empleados is not null)
+        if (empleados is not null)
         {
             ListaEmpleados = empleados;
         }
-        if(sucursales is not null)
+        if (sucursales is not null)
         {
             ListaSucursales = sucursales;
-        }
-        if(seguros is not null)
-        {
-            ListaSeguros = seguros;
         }
         if (productos is not null)
         {
             ListaProductos = productos;
         }
-        if (FacturaId > 0)
+        if (SeguroMedicoId > 0)
         {
-            this.facturas.FacturaId = FacturaId;
+            this.segurosmedicos.SeguroMedicoId = SeguroMedicoId;
             await Buscar();
         }
     }
 
-    private async Task<Facturas> BuscarFactura(int FacturaId)
+    private async Task<SegurosMedicos> BuscarFactura(int SeguroMedicoId)
     {
-        Facturas Facturas = new Facturas();
-        var facturaEncontrada = await httpClient.GetFromJsonAsync<Facturas>($"api/Facturas/{FacturaId}");
-        if (facturaEncontrada != null)
-            return Facturas = facturaEncontrada;
-        return new Facturas();
+        SegurosMedicos SegurosMedicos = new SegurosMedicos();
+        var seguroMedicoEncontrado = await httpClient.GetFromJsonAsync<SegurosMedicos>($"api/SegurosMedicos/{SeguroMedicoId}");
+        if (seguroMedicoEncontrado != null)
+            return SegurosMedicos = seguroMedicoEncontrado;
+        return new SegurosMedicos();
     }
 
     public float ObtenerPrecio(int Id)
@@ -203,7 +151,7 @@
     }
     public int ObtenerLaboratorio(int Id)
     {
-        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!; 
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!;
     }
 
     public string ObtenerNombre(int Id)
@@ -235,18 +183,17 @@
 
     public async Task Buscar()
     {
-        ListaDetalles = new List<FacturasDetalles>();
-        DetallesRemovidos = new List<FacturasDetalles>();
-        var FacturaIdEncontrada = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!
+        ListaDetalles = new List<SegurosMedicosDetalles>();
+        DetallesRemovidos = new List<SegurosMedicosDetalles>();
+        var SeguroMedicoIdEncontrado = (await httpClient.GetFromJsonAsync<List<SegurosMedicos>>($"api/SegurosMedicos"))!
         .ToList()
-        .Any(e => e.FacturaId == facturas.FacturaId);
-        if (FacturaIdEncontrada)
+        .Any(e => e.SeguroMedicoId == segurosmedicos.SeguroMedicoId);
+        if (SeguroMedicoIdEncontrado)
         {
-            var facturaEncontrada = await httpClient.GetFromJsonAsync<Facturas>($"api/Facturas/{facturas.FacturaId}");
-            if (facturaEncontrada != null)
+            var seguroMedicoEncontrado = await httpClient.GetFromJsonAsync<SegurosMedicos>($"api/SegurosMedicos/{segurosmedicos.SeguroMedicoId}");
+            if (seguroMedicoEncontrado != null)
             {
-                this.facturas = facturaEncontrada;
-                PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
+                this.segurosmedicos = seguroMedicoEncontrado;
                 StateHasChanged();
             }
         }
@@ -269,38 +216,23 @@
 
     }
     // En el método Guardar() o en un método separado según sea necesario
-    public void CalcularPagoYEstado()
-    {
-        // Calcular la devolución
-        facturas.Devolucion = facturas.Pago - PrecioT;
 
-        // Establecer el estado de la factura
-        if (facturas.Pago >= PrecioT)
-        {
-            facturas.Estado = "Pagado";
-        }
-        else
-        {
-            facturas.Estado = "Pendiente";
-        }
-    }
 
     public async Task Guardar()
     {
-        facturas.MontoTotal = PrecioT;
-        if (facturas.FacturaId < 0)
+        if (segurosmedicos.SeguroMedicoId < 0)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "La FacturaId no puede ser Negativa.",
+                    Detail = "El SeguroMedicoId no puede ser Negativa.",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
             return;
         }
-        if(facturas.FacturasDetalles.Count <= 0)
+        if (segurosmedicos.SegurosMedicosDetalles.Count <= 0)
         {
             var mensaje = new NotificationMessage
                 {
@@ -312,9 +244,7 @@
             notificationService.Notify(mensaje);
             return;
         }
-        CalcularPagoYEstado();
-
-        using var response = await httpClient.PostAsJsonAsync("api/Facturas", facturas);
+        using var response = await httpClient.PostAsJsonAsync("api/SegurosMedicos", segurosmedicos);
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
@@ -327,15 +257,15 @@
             notificationService.Notify(mensaje);
             return;
         }
-        var facturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
-        if (facturaDevuelta is not null)
+        var seguroMedicoDevuelto = await response.Content.ReadFromJsonAsync<SegurosMedicos>();
+        if (seguroMedicoDevuelto is not null)
         {
             //cuando eliminamos un detalle de un registro y guardamos se devuelve al inventario lo que se habia utilizado
             if (DetallesRemovidos.Count > 0)
             {
                 foreach (var detalle in DetallesRemovidos)
                 {
-                    await httpClient.DeleteAsync($"api/Facturas/DeleteDetalles/{detalle.FacturaDetalleId}");
+                    await httpClient.DeleteAsync($"api/SegurosMedicos/DeleteDetalles/{detalle.SeguroMedicoDetalleId}");
                 }
             }
             //cuando creamos un registro se reduce del inventario lo que se utilizo
@@ -344,8 +274,7 @@
                 foreach (var detalle in ListaDetalles)
                 {
                     var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
-                    reducir!.Existencia = reducir.Existencia - detalle.Cantidad;
-                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
+                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir!.ProductoId}", reducir);
                 }
             }
             var mensaje = new NotificationMessage
@@ -356,7 +285,7 @@
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
-            facturas = facturaDevuelta;
+            segurosmedicos = seguroMedicoDevuelto;
             StateHasChanged();
             this.Nuevo();
         }
@@ -364,23 +293,23 @@
 
     public void Nuevo()
     {
-        this.facturas = new Facturas();
-        this.Detalles = new FacturasDetalles();
-        DetallesRemovidos = new List<FacturasDetalles>();
-        ListaDetalles = new List<FacturasDetalles>();
+        this.segurosmedicos = new SegurosMedicos();
+        this.Detalles = new SegurosMedicosDetalles();
+        DetallesRemovidos = new List<SegurosMedicosDetalles>();
+        ListaDetalles = new List<SegurosMedicosDetalles>();
         PrecioT = 0;
     }
 
     public async Task Eliminar()
     {
-        using var response = await httpClient.DeleteAsync($"api/Facturas/{facturas.FacturaId}");
+        using var response = await httpClient.DeleteAsync($"api/SegurosMedicos/{segurosmedicos.SeguroMedicoId}");
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "La factura no fue Eliminada Correctamente",
+                    Detail = "El SeguroMedicoID no fue Eliminada Correctamente",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
@@ -403,7 +332,7 @@
     public bool Validar()
     {
         idVacio = (Detalles.ProductoId <= 0);
-        cantidadCero = (Detalles.Cantidad <= 0);
+        cantidadCero = (Detalles.Descuento <= 0);
         return idVacio || cantidadCero;
     }
 
@@ -422,53 +351,35 @@
             return;
         }
         var producto = await BuscarProductos(Detalles.ProductoId);
-        if (producto != null)
-        {
 
-            if (Detalles.Cantidad > producto.Existencia)
-            {
-                var mensaje = new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Error,
-                        Summary = "Error",
-                        Detail = $"No hay suficiente cantidad de {producto.Nombre} en el inventario ({producto.Existencia})",
-                        Duration = 4_000
-                    };
-                notificationService.Notify(mensaje);
-                return;
-            }
-        }
-
-        if (facturas != null)
+        if (segurosmedicos != null)
         {
-            var detalleEncontrado = await httpClient.GetFromJsonAsync<List<FacturasDetalles>>($"api/Facturas");
+            var detalleEncontrado = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>($"api/SegurosMedicos");
             //aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
-            var detalleExiste = detalleEncontrado!.Any(d => d.FacturaDetalleId == Detalles.FacturaDetalleId);
+            var detalleExiste = detalleEncontrado!.Any(d => d.SeguroMedicoDetalleId == Detalles.SeguroMedicoDetalleId);
 
-            Detalles.FacturaId = facturas.FacturaId;
-            facturas.FacturasDetalles.Add(Detalles);
+            Detalles.SeguroMedicoId = segurosmedicos.SeguroMedicoId;
+            segurosmedicos.SegurosMedicosDetalles.Add(Detalles);
             if (detalleExiste)
             {
                 ListaDetalles.Add(Detalles);
 
             }
-            if (DetallesRemovidos.Any(d => d.FacturaDetalleId == Detalles.FacturaDetalleId))
+            if (DetallesRemovidos.Any(d => d.SeguroMedicoDetalleId == Detalles.SeguroMedicoDetalleId))
                 DetallesRemovidos.Remove(Detalles);
-            Detalles = new FacturasDetalles();
-            PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
+            Detalles = new SegurosMedicosDetalles();
 
         }
         StateHasChanged();
     }
 
-    public void RemoverDetalle(FacturasDetalles detalle)
+    public void RemoverDetalle(SegurosMedicosDetalles detalle)
     {
         Detalles = detalle;
-        facturas.FacturasDetalles.Remove(detalle);
+        segurosmedicos.SegurosMedicosDetalles.Remove(detalle);
         DetallesRemovidos.Add(detalle);
-        if (ListaDetalles.Any(d => d.FacturaDetalleId == detalle.FacturaDetalleId))
+        if (ListaDetalles.Any(d => d.SeguroMedicoDetalleId == detalle.SeguroMedicoDetalleId))
             ListaDetalles.Remove(detalle);
-        PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
         StateHasChanged();
     }
 
