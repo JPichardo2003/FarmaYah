@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using FarmaYah.Server.DAL;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 var ConStr = builder.Configuration.GetConnectionString("ConStr");
 builder.Services.AddDbContextFactory<Contexto>(op => op.UseSqlite(ConStr));
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,6 +28,7 @@ else
 }
 
 app.UseHttpsRedirection();
+
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
