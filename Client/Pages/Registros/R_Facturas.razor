@@ -147,6 +147,8 @@
     public List<FacturasDetalles> DetallesRemovidos { get; set; } = new List<FacturasDetalles>();
     public List<FacturasDetalles> ListaDetalles { get; set; } = new List<FacturasDetalles>();
 
+    public List<SegurosMedicosDetalles> ListaSegurosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
+
     public float PrecioT { get; set; } = 0;
     public int ReducirProducido = 0;
     public bool idVacio;
@@ -159,6 +161,7 @@
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+        var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
 
         if(laboratorios is not null)
         {
@@ -181,12 +184,47 @@
         {
             ListaProductos = productos;
         }
+        if (segurosDetalles is not null)
+        {
+            ListaSegurosDetalles = segurosDetalles;
+        }
         if (FacturaId > 0)
         {
             this.facturas.FacturaId = FacturaId;
             await Buscar();
         }
+
     }
+    public float ObtenerPrecio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+        var precioProducto = producto!.Precio;
+
+        // Buscar los detalles del seguro médico asociados al producto
+        var detallesSeguro = ListaSegurosDetalles
+                                          .Where(d => d.ProductoId == producto.ProductoId)
+                                          .ToList();
+
+        // Verificar si hay detalles de seguro médico y aplicar descuento si es necesario
+        if (facturas.SeguroMedicoId > 0)
+        {
+            if (detallesSeguro != null && detallesSeguro.Count > 0)
+            {
+                foreach (var detalle in detallesSeguro)
+                {
+                    var seguro = ListaSeguros.FirstOrDefault(s => s.SeguroMedicoId == detalle.SeguroMedicoId);
+                    if (seguro != null)
+                    {
+                        // Aplicar descuento al precio del producto
+                        precioProducto -= (precioProducto * detalle.Descuento / 100);
+                    }
+                }
+            }
+        }
+
+        return precioProducto;
+    }
+
 
     private async Task<Facturas> BuscarFactura(int FacturaId)
     {
@@ -197,10 +235,10 @@
         return new Facturas();
     }
 
-    public float ObtenerPrecio(int Id)
-    {
-        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
-    }
+    // public float ObtenerPrecio(int Id)
+    // {
+    //     return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
+    // }
     public int ObtenerLaboratorio(int Id)
     {
         return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!; 
@@ -365,6 +403,7 @@
     public void Nuevo()
     {
         this.facturas = new Facturas();
+        this.facturas.FacturasDetalles = new List<FacturasDetalles>();
         this.Detalles = new FacturasDetalles();
         DetallesRemovidos = new List<FacturasDetalles>();
         ListaDetalles = new List<FacturasDetalles>();
