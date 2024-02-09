@@ -1,0 +1,37 @@
+﻿@page "/MenuSucursal"
+@inject IJSRuntime JSRuntime
+
+@inject NavigationManager NavigationManager
+<PageTitle>Sucursal</PageTitle>
+<div class="card" style="width:1000px">
+    <div class="card-header ">
+        <div class="col">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        </div>
+        <div class="col d-flex align-items-center justify-content-center">
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>FarmaYah - Menú Sucursal</h1>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-md-4 text-center">
+                <button type="button" class="d-block mx-auto">
+                    <img src="Images/icons8-oficina-501.png" class="icon" />Registrar Sucursal
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto">
+                    <img src="Images/icons8-oficina-50.png" class="icon" />Sucursales
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task VolverAtras()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+    }
+}

@@ -1,0 +1,109 @@
+﻿@page "/c_productos"
+@inject HttpClient HttpClient
+
+<div class="card">
+
+	<div class="card-header d-flex align-items-center">
+		<img src="Images/pngwing.com.png" class="img-logo" />
+		<h1>Consulta Producto</h1>
+	</div>
+
+	<div class="card-body">
+		<div class="row">
+			<div class="col-3">
+				<label for="id">Buscar por ID:</label>
+				<input type="number" id="id" @bind="filtroId" class="form-control" />
+			</div>
+			<div class="col-3">
+				<label for="nombre">Buscar por nombre:</label>
+				<input type="text" id="nombre" @bind="filtroNombre" class="form-control" />
+			</div>
+			<div class="col-3">
+				<label for="precioMin">Precio Mínimo:</label>
+				<input type="number" id="precioMin" @bind="filtroPrecioMin" class="form-control" />
+			</div>
+			<div class="col-3">
+				<label for="precioMax">Precio Máximo:</label>
+				<div class="input-group">
+					<input type="number" id="precioMax" @bind="filtroPrecioMax" class="form-control" />
+					<button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="buscarButton">
+						<i class="oi oi-magnifying-glass" />
+					</button>
+					<button @onclick="VaciarInputs" class="btn btn-outline-secondary" type="button" id="buscarButton">
+						<i class="oi oi-trash" />
+					</button>
+				</div>
+			</div>
+		</div>
+
+		@if (productos != null && productos.Any())
+		{
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Producto ID</th>
+						<th>Nombre</th>
+						<th>Descripción</th>
+						<th>Laboratorio ID</th>
+						<th>Precio</th>
+						<th>Existencia</th>
+						<th>Unidad Id</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var producto in productosFiltrados)
+					{
+						<tr>
+							<td>@producto.ProductoId</td>
+							<td>@producto.Nombre</td>
+							<td>@producto.Descripcion</td>
+							<td>@producto.LaboratorioId</td>
+							<td>@producto.Precio</td>
+							<td>@producto.Existencia</td>
+							<td>@producto.UnidadId</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+		else
+		{
+			<p>Cargando...</p>
+		}
+	</div>
+</div>
+
+@code {
+	List<Productos> productos;
+	List<Productos> productosFiltrados;
+
+	public int? filtroId;
+	public string filtroNombre = "";
+	public float? filtroPrecioMin;
+	public float? filtroPrecioMax;
+
+	protected override async Task OnInitializedAsync()
+	{
+		productos = await HttpClient.GetFromJsonAsync<List<Productos>>("api/Productos")?? new List<Productos>();
+		productosFiltrados = productos;
+	}
+
+	public void Buscar()
+	{
+		productosFiltrados = productos
+			.Where(p => (!filtroId.HasValue || p.ProductoId == filtroId) &&
+						(string.IsNullOrEmpty(filtroNombre) || p.Nombre.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase))
+						&& (!filtroPrecioMin.HasValue || p.Precio >= filtroPrecioMin)
+						&& (!filtroPrecioMax.HasValue || p.Precio <= filtroPrecioMax))
+			.ToList();
+	}
+
+	public void VaciarInputs()
+	{
+		filtroId = null;
+		filtroNombre = "";
+		filtroPrecioMin = null;
+		filtroPrecioMax = null;
+		productosFiltrados = productos;
+	}
+}
