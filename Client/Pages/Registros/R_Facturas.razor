@@ -2,7 +2,6 @@
 @page "/RFacturas/{FacturaId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-
 <EditForm Model="facturas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
@@ -245,7 +244,8 @@
             var facturaEncontrada = await httpClient.GetFromJsonAsync<Facturas>($"api/Facturas/{facturas.FacturaId}");
             if (facturaEncontrada != null)
             {
-                this.facturas = facturaEncontrada;
+                this.facturas =
+                facturaEncontrada;
                 PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
                 StateHasChanged();
             }

@@ -6,11 +6,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmaYah.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class _3ra : Migration
+    public partial class Inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Compras",
+                columns: table => new
+                {
+                    CompraId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FechaPedida = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    FechaRecibida = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Entregado = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Compras", x => x.CompraId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Laboratorios",
                 columns: table => new
@@ -52,6 +67,28 @@ namespace FarmaYah.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sucursales", x => x.SucursalId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "d_Compra",
+                columns: table => new
+                {
+                    d_CompraId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false),
+                    LaboratorioId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Cantidad = table.Column<int>(type: "INTEGER", nullable: false),
+                    CompraId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_d_Compra", x => x.d_CompraId);
+                    table.ForeignKey(
+                        name: "FK_d_Compra_Compras_CompraId",
+                        column: x => x.CompraId,
+                        principalTable: "Compras",
+                        principalColumn: "CompraId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -202,6 +239,11 @@ namespace FarmaYah.Server.Migrations
                 values: new object[] { 1, "Dolor de cabeza", 0f, 1, "Ibuprofeno", 100f });
 
             migrationBuilder.CreateIndex(
+                name: "IX_d_Compra_CompraId",
+                table: "d_Compra",
+                column: "CompraId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Empleados_SucursalId",
                 table: "Empleados",
                 column: "SucursalId");
@@ -241,6 +283,9 @@ namespace FarmaYah.Server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "d_Compra");
+
+            migrationBuilder.DropTable(
                 name: "FacturasDetalles");
 
             migrationBuilder.DropTable(
@@ -248,6 +293,9 @@ namespace FarmaYah.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "SegurosMedicosDetalles");
+
+            migrationBuilder.DropTable(
+                name: "Compras");
 
             migrationBuilder.DropTable(
                 name: "Facturas");
