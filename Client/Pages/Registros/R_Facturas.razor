@@ -2,11 +2,12 @@
 @page "/RFacturas/{FacturaId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-
+@inject NavigationManager NavigationManager;
 <EditForm Model="facturas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
             <img src="Images/pngwing.com.png" class="img-logo" />
             <h1>Registro de facturas</h1>
         </div>
@@ -195,6 +196,11 @@
         }
 
     }
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuFacturas");
+    }
+
     public float ObtenerPrecio(int Id)
     {
         var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);

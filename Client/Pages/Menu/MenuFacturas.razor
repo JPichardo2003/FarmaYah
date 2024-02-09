@@ -1,9 +1,10 @@
 ﻿@page "/MenuFacturas"
-
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 <PageTitle>Facturas</PageTitle>
 <div class="card" style="width:1000px">
     <div class="card-header d-flex align-items-center justify-content-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
         <img src="Images/pngwing.com.png" class="img-logo" />
         <h1>FarmaYah - Facturación</h1>
     </div>
@@ -11,17 +12,12 @@
         <div class="row justify-content-center">
             <div class="col-md-4 text-center">
                 <button type="button" @onclick="NavigateToRegistro" class="d-block mx-auto">
-                    <img src="Images/icons8-factura-50.png" class="icon" />Factura
+                    <img src="Images/icons8-factura-50.png" class="icon" /> Registro Factura
                 </button>
             </div>
             <div class="col-md-4 text-center">
                 <button class="d-block mx-auto" @onclick="NavigateToConsulta">
                     <img src="Images/ConsultaFactura.png" class="icon" />Consulta Factura
-                </button>
-            </div>
-            <div class="col-md-4 text-center mb-4">
-                <button class="d-block mx-auto" @onclick="NavigateToEstados">
-                    <img src="Images/IconEstadoFactura.png" class="icon" />Estados
                 </button>
             </div>
         </div>
@@ -37,12 +33,11 @@
 
     private void NavigateToConsulta()
     {
-        NavigationManager.NavigateTo("/CFactura");
+        NavigationManager.NavigateTo("/CFacturas");
+    }
+    private async Task VolverAtras()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
     }
 
-    private void NavigateToEstados()
-    {
-        NavigationManager.NavigateTo("/EFacturas");
-    }
-    
 }
