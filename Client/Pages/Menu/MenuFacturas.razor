@@ -35,9 +35,9 @@
     {
         NavigationManager.NavigateTo("/CFacturas");
     }
-    private async Task VolverAtras()
+    private void VolverAtras()
     {
-        await JSRuntime.InvokeVoidAsync("history.back");
+        NavigationManager.NavigateTo("/MenuPrincipal");
     }
 
 }

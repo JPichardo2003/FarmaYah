@@ -38,13 +38,13 @@
             @switch (Filtro)
             {
                 case 1:
-                    <InputNumber @bind-Value="facturas!.SeguroMedicoId" class="form-control"></InputNumber>
+                    <InputText @bind-Value="SeguroName" class="form-control"></InputText>
                     break;
                 case 2:
-                    <InputNumber @bind-Value="facturas!.EmpleadoId" class="form-control"></InputNumber>
+                    <InputText @bind-Value="EmpleadoName" class="form-control"></InputText>
                     break;
                 case 3:
-                    <InputNumber @bind-Value="facturas!.SucursalId" class="form-control"></InputNumber>
+                    <InputText @bind-Value="SucursalName" class="form-control"></InputText>
                     break;
                 case 4:
                     <InputText @bind-Value="facturas!.Estado" class="form-control"></InputText>
@@ -110,10 +110,12 @@
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
+    public string? EmpleadoName { get; set; }
+    public string? SeguroName { get; set; }
+    public string? SucursalName { get; set; }
 
     public DateTime Desde { get; set; }
     public DateTime Hasta { get; set; }
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,21 +142,33 @@
 
     public async Task Buscar()
     {
-        if (Filtro == 1 && facturas!.SeguroMedicoId > 0)
+        if (Filtro == 1 && !string.IsNullOrEmpty(SeguroName))
         {
-            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!.Where(t => t.SeguroMedicoId == facturas!.SeguroMedicoId && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date).ToList();
+            var seguroBusqueda = SeguroName.ToLower();
+            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!
+                .Where(t => ListaSeguros!.Any(p => p.SeguroMedicoId == t.SeguroMedicoId && p.Nombre!.ToLower().Contains(seguroBusqueda))
+                            && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
             StateHasChanged();
         }
         else
-        if (Filtro == 2 && facturas!.EmpleadoId > 0)
+        if (Filtro == 2 && !string.IsNullOrEmpty(EmpleadoName))
         {
-            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!.Where(t => t.EmpleadoId == facturas!.EmpleadoId && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date).ToList();
+            var empleadoBusqueda = EmpleadoName.ToLower();
+            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!
+                .Where(t => ListaEmpleados!.Any(p => p.EmpleadoId == t.EmpleadoId && p.Nombre!.ToLower().Contains(empleadoBusqueda))
+                            && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
             StateHasChanged();
         }
         else
-        if (Filtro == 3 && facturas!.SucursalId > 0)
+        if (Filtro == 3 && !string.IsNullOrEmpty(SucursalName))
         {
-            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!.Where(t => t.SucursalId == facturas.SucursalId && t.Fecha >= Desde.Date && t.Fecha <= Hasta).ToList();
+            var sucursalBusqueda = SucursalName.ToLower();
+            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!
+                .Where(t => ListaSucursales!.Any(p => p.SucursalId == t.SucursalId && p.Nombre!.ToLower().Contains(sucursalBusqueda))
+                            && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
             StateHasChanged();
         }
         else
@@ -169,7 +183,9 @@
         else
         if (Filtro == 5 && facturas!.MontoTotal > 0)
         {
-            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!.Where(t => t.MontoTotal == facturas!.MontoTotal && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date).ToList();
+            ListaFacturas = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas"))!
+            .Where(t => t.MontoTotal >= facturas!.MontoTotal && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+            .ToList();
             StateHasChanged();
         }
         else
