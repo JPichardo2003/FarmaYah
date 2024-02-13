@@ -1,0 +1,159 @@
+﻿@page "/CCompras"
+
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+<PageTitle>Consulta Compras</PageTitle>
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>Consultas de Compras</h1>
+    </div>
+    <div class="card-body">
+        <div class="input-group-text">
+            <label class="form-control-label col-1">Desde:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Desde" />
+            </div>
+            <label class="form-control-label col-1">Hasta:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Hasta" />
+            </div>
+            <button type="button" @onclick="Buscar" class="btn btn-outline-primary">
+                <i class="bi bi-search" />
+            </button>
+        </div>
+    </div>
+    <label>Filtrar Por:</label>
+    <div>
+        <div class="col-md-6 filter-input">
+            <InputSelect @bind-Value="Filtro" class="form-select">
+                <option value="1">Tipo</option>
+                <option value="2">Montos a partir de</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            @switch (Filtro)
+            {
+                case 1:
+                    <InputText @bind-Value="Compras!.Tipo" class="form-control"></InputText>
+                    break;
+                case 2:
+                    <InputNumber @bind-Value="Compras!.MontoTotal" class="form-control"></InputNumber>
+                    break;
+            }
+        </div>
+    </div>
+
+    @if (ListaCompras is not null)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Fecha del Pedido</th>
+                        <th>Fecha Recibida</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Monto</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var Compras in ListaCompras)
+                    {
+                        <tr>
+                            <td>@Compras.FechaPedida.ToString("MM/dd/yyyy")</td>
+                            <td>@Compras.FechaRecibida.ToString("MM/dd/yyyy")</td>
+                            <td>@Compras.Tipo</td>
+                            <td>@Compras.Entregado</td>
+                            <td>@Compras.MontoTotal</td>
+                            <td><a href="RCompras/@Compras.CompraId"><i class="bi bi-eye-fill"></i></a></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Conteo: @Conteo</td>
+                        <td></td>
+                        <td></td>
+                        <td>Total: @TotalPesos $</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+@code {
+
+    public int Filtro { get; set; }
+    public List<Compras>? ListaCompras { get; set; }
+    public Compras? Compras { get; set; } = new Compras();
+    public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+    public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
+    public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+
+    public int Conteo { get; set; }
+    public float TotalPesos { get; set; }
+    public string? EmpleadoName { get; set; }
+    public string? SeguroName { get; set; }
+    public string? SucursalName { get; set; }
+
+    public DateTime Desde { get; set; }
+    public DateTime Hasta { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+        var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
+        var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+
+        if (seguros is not null)
+        {
+            ListaSeguros = seguros;
+        }
+        if (sucursales is not null)
+        {
+            ListaSucursales = sucursales;
+        }
+        if (empleados is not null)
+        {
+            ListaEmpleados = empleados;
+        }
+        await Buscar();
+        Desde = DateTime.Now.AddMonths(-1);
+        Hasta = DateTime.Now;
+    }
+
+    public async Task Buscar()
+    {
+        if (Filtro == 1 && !string.IsNullOrEmpty(Compras!.Tipo))
+        {
+            var estadoBusqueda = Compras!.Tipo.ToLower();
+            ListaCompras = (await httpClient.GetFromJsonAsync<List<Compras>>($"api/Compras"))!
+                .Where(t => t.Tipo != null && t.Tipo.ToLower().Contains(estadoBusqueda) && t.FechaPedida.Date >= Desde.Date && t.FechaPedida.Date <= Hasta.Date)
+                .ToList();
+            StateHasChanged();
+        }
+        else
+        if (Filtro == 2 && Compras!.MontoTotal > 0)
+        {
+            ListaCompras = (await httpClient.GetFromJsonAsync<List<Compras>>($"api/Compras"))!
+            .Where(t => t.MontoTotal >= Compras!.MontoTotal && t.FechaPedida.Date >= Desde.Date && t.FechaPedida.Date <= Hasta.Date)
+            .ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            ListaCompras = await httpClient.GetFromJsonAsync<List<Compras>>($"api/Compras");
+            StateHasChanged();
+        }
+        Conteo = ListaCompras != null ? ListaCompras!.Count() : 0;
+        TotalPesos = ListaCompras != null ? ListaCompras!.Sum(f => f.MontoTotal) : 0;
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuFacturas");
+    }
+}

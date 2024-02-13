@@ -15,7 +15,7 @@ namespace FarmaYah.Shared.Models
         public int FacturaId { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        public float Cantidad { get; set; }
+        public int Cantidad { get; set; }
         public int ProductoId { get; set; }
     }
 }

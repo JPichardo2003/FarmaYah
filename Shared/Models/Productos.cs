@@ -23,6 +23,6 @@ namespace FarmaYah.Shared.Models
 
         [Range(0, float.MaxValue, ErrorMessage = "El campo {0} debe ser mayor que 0")]
         public float Precio { get; set; }
-        public float Existencia { get; set; }
+        public int Existencia { get; set; }
     }
 }
