@@ -18,13 +18,13 @@ namespace FarmaYah.Shared.Models
 
         [Required(ErrorMessage = "Este campo es Obligatorio")]
         public string? Descripcion { get; set; }
-
-        public int LaboratorioId { get; set; }
+		[Range(1, int.MaxValue, ErrorMessage = "Este campo es Obligatorio")]
+		public int LaboratorioId { get; set; }
 
         [Range(0, float.MaxValue, ErrorMessage = "El campo {0} debe ser mayor que 0")]
         public float Precio { get; set; }
         public int Existencia { get; set; }
-		[Range(0, int.MaxValue, ErrorMessage = "Este campo es Obligatorio")]
+		[Range(1, int.MaxValue, ErrorMessage = "Este campo es Obligatorio")]
 		public int UnidadId { get; set; }
     }
 }

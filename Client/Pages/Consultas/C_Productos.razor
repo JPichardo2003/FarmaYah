@@ -1,11 +1,17 @@
 ﻿@page "/c_productos"
 @inject HttpClient HttpClient
-
+@inject NavigationManager navigationManager
 <div class="card">
-
+	<div class="card-header ">
+		<div class="col">
+			<button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+		</div>
+		<div class="col d-flex align-items-center justify-content-center">
+			<img src="Images/pngwing.com.png" class="img-logo" />
+			<h1>Consulta Producto</h1>
+		</div>
+	</div>
 	<div class="card-header d-flex align-items-center">
-		<img src="Images/pngwing.com.png" class="img-logo" />
-		<h1>Consulta Producto</h1>
 	</div>
 
 	<div class="card-body">
@@ -47,7 +53,7 @@
 						<th>Laboratorio ID</th>
 						<th>Precio</th>
 						<th>Existencia</th>
-						<th>Unidad Id</th>
+						<th>Unidad</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -57,10 +63,11 @@
 							<td>@producto.ProductoId</td>
 							<td>@producto.Nombre</td>
 							<td>@producto.Descripcion</td>
-							<td>@producto.LaboratorioId</td>
+							<td>@NombreLaboratorio(producto.LaboratorioId)</td>
 							<td>@producto.Precio</td>
 							<td>@producto.Existencia</td>
-							<td>@producto.UnidadId</td>
+							<td>@NombreUnidad(producto.UnidadId)</td>
+                            <td><button class="btn btn-outline-info"><a href="RProducto/@producto.ProductoId">Editar</a></button></td>
 						</tr>
 					}
 				</tbody>
@@ -76,7 +83,7 @@
 @code {
 	List<Productos> productos;
 	List<Productos> productosFiltrados;
-
+	List<Unidad> Unidades;
 	public int? filtroId;
 	public string filtroNombre = "";
 	public float? filtroPrecioMin;
@@ -86,7 +93,22 @@
 	{
 		productos = await HttpClient.GetFromJsonAsync<List<Productos>>("api/Productos")?? new List<Productos>();
 		productosFiltrados = productos;
+		Unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades")?? new List<Unidad>();
 	}
+	public void Back()
+    {
+        navigationManager.NavigateTo("MenuProductos");
+    }
+	public string NombreUnidad(int id)
+	{
+        var unidad = Unidades.FirstOrDefault(u => u.UnidadId == id);
+        return unidad?.Descripcion ?? "";
+    }
+	public string NombreLaboratorio(int id)
+    {
+        var laboratorio = Unidades.FirstOrDefault(u => u.UnidadId == id);
+        return laboratorio?.Descripcion ?? "";
+    }
 
 	public void Buscar()
 	{

@@ -6,7 +6,7 @@
 <div class="card" style="width:1000px">
     <div class="card-header ">
         <div class="col">
-            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
         </div>
         <div class="col d-flex align-items-center justify-content-center">
             <img src="Images/pngwing.com.png" class="img-logo" />
@@ -42,8 +42,8 @@
         NavigationManager.NavigateTo("/RFacturas");
     }
 
-    private async Task VolverAtras()
+    public void Back()
     {
-        await JSRuntime.InvokeVoidAsync("history.back");
+        NavigationManager.NavigateTo("/");
     }
 }

@@ -1,16 +1,24 @@
 ﻿@page "/RLaboratorio"
+@page "/RLaboratorio/{LaboratorioId:int}"
 @inject HttpClient HttpClient
 @inject NotificationService notificationService
-
+@inject NavigationManager navigationManager
 
 <EditForm Model="@Laboratorio" OnValidSubmit="Guardar">
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 	<div class="container">
 		<div class="card shadow-lg">
+			<div class="card-header ">
+				<div class="col">
+					<button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+				</div>
+				<div class="col d-flex align-items-center justify-content-center">
+					<img src="Images/pngwing.com.png" class="img-logo" />
+					<h1>Resgistro Producto</h1>
+				</div>
+			</div>
 			<div class="card-header d-flex align-items-center">
-				<img src="Images/pngwing.com.png" class="img-logo" />
-				<h1>Resgistro Producto</h1>
 			</div>
 
 			<div class="card-body">
@@ -59,11 +67,17 @@
 	public Laboratorios Laboratorio { get; set; } = new Laboratorios();
 	protected override async Task OnInitializedAsync()
 	{
-		if (LaboratorioId != 0)
+		if (LaboratorioId > 0)
 		{
 			Laboratorio = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{LaboratorioId}");
 		}
 	}
+	
+	public void Back()
+    {
+        navigationManager.NavigateTo("MenuLaboratorio");
+    }
+
 	public async Task Guardar()
 	{
 		using var response =  await HttpClient.PostAsJsonAsync("api/Laboratorios", Laboratorio);

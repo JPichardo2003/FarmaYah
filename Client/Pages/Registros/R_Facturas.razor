@@ -2,13 +2,21 @@
 @page "/RFacturas/{FacturaId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
+@inject NavigationManager navigationManager;
 
 <EditForm Model="facturas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
+        <div class="card-header ">
+            <div class="col">
+                <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+            </div>
+            <div class="col d-flex align-items-center justify-content-center">
+                <img src="Images/pngwing.com.png" class="img-logo" />
+                <h1>Registro de facturas</h1>
+            </div>
+        </div>
         <div class="card-header d-flex align-items-center">
-            <img src="Images/pngwing.com.png" class="img-logo" />
-            <h1>Registro de facturas</h1>
         </div>
         <div class="card-body">
             <div class="row">
@@ -186,6 +194,10 @@
             this.facturas.FacturaId = FacturaId;
             await Buscar();
         }
+    }
+    public void Back()
+    {
+        navigationManager.NavigateTo("MenuFactura");
     }
 
     private async Task<Facturas> BuscarFactura(int FacturaId)

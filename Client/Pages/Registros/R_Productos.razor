@@ -1,226 +1,242 @@
 ﻿@page "/RProducto"
+@page "/RProducto/{ProductoId:int}"
 @inject HttpClient HttpClient
 @inject NotificationService notificationService
+@inject NavigationManager navigationManager
 @* @inject IModalService Modal *@
 
 <EditForm Model="@Producto" OnValidSubmit="Guardar">
-	<DataAnnotationsValidator />
-	<ValidationSummary />
-	<div class="container">
-		<div class="card shadow-lg">
-			<div class="card-header d-flex align-items-center">
-				<img src="Images/pngwing.com.png" class="img-logo" />
-				<h1>Resgistro Producto</h1>
-			</div>
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header ">
+                <div class="col">
+                    <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+                </div>
+                <div class="col d-flex align-items-center justify-content-center">
+                    <img src="Images/pngwing.com.png" class="img-logo" />
+                    <h1>Registro Producto</h1>
+                </div>
+            </div>
 
-			<div class="card-body">
-				<div class="row">
-					<div class="col-4">
-						<label for="ProductoId">Id Producto:</label>
-						<InputNumber id="Nombre" @bind-Value="Producto.ProductoId" class="form-control" />
-						<ValidationMessage For="@(() => Producto.ProductoId)" />
-						<button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
-					</div>
-					<div class="col-4">
-						<label for="Nombre">Nombre Producto:</label>
-						<InputText id="Nombre" @bind-Value="Producto.Nombre" class="form-control" />
-						<ValidationMessage For="@(() => Producto.Nombre)" />
-					</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <label for="ProductoId">Id Producto:</label>
+                        <div class="input-group">
+                            <InputNumber id="Nombre" @bind-Value="Producto.ProductoId" class="form-control" min="0"/>
+                            <ValidationMessage For="@(() => Producto.ProductoId)" />
+                            <button type="button" class="btn btn-outline-primary" @onclick="Buscar">Buscar</button>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label for="Nombre">Nombre Producto:</label>
+                        <InputText id="Nombre" @bind-Value="Producto.Nombre" class="form-control" />
+                        <ValidationMessage For="@(() => Producto.Nombre)" />
+                    </div>
 
-					<div class="col-4">
-						<label for="Descripcion">Decripci&oacute;n Producto:</label>
-						<InputSelect id="Descripcion" @bind-Value="Producto.Descripcion" class="form-select">
-							<option >Seleccione...</option>
-							<option value="Analgésicos">Analgésicos</option>
-							<option value="Antiinflamatorios">Antiinflamatorios</option>
-							<option value="Antialérgicos">Antialérgicos</option>
-							<option value="Antidiarreicos">Antidiarreicos</option>
-							<option value="Antimicóticos">Antimicóticos</option>
-							<option value="Antiácidos">Antiácidos</option>
-							<option value="Anticonceptivos">Anticonceptivos</option>
-							<option value="Anticoagulantes">Anticoagulantes</option>
-						</InputSelect>
-						<ValidationMessage For="@(() => Producto.Descripcion)" />
-					</div>
+                    <div class="col-4">
+                        <label for="Descripcion">Decripci&oacute;n Producto:</label>
+                        <InputSelect id="Descripcion" @bind-Value="Producto.Descripcion" class="form-select">
+                            <option>Seleccione...</option>
+                            <option value="Analgésicos">Analgésicos</option>
+                            <option value="Antiinflamatorios">Antiinflamatorios</option>
+                            <option value="Antialérgicos">Antialérgicos</option>
+                            <option value="Antidiarreicos">Antidiarreicos</option>
+                            <option value="Antimicóticos">Antimicóticos</option>
+                            <option value="Antiácidos">Antiácidos</option>
+                            <option value="Anticonceptivos">Anticonceptivos</option>
+                            <option value="Anticoagulantes">Anticoagulantes</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Producto.Descripcion)" />
+                    </div>
 
-					@* <div class="col-4">
-						<label for="Existencia">Cantidad de producto:</label>
-						<InputNumber id="Existencia" @bind-Value="Producto.Existencia" class="form-control" min="0" />
-						<ValidationMessage For="@(() => Producto.Existencia)" />
-					</div> *@
-				</div>
+                    @* <div class="col-4">
+                    <label for="Existencia">Cantidad de producto:</label>
+                    <InputNumber id="Existencia" @bind-Value="Producto.Existencia" class="form-control" min="0" />
+                    <ValidationMessage For="@(() => Producto.Existencia)" />
+                    </div> *@
+                </div>
 
-				@* <div class="row">
-					<div class="col-4">
-						<label for="Precio">Precio del producto:</label>
-						<InputNumber id="Precio" @bind-Value="Producto.Precio" class="form-control" min="0" />
-						<ValidationMessage For="@(() => Producto.Precio)" />
-					</div>
+                @* <div class="row">
+                <div class="col-4">
+                <label for="Precio">Precio del producto:</label>
+                <InputNumber id="Precio" @bind-Value="Producto.Precio" class="form-control" min="0" />
+                <ValidationMessage For="@(() => Producto.Precio)" />
+                </div>
 
-					
-				</div> *@
 
-				<div class="row">
-					<div class="col-4">
-						<label for="Unidad">Unidad:</label>
-						@* <InputSelect id="Descripcion" @bind-Value="Producto.UnidadId" class="form-select">
-							<option disabled selected value="">Seleccione...</option>
-							<option value="@unidad.UnidadId">@unidad.Descripcion</option>
+                </div> *@
 
-						</InputSelect>
-						<ValidationMessage For="@(() => Producto.UnidadId)" /> *@
-						<InputSelect id="Unidad" @bind-Value="Producto.UnidadId" class="form-select">
+                <div class="row">
+                    <div class="col-4">
+                        <label for="Unidad">Unidad:</label>
+                        @* <InputSelect id="Descripcion" @bind-Value="Producto.UnidadId" class="form-select">
+                        <option disabled selected value="">Seleccione...</option>
+                        <option value="@unidad.UnidadId">@unidad.Descripcion</option>
+
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Producto.UnidadId)" /> *@
+                        <InputSelect id="Unidad" @bind-Value="Producto.UnidadId" class="form-select">
                             <option value="">Seleccione...</option>
-							@foreach(var unidad in Unidads ?? new List<Unidad>())
+                            @foreach (var unidad in Unidads ?? new List<Unidad>())
                             {
                                 <option value="@unidad.UnidadId">@unidad.Descripcion</option>
                             }
-                          
-						</InputSelect>
-						<ValidationMessage For="@(() => Producto.UnidadId)" /> 
 
-					</div>
-					<div class="col"
-						<laberl>Laboratorio Id</laberl>
-						<InputSelect class="form-select" id="Laboratorios" @bind-Value="Producto.LaboratorioId">
-							<option >Seleccione...</option>
-                            @foreach (var laboratorio in Laboratorios?? new List<Laboratorios> ())
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Producto.UnidadId)" />
+
+                    </div>
+                    <div class="col"
+                        <laberl>Laboratorio</laberl>
+                        <InputSelect class="form-select" id="Laboratorios" @bind-Value="Producto.LaboratorioId">
+                            <option >Seleccione...</option>
+                            @foreach (var laboratorio in Laboratorios ?? new List<Laboratorios>())
                             {
-                                <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
+                                        <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
                             }
-						</InputSelect>
-					</div>
-				</div>
-				<br>
-				<br>
-				<br>
-				<br>
-				<br>
-				@*Botones*@
-				<div class="row justify-content-center">
-					<div class="col-4">
-						<button type="button" class="btn btn-outline-primary" @onclick="Nuevo" > <i class="oi oi-file" /> Nuevo</button>
-						<button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
-						<button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
-						@* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
-							<i class="io io-trash" /> Agregar laboratorio
-						</button> *@
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Producto.LaboratorioId)" />
+
+                    </div>
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                @*Botones*@
+                <div class="row justify-content-center">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
+                        <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
+                        <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
+                        @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
+                        <i class="io io-trash" /> Agregar laboratorio
+                        </button> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </EditForm>
 
 @code {
-	[Parameter]
-	public int ProductoId { get; set; }
-	public Productos Producto { get; set; } = new Productos();
-	public List<Laboratorios>? Laboratorios { get; set; }
-	public List<Unidad> Unidads { get; set; }
+    [Parameter]
+    public int ProductoId { get; set; }
+    public Productos Producto { get; set; } = new Productos();
+    public List<Laboratorios>? Laboratorios { get; set; }
+    public List<Unidad> Unidads { get; set; }
 
-	protected override async Task OnInitializedAsync()
-	{
-		if (ProductoId != 0)
-		{
-			Producto = await HttpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}")?? new Productos();
-		}
-		Laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios") ?? new List<Laboratorios>();
-		Unidads = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades") ?? new List<Unidad>();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        if (ProductoId != 0)
+        {
+            Producto = await HttpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}") ?? new Productos();
+        }
+        Laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios") ?? new List<Laboratorios>();
+        Unidads = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades") ?? new List<Unidad>();
+    }
 
-	public async void Guardar()
-	{
-		using var response = await HttpClient.PostAsJsonAsync("api/Productos", Producto);
-		if(!response.IsSuccessStatusCode)
-		{
-			var mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error",
-				Detail = "Error al guardar el producto",
-				Duration = 5000
-            };  
-			notificationService.Notify(mensaje);
-			return;
-		}
-		var ProductoDevuelto = await response.Content.ReadFromJsonAsync<Productos>();
-		if(ProductoDevuelto is not null)
-		{
-			Producto= ProductoDevuelto;
-			Nuevo();
-			var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Success,
-                Summary = "Guardado",
-                Detail = "Producto guardado con éxito",
-                Duration = 5000
-            };
-		}
-	}
-	public async Task Eliminar(){
-		using var response = await HttpClient.DeleteAsync($"api/Productos/{Producto.ProductoId}");
-		if(!response.IsSuccessStatusCode)
-		{
-			var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = "Error al eliminar el producto",
-                Duration = 5000
-            };  
-			notificationService.Notify(mensaje);
-		}
-		else
-		{
-			var mensaje = new NotificationMessage
-				{
-					Severity = NotificationSeverity.Success,
-					Summary = "Eliminado",
-					Detail = "Producto eliminado con éxito",
-					Duration = 5000
-				};
-			notificationService.Notify(mensaje);
-			Nuevo();
-		}
+    public void Back()
+    {
+        navigationManager.NavigateTo("MenuProductos");
+    }
 
-	}
-	public void Nuevo()
-	{
-		Producto = new Productos();
-		ProductoId = 0;
-		StateHasChanged();
-
-
-	}
-
-	public async Task Buscar()
-	{
-		var productoNotNull = (await HttpClient.GetFromJsonAsync<List<Productos>>($"api/productos")).ToList().Any(p => p.ProductoId == Producto.ProductoId);
-		if (productoNotNull)
-		{
-			var productoEncontrado = await HttpClient.GetFromJsonAsync<Productos>($"api/productos/{Producto.ProductoId}");
-			if(productoEncontrado is not null)
-			{
-				Producto = productoEncontrado;
-			}
-		}
-		else
-		{
-			var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = "Producto no encontrado",
-                Duration = 5000
-            };
+    public async void Guardar()
+    {
+        using var response = await HttpClient.PostAsJsonAsync("api/Productos", Producto);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al guardar el producto",
+                    Duration = 5000
+                };
             notificationService.Notify(mensaje);
-		}
-	}
+            return;
+        }
+        var ProductoDevuelto = await response.Content.ReadFromJsonAsync<Productos>();
+        if (ProductoDevuelto is not null)
+        {
+            Producto = ProductoDevuelto;
+            Nuevo();
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Guardado",
+                    Detail = "Producto guardado con éxito",
+                    Duration = 5000
+                };
+        }
+    }
+    public async Task Eliminar()
+    {
+        using var response = await HttpClient.DeleteAsync($"api/Productos/{Producto.ProductoId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al eliminar el producto",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Producto eliminado con éxito",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
 
-	private void MetodoRelleno()
-	{
-		Console.WriteLine($"Nombre: {Producto.Nombre}");
-		Console.WriteLine($"Correo electrónico: {Producto.Descripcion}");
-	}
+    }
+    public void Nuevo()
+    {
+        Producto = new Productos();
+        ProductoId = 0;
+        StateHasChanged();
+
+
+    }
+
+    public async Task Buscar()
+    {
+        var productoNotNull = (await HttpClient.GetFromJsonAsync<List<Productos>>($"api/productos")).ToList().Any(p => p.ProductoId == Producto.ProductoId);
+        if (productoNotNull)
+        {
+            var productoEncontrado = await HttpClient.GetFromJsonAsync<Productos>($"api/productos/{Producto.ProductoId}");
+            if (productoEncontrado is not null)
+            {
+                Producto = productoEncontrado;
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Producto no encontrado",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+        }
+    }
+
+    private void MetodoRelleno()
+    {
+        Console.WriteLine($"Nombre: {Producto.Nombre}");
+        Console.WriteLine($"Correo electrónico: {Producto.Descripcion}");
+    }
 }
