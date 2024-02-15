@@ -26,5 +26,7 @@ namespace FarmaYah.Shared.Models
         public int Existencia { get; set; }
 		[Range(1, int.MaxValue, ErrorMessage = "Este campo es Obligatorio")]
 		public int UnidadId { get; set; }
+        [ForeignKey("ProductoId")]
+        public ICollection<ProveedorProducto> ProveedorProducto { get; set; } = new List<ProveedorProducto>();
     }
 }

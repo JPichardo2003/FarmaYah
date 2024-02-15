@@ -40,7 +40,10 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            var proveedores = await _context.Preedores.FindAsync(id);
+            var proveedores = await _context.Preedores
+                .Include(p => p.ProveedorProducto)
+                .Where(p => p.ProveedorId == id)
+                .FirstOrDefaultAsync();
 
             if (proveedores == null)
             {
@@ -86,14 +89,13 @@ namespace FarmaYah.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Proveedores>> PostProveedores(Proveedores proveedores)
         {
-          if (_context.Preedores == null)
-          {
-              return Problem("Entity set 'Contexto.Preedores'  is null.");
-          }
-            _context.Preedores.Add(proveedores);
-            await _context.SaveChangesAsync();
+            if (!ProveedoresExists(proveedores.ProveedorId))
+                _context.Preedores.Add(proveedores);
+            else
+                _context.Preedores.Update(proveedores);
 
-            return CreatedAtAction("GetProveedores", new { id = proveedores.ProveedorId }, proveedores);
+            await _context.SaveChangesAsync();
+            return Ok(proveedores);
         }
 
         // DELETE: api/Proveedores/5

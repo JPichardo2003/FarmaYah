@@ -9,7 +9,7 @@
     <div class="card">
         <div class="card-header">
             <div class="col">
-                <button><i class="bi bi-arrow-left-circle"></i></button>
+                <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
             </div>
             <div class="col d-flex align-items-center justify-content-center">
                 <img src="Images/pngwing.com.png" class="img-logo" />
@@ -76,6 +76,59 @@
                 </div>
             </div>
             <br />
+
+            @*Detalles:*@
+            <div class="card card-header">
+                <h3>Productos</h3>
+            </div>
+            <div class="card-body border border-1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Producto</label>
+                        <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
+                            <option value="" hidden="hidden">Seleccione</option>
+                            @foreach (var p in ListaProductos)
+                            {
+                                <option value="@p.ProductoId">@p.Nombre</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Detalles.ProductoId)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cantidad</label>
+                        <div class="input-group">
+                          
+                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+
+            </div>
+                <div class="card">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Laboratorio</th>
+                            <th>Unidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in proveedor.ProveedorProducto)
+                        {
+                            <tr>
+                                <td>@NombreProducto(producto.ProductoId)</td>
+                                <td>@DescripcionProducto(producto.ProductoId)</td>
+                                <td>@NombreLaboratorio(producto.ProductoId)</td>
+                                <td>@NombreUnidad(producto.ProductoId)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
             <br />
             <div class="row justify-content-center">
                 <div class="col-4">
@@ -92,7 +145,11 @@
     [Parameter]
     public int ProveedorId { get; set; } = 0;
     public Proveedores proveedor { get; set; } = new Proveedores();
-   
+    public ProveedorProducto Detalles { get; set; } = new ProveedorProducto();
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<ProveedorProducto> ListaDetalles { get; set; } = new List<ProveedorProducto>();
+    public List<ProveedorProducto> DetallesRemovidos { get; set; } = new List<ProveedorProducto>();
+    public bool idVacio { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,7 +157,12 @@
         {
             proveedor = await httpClient.GetFromJsonAsync<Proveedores>($"api/Proveedores/{ProveedorId}") ?? new Proveedores();
         }
-      
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")?? new List<Productos>(ListaProductos);
+        if (productos != null)
+        {
+            ListaProductos = productos;
+        }
+
     }
 
     public void Back()
@@ -167,11 +229,76 @@
     }
     public void Nuevo()
     {
+        ListaDetalles = new List<ProveedorProducto>();
         proveedor = new Proveedores();
         ProveedorId = 0;
         StateHasChanged();
 
 
+    }
+    public bool Validar()
+    {
+        idVacio = (Detalles.ProductoId <= 0);
+
+        return idVacio;
+    }
+    public async Task AgregarDetalle()
+    {
+        if (Validar())
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debes elegir un producto",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var producto = await BuscarProductos(Detalles.ProductoId);
+        if (producto == null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = $"El producto no existe",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;           
+
+        }
+
+
+        if (proveedor != null)
+        {
+            var detalleEncontrado = await httpClient.GetFromJsonAsync<List<ProveedorProducto>>($"api/Proveedores");
+            //aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
+            var detalleExiste = detalleEncontrado!.Any(d => d.ProveedorProductoId == Detalles.ProveedorProductoId);
+
+            Detalles.ProveedorId = proveedor.ProveedorId;
+            
+            proveedor.ProveedorProducto.Add(Detalles);
+            if (detalleExiste)
+            {
+                ListaDetalles.Add(Detalles);
+
+            }
+            if (DetallesRemovidos.Any(d => d.ProveedorProductoId == Detalles.ProveedorProductoId))
+                DetallesRemovidos.Remove(Detalles);
+            Detalles = new ProveedorProducto();
+
+        }
+        StateHasChanged();
+    }
+
+    private async Task<Productos> BuscarProductos(int ProductoId)
+    {
+        var producto = await httpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}");
+
+        return producto ?? new Productos();
     }
 
     public async Task Buscar()
@@ -197,4 +324,32 @@
             notificationService.Notify(mensaje);
         }
     }
+
+    public string NombreProducto(int id)
+    {
+        var unidad = ListaProductos.FirstOrDefault(u => u.ProductoId == id);
+        return unidad?.Nombre ?? "";
+    }
+    public string NombreLaboratorio(int id)
+    {
+        var productos = ListaProductos.FirstOrDefault(u => u.ProductoId == id);
+        return productos?.Nombre ?? "";
+    }
+    public string DescripcionProducto(int id)
+    {
+        var productos = ListaProductos.FirstOrDefault(u => u.ProductoId == id);
+        return productos?.Descripcion ?? "";
+    }
+    public string LaboratorioProducto(int id)
+    {
+        var productos = ListaProductos.FirstOrDefault(u => u.ProductoId == id);
+        var laboratorio = ListaProductos.FirstOrDefault(u => u.LaboratorioId == productos.LaboratorioId);
+        return laboratorio?.Nombre ?? "";
+    }
+    public string NombreUnidad(int id)
+    {
+        var unidad = ListaProductos.FirstOrDefault(u => u.ProductoId == id);
+        return unidad?.Nombre ?? "";
+    }
+
 }

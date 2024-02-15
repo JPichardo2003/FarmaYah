@@ -17,6 +17,8 @@ namespace FarmaYah.Server.DAL
         public DbSet<Unidad> Unidad { get; set; }
         public DbSet<Proveedores> Preedores { get; set; }
 
+        public DbSet<ProveedorProducto> ProveedorProducto { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

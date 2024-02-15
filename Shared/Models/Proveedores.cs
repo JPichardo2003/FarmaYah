@@ -27,5 +27,7 @@ namespace FarmaYah.Shared.Models
         [Required(ErrorMessage = "Este campo es obligatorio")]
         public string? TipoContribuyente { get; set; }
         public string? Nota { get; set; }
+        [ForeignKey("ProveedorId")]
+        public ICollection<ProveedorProducto> ProveedorProducto { get; set; } = new List<ProveedorProducto>();
     }
 }
