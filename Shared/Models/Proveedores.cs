@@ -26,5 +26,6 @@ namespace FarmaYah.Shared.Models
         public string? RNC { get; set; }
         [Required(ErrorMessage = "Este campo es obligatorio")]
         public string? TipoContribuyente { get; set; }
+        public string? Nota { get; set; }
     }
 }

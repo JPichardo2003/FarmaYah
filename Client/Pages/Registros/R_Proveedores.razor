@@ -1,0 +1,200 @@
+﻿@page "/RProveedor";
+@page "/RProveedor/{ProveedorId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager navigationManager;
+
+<EditForm Model="proveedor" OnValidSubmit="Guardar" >
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <div class="col">
+                <button><i class="bi bi-arrow-left-circle"></i></button>
+            </div>
+            <div class="col d-flex align-items-center justify-content-center">
+                <img src="Images/pngwing.com.png" class="img-logo" />
+                <h1>Registro de Proveedores</h1>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <label>Proveedor ID:</label>
+                <div class="input-group col-md-6">
+                    <InputNumber @bind-Value="proveedor.ProveedorId" class="id-input"></InputNumber>
+                    <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                </div>
+                <div class="col">
+                    <label>Nombre:</label>
+                    <InputText @bind-Value="proveedor.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => proveedor.Nombre)" />
+                </div>
+                <div class="col-md-6">
+                    <label>RNC:</label>
+                    <InputText @bind-Value="proveedor.RNC" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => proveedor.RNC)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Telefono:</label>
+                    <InputText @bind-Value="proveedor.Telefono" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => proveedor.Telefono)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Email:</label>
+                    <InputText @bind-Value="proveedor.Email" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => proveedor.Email)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Direcci&oacute;n:</label>
+                    <InputText @bind-Value="proveedor.Direccion" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => proveedor.Direccion)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Tipo de contribuyentes</label>
+                    <InputSelect  @bind-Value="proveedor.TipoContribuyente" class="form-select">
+                        <option disabled selected>Seleccione...</option>
+                        <option value="Persona Fisica">Persona Fisica</option>
+                        <option value="Persona Juridica">Persona Juridico</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => proveedor.TipoContribuyente)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Categoria comercial:</label>
+                    <InputSelect @bind-Value="proveedor.Categoria" class="form-select">
+                        <option disabled selected>Seleccione...</option>
+                        <option value="Nacional">Nacional</option>
+                        <option value="Internacional">Internacional</option>
+                      </InputSelect>
+                    <ValidationMessage For="@(() => proveedor.Categoria)" />
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Nota:</label>
+                    <InputTextArea @bind-Value="proveedor.Nota" class="form-control"></InputTextArea>
+                    <ValidationMessage For="@(() => proveedor.Nota)" />
+                </div>
+            </div>
+            <br />
+            <br />
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
+                    <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code{
+    [Parameter]
+    public int ProveedorId { get; set; } = 0;
+    public Proveedores proveedor { get; set; } = new Proveedores();
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ProveedorId > 0)
+        {
+            proveedor = await httpClient.GetFromJsonAsync<Proveedores>($"api/Proveedores/{ProveedorId}") ?? new Proveedores();
+        }
+      
+    }
+
+    public void Back()
+    {
+        navigationManager.NavigateTo("MenuProductos");
+    }
+
+    public async void Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Proveedores", proveedor);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al guardar el proveedor",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var proveedorDevuelto = await response.Content.ReadFromJsonAsync<Proveedores>();
+        if (proveedorDevuelto is not null)
+        {
+            proveedor = proveedorDevuelto;
+            Nuevo();
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Guardado",
+                    Detail = "proveedor guardado con éxito",
+                    Duration = 5000
+                };
+        }
+    }
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Proveedores/{proveedor.ProveedorId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al eliminar el proveedor",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Proveedor eliminado con éxito",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
+
+    }
+    public void Nuevo()
+    {
+        proveedor = new Proveedores();
+        ProveedorId = 0;
+        StateHasChanged();
+
+
+    }
+
+    public async Task Buscar()
+    {
+        var proveedorNotNull = (await httpClient.GetFromJsonAsync<List<Proveedores>>($"api/Proveedores")).ToList().Any(p => p.ProveedorId == proveedor.ProveedorId);
+        if (proveedorNotNull)
+        {
+            var proveedorEncontrado = await httpClient.GetFromJsonAsync<Proveedores>($"api/Proveedores/{proveedor.ProveedorId}");
+            if (proveedorEncontrado is not null)
+            {
+                proveedor = proveedorEncontrado;
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "proveedor no encontrado",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+        }
+    }
+}
