@@ -15,6 +15,7 @@ namespace FarmaYah.Server.DAL
         public DbSet<SegurosMedicos> SegurosMedicos { get; set; }
         public DbSet<SegurosMedicosDetalles> SegurosMedicosDetalles { get; set; }
         public DbSet<Unidad> Unidad { get; set; }
+        public DbSet<Proveedores> Preedores { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,7 +44,13 @@ namespace FarmaYah.Server.DAL
             {
                 new Productos(){ProductoId=1, Nombre="Ibuprofeno", Precio=100, LaboratorioId=1, Existencia = 0, Descripcion = "Dolor de cabeza"}
             });
-                
+
+            modelBuilder.Entity<Proveedores>().HasData(new List<Proveedores>()
+            {
+                new Proveedores(){ProveedorId = 1, Nombre = "mamey", Email="Mamey@gmail.com", Categoria="Nacional", RNC="123456789", TipoContribuyente="Persona Juridica", Direccion="Direccion 1", Telefono="809-546-8915"},
+                new Proveedores(){ProveedorId = 2, Nombre = "Pfizer", Email="Pfizer@gmail.com", Categoria="Internacional", RNC="123456798", TipoContribuyente="Persona Juridica", Direccion="Direccion 2", Telefono="809-546-8519"},
+                new Proveedores(){ProveedorId = 3, Nombre = "Bayer", Email="Bayer@gmail.com", Categoria="Internacional", RNC="123456897", TipoContribuyente="Persona Juridica", Direccion="Direccion 3", Telefono="809-546-8195"},
+            });
         }
     }
 }
