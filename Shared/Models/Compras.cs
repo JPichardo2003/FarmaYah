@@ -19,6 +19,7 @@ namespace FarmaYah.Shared.Models
         public DateTime FechaRecibida { get; set; }
         public bool Entregado { get; set; } = false;
 
+        public bool Eliminado { get; set; } = false;
         [ForeignKey("CompraId")]
         public ICollection<d_Compra> d_Compra { get; set; } = new List<d_Compra>();
 

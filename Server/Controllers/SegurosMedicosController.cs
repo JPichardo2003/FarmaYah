@@ -29,7 +29,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.SegurosMedicos.Include(s => s.SegurosMedicosDetalles).ToListAsync();
+            return await _context.SegurosMedicos.Where(c => c.Eliminado != true).Include(s => s.SegurosMedicosDetalles).ToListAsync();
         }
 
         // GET: api/SegurosMedicos/5
@@ -42,7 +42,7 @@ namespace FarmaYah.Server.Controllers
           }
             var segurosMedicos = await _context.SegurosMedicos
                 .Include(s => s.SegurosMedicosDetalles)
-                .Where(s => s.SeguroMedicoId == id)
+                .Where(s => s.SeguroMedicoId == id && s.Eliminado != true)
                 .FirstOrDefaultAsync();
 
             if (segurosMedicos == null)

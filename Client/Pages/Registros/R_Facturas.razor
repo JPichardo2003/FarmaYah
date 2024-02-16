@@ -226,34 +226,7 @@
             }
         }
         return precioProducto;
-    }
-    //Esto funciona (Al menos en 2 pruebas) pero no es correcto hay que cambiarlo *RECORDATORIO
-    public float ObtenerPrecioX(int Id)
-    {
-        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
-        var precioProducto = producto!.Precio;
-
-        // Verificar si hay un seguro médico asociado a la factura
-        if (facturas.SeguroMedicoId > 0)
-        {
-            // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
-            var detallesSeguro = ListaSegurosDetalles
-                .Where(d => d.ProductoId == producto.ProductoId && d.SeguroMedicoId == facturas.SeguroMedicoId)
-                .ToList();
-
-            // Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
-            if (detallesSeguro != null && detallesSeguro.Count > 0)
-            {
-                // Aplicar el descuento del detalle de seguro médico al precio del producto
-                foreach (var detalle in detallesSeguro)
-                {
-                    Cobertura += (precioProducto * detalle.Descuento / 100);
-                    precioProducto -= (precioProducto * detalle.Descuento / 100);
-                }
-            }
-        }
-        return precioProducto;
-    }
+    }    
 
 
     private async Task<Facturas> BuscarFactura(int FacturaId)
@@ -333,7 +306,7 @@
     }
     public void ActualizarPrecioT()
     {
-        PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecioX(f.ProductoId) * f.Cantidad);
+        PrecioT = facturas.FacturasDetalles.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
     }
     public void Notificaciones()
     {
@@ -360,7 +333,6 @@
     {
         ///Cambiar los cambios al post
         facturas.MontoTotal = PrecioT;
-        facturas.CoberturaSeguro = Cobertura;
 
         if (facturas.FacturaId < 0)
         {
@@ -448,31 +420,31 @@
 
     public async Task Eliminar()
     {
-        using var response = await httpClient.DeleteAsync($"api/Facturas/{facturas.FacturaId}");
+        facturas.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/Facturas", facturas);
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "La factura no fue Eliminada Correctamente",
-                    Duration = 4_000
+                    Detail = "Error al eliminar la factura",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
-            return;
         }
         else
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "Factura Eliminada Correctamente",
-                    Duration = 4_000
+                    Summary = "Eliminado",
+                    Detail = "Factura eliminada con éxito",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
+            Nuevo();
         }
-        this.Nuevo();
     }
 
     public bool Validar()

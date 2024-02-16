@@ -309,31 +309,31 @@
 
     public async Task Eliminar()
     {
-        using var response = await httpClient.DeleteAsync($"api/SegurosMedicos/{segurosmedicos.SeguroMedicoId}");
+        segurosmedicos.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/SegurosMedicos", segurosmedicos);
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "El SeguroMedicoID no fue Eliminada Correctamente",
-                    Duration = 4_000
+                    Detail = "Error al eliminar el Seguro Medico",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
-            return;
         }
         else
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "Factura Eliminada Correctamente",
-                    Duration = 4_000
+                    Summary = "Eliminado",
+                    Detail = "Seguro Medico eliminado con éxito",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
+            Nuevo();
         }
-        this.Nuevo();
     }
 
     public bool Validar()

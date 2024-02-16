@@ -7,7 +7,7 @@
     <div class="card-header d-flex align-items-center">
         <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
         <img src="Images/pngwing.com.png" class="img-logo" />
-        <h1>Consultas de Compras</h1>
+        <h1>Consultas de Cuentas Por Pagar</h1>
     </div>
     <div class="card-body">
         <div class="input-group-text">
@@ -63,7 +63,7 @@
                             <td>@Compras.FechaPedida.ToString("MM/dd/yyyy")</td>
                             <td>@Compras.FechaRecibida.ToString("MM/dd/yyyy")</td>
                             <td>@Compras.Tipo</td>
-                            <td>@Compras.Entregado</td>
+                            <td>@if (Compras.Entregado == true) { <h6>Entregado</h6>}else{<h6>No Entregado</h6>}</td>
                             <td>@Compras.MontoTotal</td>
                             <td>@CalcularDeudaRestante(Compras)</td>
                             <td><a href="RCuentasPorPagar/@Compras.CompraId"><i class="btn btn-outline-primary">Abonar</i></a></td>

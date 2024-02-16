@@ -18,6 +18,9 @@ namespace FarmaYah.Shared.Models
 
         public DateTime Fecha { get; set; } = DateTime.Now;
 
+        public bool Eliminado { get; set; } = false;
+
+
         [ForeignKey("SeguroMedicoId")]
         public ICollection<SegurosMedicosDetalles> SegurosMedicosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
 

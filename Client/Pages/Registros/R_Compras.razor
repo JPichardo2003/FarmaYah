@@ -40,7 +40,7 @@
                         <div>
                             <InputSelect @bind-Value="compras.Tipo" class="form-select">
                                 <option value="" hidden="hidden">[Seleccione]</option>
-                                <option value="Debito">Debito</option>
+                                <option value="Cash">Cash</option>
                                 <option value="Credito">Credito</option>
                             </InputSelect>
                             <ValidationMessage For="@(() => compras.Tipo)" />
@@ -140,10 +140,11 @@
                     }
                 </div>
                 <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+
                 @if (EntregadoAntes == false)
                 {
                     <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
-                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
                 }
                 
             </div>
@@ -413,31 +414,31 @@
 
     public async Task Eliminar()
     {
-        using var response = await httpClient.DeleteAsync($"api/Compras/{compras.CompraId}");
+        compras.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/Compras", compras);
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "La Orden no fue Eliminada Correctamente",
-                    Duration = 4_000
+                    Detail = "Error al eliminar la Compra",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
-            return;
         }
         else
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "Orden Eliminada Correctamente",
-                    Duration = 4_000
+                    Summary = "Eliminado",
+                    Detail = "Compra eliminada con éxito",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
+            Nuevo();
         }
-        this.Nuevo();
     }
 
     public bool ValidarDetalle()

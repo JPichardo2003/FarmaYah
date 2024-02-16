@@ -29,7 +29,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Facturas.ToListAsync();
+            return await _context.Facturas.Where(p => p.Eliminado != true).ToListAsync();
         }
 
         // GET: api/Facturas/5
@@ -42,7 +42,7 @@ namespace FarmaYah.Server.Controllers
           }
             var facturas = await _context.Facturas
                 .Include(f => f.FacturasDetalles)
-                .Where(f => f.FacturaId == id)
+                .Where(f => f.FacturaId == id && f.Eliminado != true)
                 .FirstOrDefaultAsync();
 
             if (facturas == null)
