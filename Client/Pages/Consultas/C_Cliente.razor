@@ -22,9 +22,9 @@
 		</div>
 
 		<div class="col-md-4">
-            @if (opciones != 0)
+            @if (opciones != 0 )
             {
-                <InputText @bind-Value="FiltroString"></InputText>
+                <input type="text" class="form-control" @bind="FiltroString"></input>
             }
         </div>
 
@@ -59,7 +59,7 @@
                             <td>
                                 <a href="
                                     @($"Ctransaccion/{Cliente.ClienteId}")
-                                        " class="btn btn-primary">
+                                            " class="btn btn-outline-primary">
                                     <i class="oi oi-eye" />
                                     </a>
                             </td>

@@ -22,7 +22,7 @@ namespace FarmaYah.Shared.Models
 		[Required(ErrorMessage = "El teléfono es obligatorio")]
 		[RegularExpression(@"^\d{10}$", ErrorMessage = "El teléfono debe tener 10 dígitos")]
 		public string? Teléfono { get; set; }
-		public int? Fidelidad { get; set; } = 0;
+		public decimal? Fidelidad { get; set; } = 0;
 
 		public List<Facturas> facturas { get; set; } = new List<Facturas>();
 	}

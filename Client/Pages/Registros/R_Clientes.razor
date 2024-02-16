@@ -4,6 +4,7 @@
 @inject NotificationService notificationService;
 
 <EditForm Model="clientes" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />   
 
 	<div class="card">
         <div class="card-header d-flex align-items-center">
@@ -11,28 +12,32 @@
             <h1>Registro de Clientes</h1>
 		</div>
 
-		<div class="card-body">
-			<div class="row-cols-1">
-				<div class="form">
-					<label>Nombre del Cliente</label>
-					<InputText @bind-Value="clientes.Nombre" class="form-control" />
-					<ValidationMessage For="@(() => clientes.Nombre)" />
-				</div>
+        <div class="card-body">
+            <div class="row-cols-1">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label>Nombre del Cliente</label>
+                        <InputText @bind-Value="clientes.Nombre" class="form-control" placeholder="Nombre del cliente" />
+                        <ValidationMessage For="@(() => clientes.Nombre)" />
+                    </div>
 
-				<div class="form-group">
-					<label>Tel&eacute;fono</label>
-					<InputText @bind-Value="clientes.Teléfono" class="form-control" />
-					<ValidationMessage For="@(() => clientes.Teléfono)" />
-				</div>
-			</div>
+                    <div class="form-group col-md-4">
+                        <label>Teléfono</label>
+                        <InputText @bind-Value="clientes.Teléfono" class="form-control" maxlength="10" placeholder="1234567890" />
+                        <ValidationMessage For="@(() => clientes.Teléfono)" />
+                    </div>
+                </div>
 
-			<div class="">
-				<label>Direcci&oacute;n</label>
-				<InputText @bind-Value="clientes.Dirección" class="form-control" />
-				<ValidationMessage For="@(() => clientes.Dirección)" />
-			</div>
+                <div class="form-group md-4 mt-2">
+                    <label>Dirección</label>
+                    <InputTextArea @bind-Value="clientes.Dirección" class="form-control" />
+                    <ValidationMessage For="@(() => clientes.Dirección)" />
+                </div>
+            </div>
+        </div>
 
-		</div>
+
+
 
 		<div class="card-footer text-center">
 			<button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>

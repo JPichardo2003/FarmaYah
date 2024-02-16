@@ -9,6 +9,20 @@
 		<h1>Consulta de Transacciones de @Cliente.Nombre</h1>
 	</div>
 
+	<div class="row">
+
+		<div class="col-md-5 mt-3">
+			<label>Desde:</label>
+			<input type="date" class="form-control" @bind="Desde" />
+		</div>
+
+		<div class="col-md-5 mt-3">
+			<label>Hasta:</label>
+			<input type="date" class="form-control" @bind="Hasta" />
+		</div>
+	</div>
+
+
 	<div class="row mt-2">
 		<label class="mt-2">Filtrar por:</label>
 
@@ -16,17 +30,24 @@
 			<select class="form-select" @bind="opciones">
 				<option value="0" disabled selected>Elija una opci&oacute;n</option>
 				<option value="1">Fecha de Venta</option>
-				<option value="2">Estado</option>
+				<option value="2">N&uacute;mero de Factura</option>
 			</select>
 		</div>
 
 		<div class="col-md-4">
+			@if(opciones == 1)
+			{
+				
+			}
+			@if(opciones == 2)
+			{
+				<input type="text" class="form-control" @bind="FiltroString" />
+			}
 
-			@*Pa poner los inputs, los if y to eso*@
 		</div>
 
 		<div class="col col-md-4">
-			<button class="btn btn-primary ml-2" type="button">
+			<button class="btn btn-primary ml-2" type="button" @onclick="Buscar">
 				<i class="oi oi-magnifying-glass" />
 			</button>
 		</div>
@@ -41,7 +62,7 @@
 						<th># factura</th>
 						<th>Fecha de venta</th>
 						<th>Estado</th>
-						<th>Tipo de pago</th>
+						@*						<th>Tipo de pago</th>*@
 						<th>Puntos acumulados</th>
 						<th>Total</th>
 					</tr>
@@ -53,18 +74,17 @@
                             <td>@factura.FacturaId</td>
                             <td>@factura.Fecha</td>
                             <td>@factura.Estado</td>
-                            <td>@factura.Pago</td>
+							@*                            <td>@factura.Pago</td>*@
 							<td>@(factura.MontoTotal / 100)</td>
-                            <td>@factura.MontoTotal</td>
+                            <td>RD$@factura.MontoTotal</td>
                         </tr>
                     }
 					<tr>
 						<td>Cantidad de Facturas: @Conteo</td>
 						<td></td>
 						<td></td>
-						<td></td>
-						<td></td>
-						<td>Total: @Total</td>
+						<td>Puntos Total: @TotalPuntos </td>
+						<td>Total: RD$@Total</td>
 					</tr>
 				</tbody>
 
@@ -82,15 +102,19 @@
 	public List<Facturas> ListaFacturas { get; set; } = new List<Facturas>();
 
 	public int Conteo { get; set; }
+	public decimal TotalPuntos { get; set; }	
 	public decimal Total { get; set; }
 
 	public DateTime Desde { get; set; }
 	public DateTime Hasta { get; set; }
 
 	public int opciones { get; set; }
+public string FiltroString { get; set; } = "";
 
 	protected override async Task OnInitializedAsync()
 	{
+		Desde = DateTime.Now.AddMonths(-1);
+		Hasta = DateTime.Now;
 		await BuscarCliente();
 		await ObtenerFacturasDelCliente();
 	}
@@ -110,6 +134,30 @@
 		}
 		ListaFacturas = Facturas.Where(F => F.ClienteId == Cliente.ClienteId).ToList();
 		Conteo = ListaFacturas.Count();
+		TotalPuntos = ListaFacturas.Sum(F => (decimal)F.MontoTotal) / 100;
+		Total = ListaFacturas.Sum(F => (decimal)F.MontoTotal);
+	}
+
+	public async Task Buscar()
+	{
+		var Facturas = await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas");
+		if (Facturas == null)
+		{
+			return;
+		}
+		ListaFacturas = Facturas.Where(F => F.ClienteId == Cliente.ClienteId).ToList();
+
+		switch(opciones)
+		{
+			case 1:
+					ListaFacturas = ListaFacturas.Where(F => F.Fecha >= Desde && F.Fecha <= Hasta).ToList();
+				break;
+			case 2:
+					ListaFacturas = ListaFacturas.Where(F => F.FacturaId.ToString().Contains(FiltroString)).ToList();
+				break;
+		}
+		Conteo = ListaFacturas.Count();
+		TotalPuntos = ListaFacturas.Sum(F => (decimal)F.MontoTotal)/100;
 		Total = ListaFacturas.Sum(F => (decimal)F.MontoTotal);
 	}
 
