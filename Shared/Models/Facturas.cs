@@ -25,6 +25,8 @@ namespace FarmaYah.Shared.Models
 
         public float Devolucion { get; set; }
 
+        public float? CoberturaSeguro { get; set; }
+
         [Range(0, float.MaxValue, ErrorMessage = "El pago no puede ser negativo")]
         public float Pago { get; set; }
         public float MontoTotal { get; set; }

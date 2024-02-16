@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240215022833_2da Migracion")]
+    partial class _2daMigracion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.15");
@@ -36,7 +39,6 @@ namespace FarmaYah.Server.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("Tipo")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("CompraId");
@@ -105,9 +107,6 @@ namespace FarmaYah.Server.Migrations
                     b.Property<int>("FacturaId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<float?>("CoberturaSeguro")
-                        .HasColumnType("REAL");
 
                     b.Property<float>("Devolucion")
                         .HasColumnType("REAL");
@@ -240,9 +239,6 @@ namespace FarmaYah.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -255,7 +251,6 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             SeguroMedicoId = 1,
-                            Fecha = new DateTime(2024, 2, 15, 22, 35, 28, 854, DateTimeKind.Local).AddTicks(2701),
                             Nombre = "ARS Humano"
                         });
                 });

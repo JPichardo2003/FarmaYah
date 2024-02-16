@@ -29,7 +29,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.SegurosMedicos.ToListAsync();
+            return await _context.SegurosMedicos.Include(s => s.SegurosMedicosDetalles).ToListAsync();
         }
 
         // GET: api/SegurosMedicos/5

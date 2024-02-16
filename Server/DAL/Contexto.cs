@@ -16,6 +16,7 @@ namespace FarmaYah.Server.DAL
         public DbSet<SegurosMedicosDetalles> SegurosMedicosDetalles { get; set; }
         public DbSet<Compras> Compras { get; set; }
         public DbSet<d_Compra> d_Compra { get; set; }
+        public DbSet<CuentasPorPagar> CuentasPorPagar { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

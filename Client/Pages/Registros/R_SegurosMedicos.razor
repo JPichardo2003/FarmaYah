@@ -2,21 +2,23 @@
 @page "/RSMedicos/{SeguroMedicoId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
 
 <EditForm Model="segurosmedicos" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
             <img src="Images/pngwing.com.png" class="img-logo" />
             <h1>Registro de SegurosMedicos</h1>
         </div>
         <div class="card-body">
             <div class="row">
-                <label>Seguro Medico ID:</label>
+                @* <label>Seguro Medico ID:</label>
                 <div class="input-group col-md-6">
                     <InputNumber @bind-Value="segurosmedicos.SeguroMedicoId" class="id-input"></InputNumber>
                     <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
-                </div>
+                </div> *@
                 <div class="col-md-6">
                     <label>Nombre:</label>
                     <InputText @bind-Value="segurosmedicos.Nombre" class="form-control"></InputText>
@@ -143,6 +145,11 @@
         if (seguroMedicoEncontrado != null)
             return SegurosMedicos = seguroMedicoEncontrado;
         return new SegurosMedicos();
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuSeguros");
     }
 
     public float ObtenerPrecio(int Id)

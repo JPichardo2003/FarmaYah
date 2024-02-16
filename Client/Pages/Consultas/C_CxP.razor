@@ -1,8 +1,8 @@
-﻿@page "/CCompras"
+﻿@page "/CxP"
 
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
-<PageTitle>Consulta Compras</PageTitle>
+<PageTitle>Consulta Cuentas por pagar</PageTitle>
 <div class="card">
     <div class="card-header d-flex align-items-center">
         <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
@@ -28,17 +28,13 @@
     <div>
         <div class="col-md-6 filter-input">
             <InputSelect @bind-Value="Filtro" class="form-select">
-                <option value="1">Tipo</option>
-                <option value="2">Montos a partir de</option>
+                <option value="1">Montos a partir de</option>
             </InputSelect>
         </div>
         <div class="col-md-6">
             @switch (Filtro)
             {
                 case 1:
-                    <InputText @bind-Value="Compras!.Tipo" class="form-control"></InputText>
-                    break;
-                case 2:
                     <InputNumber @bind-Value="Compras!.MontoTotal" class="form-control"></InputNumber>
                     break;
             }
@@ -55,12 +51,13 @@
                         <th>Fecha Recibida</th>
                         <th>Tipo</th>
                         <th>Estado</th>
-                        <th>Monto</th>
+                        <th>Deuda Inicial</th>
+                        <th>Deuda Restante</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var Compras in ListaCompras)
+                    @foreach (var Compras in ListaCompras.Where(c => c.Tipo! == "Credito"))
                     {
                         <tr>
                             <td>@Compras.FechaPedida.ToString("MM/dd/yyyy")</td>
@@ -68,7 +65,8 @@
                             <td>@Compras.Tipo</td>
                             <td>@Compras.Entregado</td>
                             <td>@Compras.MontoTotal</td>
-                            <td><a href="RCompras/@Compras.CompraId"><i class="bi bi-eye-fill"></i></a></td>
+                            <td>@CalcularDeudaRestante(Compras)</td>
+                            <td><a href="RCuentasPorPagar/@Compras.CompraId"><i class="btn btn-outline-primary">Abonar</i></a></td>
                         </tr>
                     }
                     <tr>
@@ -76,7 +74,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>Total: @TotalPesos $</td>
+                        <td>Deudas Totales: @TotalPesos $</td>
                     </tr>
                 </tbody>
             </table>
@@ -88,11 +86,16 @@
 @code {
 
     public int Filtro { get; set; }
+    public Compras compras { get; set; } = new Compras();
+
     public List<Compras>? ListaCompras { get; set; }
     public Compras? Compras { get; set; } = new Compras();
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
     public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+
+    public float PrecioT { get; set; } = 0;
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
@@ -108,6 +111,18 @@
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        var compras = await httpClient.GetFromJsonAsync<List<Compras>>("api/Compras");
+
+        if (compras is not null)
+        {
+            ListaCompras = compras;    
+        }
+
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
 
         if (seguros is not null)
         {
@@ -121,6 +136,7 @@
         {
             ListaEmpleados = empleados;
         }
+        ActualizarPrecioT();
         await Buscar();
         Desde = DateTime.Now.AddMonths(-1);
         Hasta = DateTime.Now;
@@ -128,16 +144,7 @@
 
     public async Task Buscar()
     {
-        if (Filtro == 1 && !string.IsNullOrEmpty(Compras!.Tipo))
-        {
-            var estadoBusqueda = Compras!.Tipo.ToLower();
-            ListaCompras = (await httpClient.GetFromJsonAsync<List<Compras>>($"api/Compras"))!
-                .Where(t => t.Tipo != null && t.Tipo.ToLower().Contains(estadoBusqueda) && t.FechaPedida.Date >= Desde.Date && t.FechaPedida.Date <= Hasta.Date)
-                .ToList();
-            StateHasChanged();
-        }
-        else
-        if (Filtro == 2 && Compras!.MontoTotal > 0)
+        if (Filtro == 1 && Compras!.MontoTotal > 0)
         {
             ListaCompras = (await httpClient.GetFromJsonAsync<List<Compras>>($"api/Compras"))!
             .Where(t => t.MontoTotal >= Compras!.MontoTotal && t.FechaPedida.Date >= Desde.Date && t.FechaPedida.Date <= Hasta.Date)
@@ -149,12 +156,54 @@
             ListaCompras = await httpClient.GetFromJsonAsync<List<Compras>>($"api/Compras");
             StateHasChanged();
         }
-        Conteo = ListaCompras != null ? ListaCompras!.Count() : 0;
-        TotalPesos = ListaCompras != null ? ListaCompras!.Sum(f => f.MontoTotal) : 0;
+        Conteo = ListaCompras != null ? ListaCompras!.Where(c => c.Tipo == "Credito").Count() : 0;
+        TotalPesos = ListaCompras != null ? ListaCompras!.Where(c => c.Tipo == "Credito").Sum(f => f.MontoTotal) : 0;
     }
 
     private void VolverAtras()
     {
         NavigationManager.NavigateTo("/MenuCompras");
+    }
+
+    public float ObtenerPrecio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
+    }
+
+    public void ActualizarPrecioT()
+    {
+        if (ListaCompras != null && ListaCompras.Any())
+        {
+            float sumaProductos = 0;
+            foreach (var compra in ListaCompras.Where(c => c.Tipo == "Credito"))
+            {
+                sumaProductos += ObtenerPrecioTotalCompra(compra);
+            }
+
+            float sumaPagos = 0;
+            foreach (var compra in ListaCompras.Where(c => c.Tipo == "Credito"))
+            {
+                sumaPagos += compra.CuentasPorPagar.Sum(p => p.pago);
+            }
+
+            PrecioT = sumaProductos - sumaPagos;
+        }
+    }
+
+    private float ObtenerPrecioTotalCompra(Compras compra)
+    {
+        float precioTotalCompra = 0;
+        foreach (var detalleCompra in compra.d_Compra)
+        {
+            precioTotalCompra += ObtenerPrecio(detalleCompra.ProductoId) * detalleCompra.Cantidad;
+        }
+        return precioTotalCompra;
+    }
+
+    private float CalcularDeudaRestante(Compras compra)
+    {
+        float sumaProductos = ObtenerPrecioTotalCompra(compra);
+        float sumaPagos = compra.CuentasPorPagar.Sum(p => p.pago);
+        return sumaProductos - sumaPagos;
     }
 }

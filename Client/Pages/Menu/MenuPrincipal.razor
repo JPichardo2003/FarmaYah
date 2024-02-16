@@ -34,9 +34,14 @@
                     <img src="Images/icons8-producto-100.png" class="icon" />Producto
                 </button>
             </div>
-            <div class="col-md-4 text-center">
+            <div class="col-md-4 text-center mb-4">
                 <button class="d-block mx-auto">
                     <img src="Images/icons8-tienda-100.png" class="icon" />Sucursal
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToSeguros">
+                    <img src="Images/icons8-seguro-de-salud-100.png" class="icon" />Seguros
                 </button>
             </div>
         </div>
@@ -53,5 +58,10 @@
     private void NavigateToCompras()
     {
         NavigationManager.NavigateTo("/MenuCompras");
+    }
+
+private void NavigateToSeguros()
+    {
+        NavigationManager.NavigateTo("/MenuSeguros");
     }
 }

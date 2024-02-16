@@ -16,6 +16,8 @@ namespace FarmaYah.Shared.Models
         [Required(ErrorMessage = "Campo Obligatorio")]
         public string? Nombre { get; set; }
 
+        public DateTime Fecha { get; set; } = DateTime.Now;
+
         [ForeignKey("SeguroMedicoId")]
         public ICollection<SegurosMedicosDetalles> SegurosMedicosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
 

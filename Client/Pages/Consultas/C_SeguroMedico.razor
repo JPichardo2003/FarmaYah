@@ -1,0 +1,112 @@
+﻿@page "/CRSMedicos"
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+<PageTitle>Consulta Seguros M&eacute;dicos</PageTitle>
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>Consultas de Seguros M&eacute;dicos</h1>
+    </div>
+    <div class="card-body">
+        <div class="input-group-text">
+            <label class="form-control-label col-1">Desde:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Desde" />
+            </div>
+            <label class="form-control-label col-1">Hasta:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Hasta" />
+            </div>
+            <button type="button" @onclick="Buscar" class="btn btn-outline-primary">
+                <i class="bi bi-search" />
+            </button>
+        </div>
+    </div>
+    <label>Nombre:</label>
+    <div>
+        <div class="col-md-6 filter-input">
+            <InputText @bind-Value="seguros!.Nombre" class="form-control"></InputText>
+        </div>
+    </div>
+
+    @if (ListaSeguros is not null)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Fecha</th>
+                        <th>Cantidad de Productos</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var seguro in ListaSeguros)
+                    {
+                        <tr>
+                            <td>@seguro.Nombre</td>
+                            <td>@seguro.Fecha.ToString("MM/dd/yyyy")</td>
+                            <td>@seguro.SegurosMedicosDetalles.Count()</td>
+                            <td><a href="RSMedicos/@seguro.SeguroMedicoId"><i class="bi bi-eye-fill"></i></a></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Conteo: @Conteo</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+@code {
+
+    public int Filtro { get; set; }
+    public List<SegurosMedicos>? ListaSeguros { get; set; }
+    public SegurosMedicos? seguros { get; set; } = new SegurosMedicos();
+
+    public int Conteo { get; set; }
+
+    public DateTime Desde { get; set; }
+    public DateTime Hasta { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
+
+        if (seguros is not null)
+        {
+            ListaSeguros = seguros;
+        }
+        await Buscar();
+        Desde = DateTime.Now.AddMonths(-1);
+        Hasta = DateTime.Now;
+    }
+
+    public async Task Buscar()
+    {
+        if(!string.IsNullOrEmpty(seguros!.Nombre))
+        {
+            var nombreBusqueda = seguros!.Nombre.ToLower();
+            ListaSeguros = (await httpClient.GetFromJsonAsync<List<SegurosMedicos>>($"api/SegurosMedicos"))!
+                .Where(t => t.Nombre != null && t.Nombre.ToLower().Contains(nombreBusqueda) && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            ListaSeguros = (await httpClient.GetFromJsonAsync<List<SegurosMedicos>>($"api/SegurosMedicos"));
+            StateHasChanged();
+        } 
+        Conteo = ListaSeguros != null ? ListaSeguros!.Count() : 0;
+
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuSeguros");
+    }
+}
