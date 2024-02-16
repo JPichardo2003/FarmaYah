@@ -10,28 +10,52 @@
             <h1>Registro de facturas</h1>
         </div>
         <div class="card-body">
-            <div class="row">
+
+            @*Nombre del cliente*@
+            <label>Nombre del cliente</label>
+            <div class="col-md-6">
+                <InputSelect @bind-Value="facturas.ClienteId" class="form-select">
+                    <option value="" hidden="hidden">Seleccione</option>
+                    <option value="">Sin Nombre</option>
+
+                    @foreach (var c in ListaClientes)
+                    {
+                        <option value="@c.ClienteId">@c.Nombre</option>
+
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="row  mt-3">
+
+                @*
                 <label>Factura ID:</label>
                 <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
-                    <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
+                <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
                 </div>
-                <div class="col-md-6">
+                *@
+
+
+                <div class="col-md-6 mt-2">
                     <label>Fecha:</label>
-                    <InputDate @bind-Value="facturas.Fecha" class="form-control"></InputDate>
+                    <InputDate @bind-Value="facturas.Fecha" class="form-control"  ></InputDate>
                     <ValidationMessage For="@(() => facturas.Fecha)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Pago:</label>
                     <InputNumber @bind-Value="facturas.Pago" class="form-control"></InputNumber>
                     <ValidationMessage For="@(() => facturas.Pago)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Devoluci&oacute;n:</label>
                     <InputNumber @bind-Value="facturas.Devolucion" class="form-control"></InputNumber>
                     <ValidationMessage For="@(() => facturas.Devolucion)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Seguro Medico:</label>
                     <InputSelect @bind-Value="facturas.SeguroMedicoId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -42,7 +66,8 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.Pago)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Sucursal:</label>
                     <InputSelect @bind-Value="facturas.SucursalId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -53,7 +78,8 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.SucursalId)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Empleado:</label>
                     <InputSelect @bind-Value="facturas.EmpleadoId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -64,8 +90,11 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.EmpleadoId)" />
                 </div>
+
             </div>
         </div>
+
+
         @*Detalles:*@
         <div class="card card-header">
             <h3>Productos</h3>
@@ -143,6 +172,8 @@
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
     public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
 
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+
     public List<FacturasDetalles> DetallesRemovidos { get; set; } = new List<FacturasDetalles>();
     public List<FacturasDetalles> ListaDetalles { get; set; } = new List<FacturasDetalles>();
 
@@ -158,6 +189,12 @@
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+        var Clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+
+        if (Clientes is not null)
+        {
+            ListaClientes = Clientes;
+        }
 
         if(laboratorios is not null)
         {
@@ -271,6 +308,7 @@
 
     public async Task Guardar()
     {
+        bool EsNuevo = facturas.FacturaId == 0;
         facturas.MontoTotal = PrecioT;
         if (facturas.FacturaId < 0)
         {
@@ -339,6 +377,17 @@
                 };
             notificationService.Notify(mensaje);
             facturas = facturaDevuelta;
+            //Aqui se actualiza la fidelidad del cliente, se comprueba si Es nuevo, si es nuevo y el cliente existe se le suma el monto total de la factura a la fidelidad
+            // La evaluación de si es nuevo está al inicio de esta funcion.
+            if (EsNuevo && facturas.ClienteId>0)
+            {
+                var cliente = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{facturas.ClienteId}");
+                if (cliente != null)
+                {
+                    cliente.Fidelidad += (int)facturas.MontoTotal/100;
+                    using var responseCliente = await httpClient.PutAsJsonAsync<Clientes>($"api/Clientes/{cliente.ClienteId}", cliente);
+                }
+            }
             StateHasChanged();
             this.Nuevo();
         }

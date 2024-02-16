@@ -1,0 +1,116 @@
+﻿@page "/Ctransaccion/{ClienteId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+
+<div class="card-header mt-4">
+
+	<div class="card-header d-flex align-items-center">
+		<img src="Images/pngwing.com.png" class="img-logo" />
+		<h1>Consulta de Transacciones de @Cliente.Nombre</h1>
+	</div>
+
+	<div class="row mt-2">
+		<label class="mt-2">Filtrar por:</label>
+
+		<div class="col">
+			<select class="form-select" @bind="opciones">
+				<option value="0" disabled selected>Elija una opci&oacute;n</option>
+				<option value="1">Fecha de Venta</option>
+				<option value="2">Estado</option>
+			</select>
+		</div>
+
+		<div class="col-md-4">
+
+			@*Pa poner los inputs, los if y to eso*@
+		</div>
+
+		<div class="col col-md-4">
+			<button class="btn btn-primary ml-2" type="button">
+				<i class="oi oi-magnifying-glass" />
+			</button>
+		</div>
+
+	</div>
+
+	<div class="card-body">
+		<div class="table-responsive ">
+			<table border="1" class="table table-bordered table-striped ">
+				<thead>
+					<tr class="table-secondary">
+						<th># factura</th>
+						<th>Fecha de venta</th>
+						<th>Estado</th>
+						<th>Tipo de pago</th>
+						<th>Puntos acumulados</th>
+						<th>Total</th>
+					</tr>
+				</thead>
+				<tbody>
+                    @foreach (var factura in ListaFacturas)
+                    {
+                        <tr>
+                            <td>@factura.FacturaId</td>
+                            <td>@factura.Fecha</td>
+                            <td>@factura.Estado</td>
+                            <td>@factura.Pago</td>
+							<td>@(factura.MontoTotal / 100)</td>
+                            <td>@factura.MontoTotal</td>
+                        </tr>
+                    }
+					<tr>
+						<td>Cantidad de Facturas: @Conteo</td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td>Total: @Total</td>
+					</tr>
+				</tbody>
+
+			</table>
+		</div>
+	</div>
+
+</div>
+
+@code {
+	[Parameter]
+	public int ClienteId { get; set; }
+
+	public Clientes Cliente { get; set; } = new Clientes();
+	public List<Facturas> ListaFacturas { get; set; } = new List<Facturas>();
+
+	public int Conteo { get; set; }
+	public decimal Total { get; set; }
+
+	public DateTime Desde { get; set; }
+	public DateTime Hasta { get; set; }
+
+	public int opciones { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await BuscarCliente();
+		await ObtenerFacturasDelCliente();
+	}
+
+	public async Task BuscarCliente()
+	{
+		var ClienteIdEncontrado = (await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{ClienteId}"));
+		Cliente = ClienteIdEncontrado;
+	}
+
+	public async Task ObtenerFacturasDelCliente()
+	{
+		var Facturas = await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas");
+		if (Facturas == null)
+		{
+			return;	
+		}
+		ListaFacturas = Facturas.Where(F => F.ClienteId == Cliente.ClienteId).ToList();
+		Conteo = ListaFacturas.Count();
+		Total = ListaFacturas.Sum(F => (decimal)F.MontoTotal);
+	}
+
+}

@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,12 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240214015528_AddCliente")]
+    partial class AddCliente
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.15");
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
                 {
@@ -26,9 +29,6 @@ namespace FarmaYah.Server.Migrations
                     b.Property<string>("Dirección")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("Fidelidad")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -41,24 +41,6 @@ namespace FarmaYah.Server.Migrations
                     b.HasKey("ClienteId");
 
                     b.ToTable("Clientes");
-
-                    b.HasData(
-                        new
-                        {
-                            ClienteId = 1,
-                            Dirección = "Direccion 1",
-                            Fidelidad = 0,
-                            Nombre = "Juan Perez",
-                            Teléfono = "8094587412"
-                        },
-                        new
-                        {
-                            ClienteId = 2,
-                            Dirección = "Direccion 2",
-                            Fidelidad = 0,
-                            Nombre = "Maria Lopez",
-                            Teléfono = "8091287602"
-                        });
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>
@@ -113,9 +95,6 @@ namespace FarmaYah.Server.Migrations
                 {
                     b.Property<int>("FacturaId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("ClientesClienteId")
