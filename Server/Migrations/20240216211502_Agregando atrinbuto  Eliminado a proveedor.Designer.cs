@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240216211502_Agregando atrinbuto  Eliminado a proveedor")]
+    partial class AgregandoatrinbutoEliminadoaproveedor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -145,9 +148,6 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("Existencia")
                         .HasColumnType("INTEGER");
 
@@ -175,7 +175,6 @@ namespace FarmaYah.Server.Migrations
                         {
                             ProductoId = 1,
                             Descripcion = "Dolor de cabeza",
-                            Eliminado = false,
                             Existencia = 0,
                             LaboratorioId = 1,
                             Nombre = "Ibuprofeno",

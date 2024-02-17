@@ -29,7 +29,9 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Preedores.ToListAsync();
+            return await _context.Preedores
+                .Where(p => p.Eliminado != true)
+                .ToListAsync();
         }
 
         // GET: api/Proveedores/5
@@ -42,9 +44,9 @@ namespace FarmaYah.Server.Controllers
           }
             var proveedores = await _context.Preedores
                 .Include(p => p.ProveedorProducto)
-                .Where(p => p.ProveedorId == id)
+                .Where(p => p.ProveedorId == id && p.Eliminado != true)
                 .FirstOrDefaultAsync();
-
+         
             if (proveedores == null)
             {
                 return NotFound();

@@ -201,7 +201,8 @@
     }
     public async Task Eliminar()
     {
-        using var response = await httpClient.DeleteAsync($"api/Proveedores/{proveedor.ProveedorId}");
+        proveedor.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/Proveedores", proveedor);
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage

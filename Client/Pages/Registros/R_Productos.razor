@@ -21,14 +21,14 @@
 
             <div class="card-body">
                 <div class="row">
-                    <div class="col-4">
+                    @* <div class="col-4">
                         <label for="ProductoId">Id Producto:</label>
                         <div class="input-group">
                             <InputNumber id="Nombre" @bind-Value="producto.ProductoId" class="form-control" min="0" />
                             <ValidationMessage For="@(() => producto.ProductoId)" />
                             <button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
                         </div>
-                    </div>
+                    </div> *@
                     <div class="col-4">
                         <label for="Nombre">Nombre Producto:</label>
                         <InputText id="Nombre" @bind-Value="producto.Nombre" class="form-control" />
@@ -224,24 +224,52 @@
         using var response = await HttpClient.PostAsJsonAsync("api/Productos", producto);
         if (!response.IsSuccessStatusCode)
         {
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se pudo guardar el producto",
+                Duration = 4_000
+            };
             return;
         }
         var ProductoDevuelto = await response.Content.ReadFromJsonAsync<Productos>();
         if (ProductoDevuelto is not null)
         {
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Producto guardado",
+                Detail = "El producto ha sido guardado",
+                Duration = 4_000
+            };
             producto = ProductoDevuelto;
             Nuevo();
         }
     }
     public async Task Eliminar()
     {
-        using var response = await HttpClient.DeleteAsync($"api/Productos/{producto.ProductoId}");
+        producto.Eliminado = true;
+        using var response = await HttpClient.PostAsJsonAsync("api/Productos", producto);
         if (!response.IsSuccessStatusCode)
         {
-
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se pudo eliminar el producto",
+                Duration = 4_000
+            };
         }
         else
         {
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Producto eliminado",
+                Detail = "El producto ha sido eliminado",
+                Duration = 4_000
+            };
 
             Nuevo();
         }
@@ -270,6 +298,13 @@
         }
         else
         {
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "El producto no encontrado",
+                Duration = 4_000
+            };
 
         }
     }
