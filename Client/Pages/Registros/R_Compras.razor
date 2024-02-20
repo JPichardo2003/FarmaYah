@@ -153,21 +153,6 @@
      </div>
 </EditForm>
 
-@*README MEEEEEEEEEEEEE
-
-	- El boton de + Add no hace nada
-	- El boton de eliminar no hace nada
-	- El boton de guardar no hace nada
-	- El boton de nuevo no hace nada
-	- El boton de buscar no hace nada
-	- El boton de entregar  
-    - Agregue esto al code:
-    public FacturasDetalles Detalles { get; set; } = new FacturasDetalles();
-    public Laboratorios Laboratorios { get; set; } = new Laboratorios();
-        public string Filtro { get; set; }\
-            bool LaboratorioDisabled => Detalles.ProductoId == 0;
-*@
-
 
 @code
 {
@@ -226,10 +211,33 @@
         {
             ListaProductos = productos;
         }
+        if (compras.CompraId == 0)
+        {
+            AgregarProductosReorden();
+        }
         if (CompraId > 0)
         {
             this.compras.CompraId = CompraId;
             await Buscar();
+        }
+    }
+
+    private void AgregarProductosReorden()
+    {
+        foreach (var producto in ListaProductos)
+        {
+            if (producto.Existencia <= 10)
+            {
+                // Agregar producto al detalle de compras con concepto "Reorden" y laboratorio id 1
+                compras.d_Compra.Add(new d_Compra
+                    {
+                        ProductoId = producto.ProductoId,
+                        LaboratorioId = 1,
+                        CompraId = compras.CompraId,
+                        Cantidad = 35 // Puedes ajustar la cantidad según sea necesario
+                    });
+                ActualizarPrecioT();
+            }
         }
     }
 

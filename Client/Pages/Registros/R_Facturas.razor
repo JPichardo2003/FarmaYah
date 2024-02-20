@@ -484,6 +484,17 @@
                 notificationService.Notify(mensaje);
                 return;
             }
+            if((producto.Existencia - Detalles.Cantidad) <=10)
+{
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Warning,
+                        Summary = "Advertencia",
+                        Detail = $"Quedan menos de 10 unidades de {producto.Nombre} en el inventario({producto.Existencia - Detalles.Cantidad})",
+                        Duration = 6_000
+                    };
+                notificationService.Notify(mensaje);
+            }
         }
 
         if (facturas != null)
