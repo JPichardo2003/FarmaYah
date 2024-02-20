@@ -32,6 +32,18 @@ namespace FarmaYah.Server.Controllers
             return await _context.Facturas.Where(p => p.Eliminado != true).ToListAsync();
         }
 
+        // GET: api/Facturas/CuentasPorCobrar
+        [HttpGet("CuentasPorCobrar")]
+        public async Task<ActionResult<IEnumerable<Facturas>>> GetCuentasPorCobrar()
+        {
+            if (_context.Facturas == null)
+            {
+                return NotFound();
+            }
+            return await _context.Facturas.Where(p => p.Eliminado != true && p.Estado == "Pendiente").ToListAsync();
+        }
+
+
         // GET: api/Facturas/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Facturas>> GetFacturas(int id)
