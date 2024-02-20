@@ -14,11 +14,12 @@ namespace FarmaYah.Server.DAL
         public DbSet<Sucursales> Sucursales { get; set; }
         public DbSet<SegurosMedicos> SegurosMedicos { get; set; }
         public DbSet<SegurosMedicosDetalles> SegurosMedicosDetalles { get; set; }
-        public DbSet<Unidad> Unidad { get; set; }
-        public DbSet<Proveedores> Preedores { get; set; }
-
-        public DbSet<ProveedorProducto> ProveedorProducto { get; set; }
-
+        public DbSet<Compras> Compras { get; set; }
+        public DbSet<d_Compra> d_Compra { get; set; }
+        public DbSet<CuentasPorPagar> CuentasPorPagar { get; set; }
+        public DbSet<Unidad> Unidades { get; set; }
+        public DbSet<Proveedores> Proveedores { get; set; } 
+        public DbSet<ProveedorProducto> ProveedoresProductos { get; set; } 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -53,6 +54,8 @@ namespace FarmaYah.Server.DAL
                 new Proveedores(){ProveedorId = 2, Nombre = "Pfizer", Email="Pfizer@gmail.com", Categoria="Internacional", RNC="123456798", TipoContribuyente="Persona Juridica", Direccion="Direccion 2", Telefono="809-546-8519"},
                 new Proveedores(){ProveedorId = 3, Nombre = "Bayer", Email="Bayer@gmail.com", Categoria="Internacional", RNC="123456897", TipoContribuyente="Persona Juridica", Direccion="Direccion 3", Telefono="809-546-8195"},
             });
+
+
         }
     }
 }

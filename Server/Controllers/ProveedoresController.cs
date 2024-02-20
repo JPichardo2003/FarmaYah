@@ -23,13 +23,13 @@ namespace FarmaYah.Server.Controllers
 
         // GET: api/Proveedores
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Proveedores>>> GetPreedores()
+        public async Task<ActionResult<IEnumerable<Proveedores>>> GetProveedores()
         {
-          if (_context.Preedores == null)
+          if (_context.Proveedores == null)
           {
               return NotFound();
           }
-            return await _context.Preedores
+            return await _context.Proveedores
                 .Where(p => p.Eliminado != true)
                 .ToListAsync();
         }
@@ -38,11 +38,11 @@ namespace FarmaYah.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Proveedores>> GetProveedores(int id)
         {
-          if (_context.Preedores == null)
+          if (_context.Proveedores == null)
           {
               return NotFound();
           }
-            var proveedores = await _context.Preedores
+            var proveedores = await _context.Proveedores
                 .Include(p => p.ProveedorProducto)
                 .Where(p => p.ProveedorId == id && p.Eliminado != true)
                 .FirstOrDefaultAsync();
@@ -92,9 +92,9 @@ namespace FarmaYah.Server.Controllers
         public async Task<ActionResult<Proveedores>> PostProveedores(Proveedores proveedores)
         {
             if (!ProveedoresExists(proveedores.ProveedorId))
-                _context.Preedores.Add(proveedores);
+                _context.Proveedores.Add(proveedores);
             else
-                _context.Preedores.Update(proveedores);
+                _context.Proveedores.Update(proveedores);
 
             await _context.SaveChangesAsync();
             return Ok(proveedores);
@@ -104,17 +104,17 @@ namespace FarmaYah.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProveedores(int id)
         {
-            if (_context.Preedores == null)
+            if (_context.Proveedores == null)
             {
                 return NotFound();
             }
-            var proveedores = await _context.Preedores.FindAsync(id);
+            var proveedores = await _context.Proveedores.FindAsync(id);
             if (proveedores == null)
             {
                 return NotFound();
             }
 
-            _context.Preedores.Remove(proveedores);
+            _context.Proveedores.Remove(proveedores);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -122,7 +122,7 @@ namespace FarmaYah.Server.Controllers
 
         private bool ProveedoresExists(int id)
         {
-            return (_context.Preedores?.Any(e => e.ProveedorId == id)).GetValueOrDefault();
+            return (_context.Proveedores?.Any(e => e.ProveedorId == id)).GetValueOrDefault();
         }
     }
 }

@@ -12,55 +12,55 @@ namespace FarmaYah.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UnidadesController : ControllerBase
+    public class d_CompraController : ControllerBase
     {
         private readonly Contexto _context;
 
-        public UnidadesController(Contexto context)
+        public d_CompraController(Contexto context)
         {
             _context = context;
         }
 
-        // GET: api/Unidades
+        // GET: api/d_Compra
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Unidad>>> GetUnidad()
+        public async Task<ActionResult<IEnumerable<d_Compra>>> Getd_Compra()
         {
-          if (_context.Unidades == null)
+          if (_context.d_Compra == null)
           {
               return NotFound();
           }
-            return await _context.Unidades.ToListAsync();
+            return await _context.d_Compra.ToListAsync();
         }
 
-        // GET: api/Unidades/5
+        // GET: api/d_Compra/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Unidad>> GetUnidad(int id)
+        public async Task<ActionResult<d_Compra>> Getd_Compra(int id)
         {
-          if (_context.Unidades == null)
+          if (_context.d_Compra == null)
           {
               return NotFound();
           }
-            var unidad = await _context.Unidades.FindAsync(id);
+            var d_Compra = await _context.d_Compra.FindAsync(id);
 
-            if (unidad == null)
+            if (d_Compra == null)
             {
                 return NotFound();
             }
 
-            return unidad;
+            return d_Compra;
         }
 
-        // PUT: api/Unidades/5
+        // PUT: api/d_Compra/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUnidad(int id, Unidad unidad)
+        public async Task<IActionResult> Putd_Compra(int id, d_Compra d_Compra)
         {
-            if (id != unidad.UnidadId)
+            if (id != d_Compra.d_CompraId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(unidad).State = EntityState.Modified;
+            _context.Entry(d_Compra).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +68,7 @@ namespace FarmaYah.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UnidadExists(id))
+                if (!d_CompraExists(id))
                 {
                     return NotFound();
                 }
@@ -81,44 +81,44 @@ namespace FarmaYah.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Unidades
+        // POST: api/d_Compra
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Unidad>> PostUnidad(Unidad unidad)
+        public async Task<ActionResult<d_Compra>> Postd_Compra(d_Compra d_Compra)
         {
-          if (_context.Unidades == null)
+          if (_context.d_Compra == null)
           {
-              return Problem("Entity set 'Contexto.Unidad'  is null.");
+              return Problem("Entity set 'Contexto.d_Compra'  is null.");
           }
-            _context.Unidades.Add(unidad);
+            _context.d_Compra.Add(d_Compra);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUnidad", new { id = unidad.UnidadId }, unidad);
+            return CreatedAtAction("Getd_Compra", new { id = d_Compra.d_CompraId }, d_Compra);
         }
 
-        // DELETE: api/Unidades/5
+        // DELETE: api/d_Compra/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUnidad(int id)
+        public async Task<IActionResult> Deleted_Compra(int id)
         {
-            if (_context.Unidades == null)
+            if (_context.d_Compra == null)
             {
                 return NotFound();
             }
-            var unidad = await _context.Unidades.FindAsync(id);
-            if (unidad == null)
+            var d_Compra = await _context.d_Compra.FindAsync(id);
+            if (d_Compra == null)
             {
                 return NotFound();
             }
 
-            _context.Unidades.Remove(unidad);
+            _context.d_Compra.Remove(d_Compra);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UnidadExists(int id)
+        private bool d_CompraExists(int id)
         {
-            return (_context.Unidades?.Any(e => e.UnidadId == id)).GetValueOrDefault();
+            return (_context.d_Compra?.Any(e => e.d_CompraId == id)).GetValueOrDefault();
         }
     }
 }

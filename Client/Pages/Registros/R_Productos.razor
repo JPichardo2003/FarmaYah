@@ -106,7 +106,7 @@
                             <div class="input-group">
                                 <InputSelect @bind-Value="Detalles.ProveedorId" class="form-select">
                                     <option value="@producto." hidden="hidden">Seleccione</option>
-                                    @foreach (var p in ListaProveerdor)
+                                    @foreach (var p in ListaProveerdor ?? new List<Proveedores>())
                                     {
                                         <option value="@p.ProveedorId">@p.Nombre</option>
                                     }
@@ -134,7 +134,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var proveedor in producto.ProveedorProducto)
+                        @foreach (var proveedor in producto.ProveedorProducto ?? new List<ProveedorProducto>())
                         {
                             <tr>
                                 <td>@ObtenerNombre(proveedor.ProveedorId)</td>
@@ -199,12 +199,24 @@
     {
         var proveerdor = await HttpClient.GetFromJsonAsync<List<Proveedores>>("api/Proveedores");
 
-        Unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades");
-        Laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+        var unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades");
+        var laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+
+        if (unidades != null)
+        {
+            Unidades = unidades;
+        }
         if (proveerdor != null)
         {
             ListaProveerdor = proveerdor;
         }
+
+        if(laboratorios != null)
+        {
+            Laboratorios = laboratorios;
+        }
+
+        
 
         if (ProductoId > 0)
         {

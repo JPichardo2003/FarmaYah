@@ -1,0 +1,53 @@
+﻿@page "/MenuCompras"
+
+@inject NavigationManager NavigationManager
+<PageTitle>Compras</PageTitle>
+<div class="card" style="width:1000px">
+    <div class="card-header d-flex align-items-center justify-content-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>FarmaYah - Compras</h1>
+    </div>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-md-4 text-center">
+                <button type="button" @onclick="NavigateToRegistro" class="d-block mx-auto">
+                    <img src="Images/icons8-orden-de-compra-100.png" class="icon" /> Realizar Orden
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToConsulta">
+                    <img src="Images/ConsultaOrdenCompras.png" class="icon" />Consulta Orden
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToCuentasPorPagar">
+                    <img src="Images/icons8-pagar-con-tarjeta-100.png" class="icon" />Cuentas por Pagar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private void NavigateToRegistro()
+    {
+        NavigationManager.NavigateTo("/RCompras");
+    }
+
+    private void NavigateToConsulta()
+    {
+        NavigationManager.NavigateTo("/CCompras");
+    }
+    private void NavigateToCuentasPorPagar()
+    {
+        NavigationManager.NavigateTo("/CXP");
+    }
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuPrincipal");
+    }
+
+}
+
