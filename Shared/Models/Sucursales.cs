@@ -24,7 +24,7 @@ namespace FarmaYah.Shared.Models
         public string? Telefono { get; set; }
 
         [Required(ErrorMessage = "Este campo es Obligatorio")]
-        public bool EstadoOperativo { get; set; }
+        public bool EstadoOperativo { get; set; } = true;
 
         [ForeignKey("SucursalId")]
         public ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();

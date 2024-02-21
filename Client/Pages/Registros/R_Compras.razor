@@ -21,6 +21,12 @@
             </div>*@
 
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label>Reorden</label>
+                <input type="checkbox" @bind="configuracion.ReOrden" @onclick="ActualizarReOrden" />
+            </div>
+        </div>
 
         @*Detalle*@
         <div class="card card-header">
@@ -53,7 +59,7 @@
                 </div>
                 <div class="row form-inline align-items-center mt-3">
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Productos</label>
                             <div>
@@ -68,35 +74,12 @@
                         </div>
 
                     </div>
-
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Laboratorio</label>
-                            <div>
-                                <InputSelect @bind-Value="Laboratorios.LaboratorioId" class="form-select" disabled="@LaboratorioDisabled">
-                                    <option value="" hidden="hidden">[Seleccione un laboratorio]</option>
-                                    @foreach (var p in ListaLaboratorios)
-                                    {
-											<option value="@p.LaboratorioId">@p.Nombre</option>
-                                    }
-                                </InputSelect>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-1">
-                        <div class="from-group">
-                            <label>Cantidad</label>
-                            <div>
-                                <InputNumber min="0" @bind-Value="d_compra.Cantidad" class="form-control" ></InputNumber>
-                            </div>
-                        </div>
-                    </div>
-
-                    @*Boton + Add *@
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle">+ Add</button>
+                    <div class="col-md-6">
+                        <label>Cantidad</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="d_compra.Cantidad" class="form-control"></InputNumber>
+                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                            <ValidationMessage For="@(() => d_compra.Cantidad)" />
                         </div>
                     </div>
                 </div>
@@ -140,13 +123,12 @@
                     }
                 </div>
                 <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
-                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
 
                 @if (EntregadoAntes == false)
                 {
                     <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
                 }
-                
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
             </div>
         </div>
 
@@ -162,6 +144,7 @@
     public Compras compras { get; set; } = new Compras();
     public d_Compra d_compra { get; set; } = new d_Compra();
     public Laboratorios Laboratorios { get; set; } = new Laboratorios();
+    public Configuracion configuracion { get; set; } = new Configuracion();
 
     public List<Productos> ListaProductos { get; set; } = new List<Productos>();
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
@@ -193,6 +176,12 @@
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+        var configuracion = await httpClient.GetFromJsonAsync<Configuracion>("api/Configuracions/1");
+
+        if(configuracion is not null)
+        {
+            this.configuracion = configuracion;
+        }
 
         if (laboratorios is not null)
         {
@@ -211,7 +200,7 @@
         {
             ListaProductos = productos;
         }
-        if (compras.CompraId == 0)
+        if (configuracion!.ReOrden == true && compras.CompraId == 0)
         {
             AgregarProductosReorden();
         }
@@ -221,6 +210,18 @@
             await Buscar();
         }
     }
+
+    private async Task ActualizarReOrden()
+    {
+        // Cambiar el estado de configuracion.ReOrden
+        configuracion.ConfiguracionId = 1;
+        configuracion.ReOrden = !configuracion.ReOrden;
+
+        // Actualizar el valor de ReOrden en la base de datos
+        var prueba = await httpClient.PutAsJsonAsync("api/Configuracions/1", configuracion);
+    }
+
+
 
     private void AgregarProductosReorden()
     {

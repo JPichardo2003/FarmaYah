@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace FarmaYah.Server.Migrations
 {
     /// <inheritdoc />
@@ -17,15 +19,29 @@ namespace FarmaYah.Server.Migrations
                 {
                     CompraId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Tipo = table.Column<string>(type: "TEXT", nullable: true),
+                    Tipo = table.Column<string>(type: "TEXT", nullable: false),
                     MontoTotal = table.Column<float>(type: "REAL", nullable: false),
                     FechaPedida = table.Column<DateTime>(type: "TEXT", nullable: false),
                     FechaRecibida = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Entregado = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Entregado = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Eliminado = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Compras", x => x.CompraId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Configuracion",
+                columns: table => new
+                {
+                    ConfiguracionId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ReOrden = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Configuracion", x => x.ConfiguracionId);
                 });
 
             migrationBuilder.CreateTable(
@@ -43,12 +59,35 @@ namespace FarmaYah.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Proveedores",
+                columns: table => new
+                {
+                    ProveedorId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
+                    Direccion = table.Column<string>(type: "TEXT", nullable: false),
+                    Telefono = table.Column<string>(type: "TEXT", nullable: true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    Categoria = table.Column<string>(type: "TEXT", nullable: false),
+                    RNC = table.Column<string>(type: "TEXT", nullable: true),
+                    TipoContribuyente = table.Column<string>(type: "TEXT", nullable: false),
+                    Eliminado = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Nota = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Proveedores", x => x.ProveedorId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SegurosMedicos",
                 columns: table => new
                 {
                     SeguroMedicoId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false)
+                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Eliminado = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -69,6 +108,19 @@ namespace FarmaYah.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sucursales", x => x.SucursalId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Unidades",
+                columns: table => new
+                {
+                    UnidadId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Descripcion = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Unidades", x => x.UnidadId);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,29 +169,6 @@ namespace FarmaYah.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Productos",
-                columns: table => new
-                {
-                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    LaboratorioId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Precio = table.Column<float>(type: "REAL", nullable: false),
-                    Existencia = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Productos", x => x.ProductoId);
-                    table.ForeignKey(
-                        name: "FK_Productos_Laboratorios_LaboratorioId",
-                        column: x => x.LaboratorioId,
-                        principalTable: "Laboratorios",
-                        principalColumn: "LaboratorioId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SegurosMedicosDetalles",
                 columns: table => new
                 {
@@ -181,6 +210,37 @@ namespace FarmaYah.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Productos",
+                columns: table => new
+                {
+                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
+                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
+                    LaboratorioId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Precio = table.Column<float>(type: "REAL", nullable: false),
+                    Eliminado = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Existencia = table.Column<int>(type: "INTEGER", nullable: false),
+                    UnidadId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Productos", x => x.ProductoId);
+                    table.ForeignKey(
+                        name: "FK_Productos_Laboratorios_LaboratorioId",
+                        column: x => x.LaboratorioId,
+                        principalTable: "Laboratorios",
+                        principalColumn: "LaboratorioId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Productos_Unidades_UnidadId",
+                        column: x => x.UnidadId,
+                        principalTable: "Unidades",
+                        principalColumn: "UnidadId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Facturas",
                 columns: table => new
                 {
@@ -192,6 +252,7 @@ namespace FarmaYah.Server.Migrations
                     SucursalId = table.Column<int>(type: "INTEGER", nullable: false),
                     Estado = table.Column<string>(type: "TEXT", nullable: true),
                     Devolucion = table.Column<float>(type: "REAL", nullable: false),
+                    Eliminado = table.Column<bool>(type: "INTEGER", nullable: false),
                     Pago = table.Column<float>(type: "REAL", nullable: false),
                     MontoTotal = table.Column<float>(type: "REAL", nullable: false)
                 },
@@ -214,6 +275,32 @@ namespace FarmaYah.Server.Migrations
                         column: x => x.SucursalId,
                         principalTable: "Sucursales",
                         principalColumn: "SucursalId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProveedoresProductos",
+                columns: table => new
+                {
+                    ProveedorProductoId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProveedorId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProductoId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProveedoresProductos", x => x.ProveedorProductoId);
+                    table.ForeignKey(
+                        name: "FK_ProveedoresProductos_Productos_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "Productos",
+                        principalColumn: "ProductoId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProveedoresProductos_Proveedores_ProveedorId",
+                        column: x => x.ProveedorId,
+                        principalTable: "Proveedores",
+                        principalColumn: "ProveedorId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -241,27 +328,70 @@ namespace FarmaYah.Server.Migrations
             migrationBuilder.InsertData(
                 table: "Laboratorios",
                 columns: new[] { "LaboratorioId", "Direccion", "Nombre" },
-                values: new object[] { 1, "Direccion 1", "Pfizer" });
+                values: new object[,]
+                {
+                    { 1, "Direccion 1", "Pfizer" },
+                    { 2, "Direccion 2", "Bayer" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Proveedores",
+                columns: new[] { "ProveedorId", "Categoria", "Direccion", "Eliminado", "Email", "Nombre", "Nota", "RNC", "Telefono", "TipoContribuyente" },
+                values: new object[,]
+                {
+                    { 1, "Nacional", "Direccion 1", false, "Mamey@gmail.com", "mamey", null, "123456789", "809-546-8915", "Persona Juridica" },
+                    { 2, "Internacional", "Direccion 2", false, "Pfizer@gmail.com", "Pfizer", null, "123456798", "809-546-8519", "Persona Juridica" },
+                    { 3, "Internacional", "Direccion 3", false, "Bayer@gmail.com", "Bayer", null, "123456897", "809-546-8195", "Persona Juridica" }
+                });
 
             migrationBuilder.InsertData(
                 table: "SegurosMedicos",
-                columns: new[] { "SeguroMedicoId", "Nombre" },
-                values: new object[] { 1, "ARS Humano" });
+                columns: new[] { "SeguroMedicoId", "Eliminado", "Fecha", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, false, new DateTime(2024, 2, 20, 18, 53, 9, 392, DateTimeKind.Local).AddTicks(3682), "ARS Humano" },
+                    { 2, false, new DateTime(2024, 2, 20, 18, 53, 9, 392, DateTimeKind.Local).AddTicks(3699), "ARS Palic" },
+                    { 3, false, new DateTime(2024, 2, 20, 18, 53, 9, 392, DateTimeKind.Local).AddTicks(3701), "ARS Universal" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Sucursales",
                 columns: new[] { "SucursalId", "Direccion", "EstadoOperativo", "Nombre", "Telefono" },
-                values: new object[] { 1, "Direccion 1", true, "Sucursal 1", "8094587412" });
+                values: new object[,]
+                {
+                    { 1, "Direccion 1", true, "McCaffe", "8094587412" },
+                    { 2, "Direccion 2", true, "Pharma King", "8094587413" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Unidades",
+                columns: new[] { "UnidadId", "Descripcion" },
+                values: new object[,]
+                {
+                    { 1, "Unidad" },
+                    { 2, "Caja" },
+                    { 3, "Pote" },
+                    { 4, "Pastilla" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Empleados",
                 columns: new[] { "EmpleadoId", "Nombre", "SucursalId" },
-                values: new object[] { 1, "Julio", 1 });
+                values: new object[,]
+                {
+                    { 1, "Julio", 1 },
+                    { 2, "Alexander", 2 }
+                });
 
             migrationBuilder.InsertData(
                 table: "Productos",
-                columns: new[] { "ProductoId", "Descripcion", "Existencia", "LaboratorioId", "Nombre", "Precio" },
-                values: new object[] { 1, "Dolor de cabeza", 0, 1, "Ibuprofeno", 100f });
+                columns: new[] { "ProductoId", "Descripcion", "Eliminado", "Existencia", "LaboratorioId", "Nombre", "Precio", "UnidadId" },
+                values: new object[,]
+                {
+                    { 1, "TBA", false, 0, 1, "Ibuprofeno", 100f, 3 },
+                    { 2, "TBA", false, 0, 1, "Paracetamol", 120f, 4 },
+                    { 3, "TBA", false, 0, 1, "Amoxicilina", 150f, 3 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CuentasPorPagar_CompraId",
@@ -304,6 +434,21 @@ namespace FarmaYah.Server.Migrations
                 column: "LaboratorioId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Productos_UnidadId",
+                table: "Productos",
+                column: "UnidadId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProveedoresProductos_ProductoId",
+                table: "ProveedoresProductos",
+                column: "ProductoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProveedoresProductos_ProveedorId",
+                table: "ProveedoresProductos",
+                column: "ProveedorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SegurosMedicosDetalles_SeguroMedicoId",
                 table: "SegurosMedicosDetalles",
                 column: "SeguroMedicoId");
@@ -312,6 +457,9 @@ namespace FarmaYah.Server.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Configuracion");
+
             migrationBuilder.DropTable(
                 name: "CuentasPorPagar");
 
@@ -322,7 +470,7 @@ namespace FarmaYah.Server.Migrations
                 name: "FacturasDetalles");
 
             migrationBuilder.DropTable(
-                name: "Productos");
+                name: "ProveedoresProductos");
 
             migrationBuilder.DropTable(
                 name: "SegurosMedicosDetalles");
@@ -334,13 +482,22 @@ namespace FarmaYah.Server.Migrations
                 name: "Facturas");
 
             migrationBuilder.DropTable(
-                name: "Laboratorios");
+                name: "Productos");
+
+            migrationBuilder.DropTable(
+                name: "Proveedores");
 
             migrationBuilder.DropTable(
                 name: "Empleados");
 
             migrationBuilder.DropTable(
                 name: "SegurosMedicos");
+
+            migrationBuilder.DropTable(
+                name: "Laboratorios");
+
+            migrationBuilder.DropTable(
+                name: "Unidades");
 
             migrationBuilder.DropTable(
                 name: "Sucursales");

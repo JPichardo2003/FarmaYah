@@ -15,13 +15,13 @@
                 </button>
             </div>
             <div class="col-md-4 text-center">
-                <button class="d-block mx-auto">
+                <button class="d-block mx-auto" @onclick="NavigateToLaboratorios">
                     <img src="Images/iconslaboratorio.png" class="icon" />Laboratorio
                 </button>
             </div>
             <div class="col-md-4 text-center mb-4">
-                <button class="d-block mx-auto">
-                    <img src="Images/icons8-trabajo-permanente-100.png" class="icon" />Empleado
+                <button class="d-block mx-auto" @onclick="NavigateToProveedores">
+                    <img src="Images/icons8-proveedor-50.png" class="icon" />Proveedores
                 </button>
             </div>
             <div class="col-md-4 text-center">
@@ -30,18 +30,23 @@
                 </button>
             </div>
             <div class="col-md-4 text-center">
-                <button class="d-block mx-auto">
-                    <img src="Images/icons8-producto-100.png" class="icon" />Producto
+                <button class="d-block mx-auto" @onclick="NavigateToProductos">
+                    <img src="Images/icons8-producto-100.png" class="icon" />Productos
                 </button>
             </div>
             <div class="col-md-4 text-center mb-4">
-                <button class="d-block mx-auto">
+                <button class="d-block mx-auto" @onclick="NavigateToSucursales">
                     <img src="Images/icons8-tienda-100.png" class="icon" />Sucursal
                 </button>
             </div>
             <div class="col-md-4 text-center">
                 <button class="d-block mx-auto" @onclick="NavigateToSeguros">
                     <img src="Images/icons8-seguro-de-salud-100.png" class="icon" />Seguros
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToEmpleados">
+                    <img src="Images/icons8-trabajo-permanente-100.png" class="icon" />Empleados
                 </button>
             </div>
         </div>
@@ -60,8 +65,33 @@
         NavigationManager.NavigateTo("/MenuCompras");
     }
 
-private void NavigateToSeguros()
+    private void NavigateToSeguros()
     {
         NavigationManager.NavigateTo("/MenuSeguros");
+    }
+
+    private void NavigateToProveedores()
+    {
+        NavigationManager.NavigateTo("/MenuProveedores");
+    }
+
+    private void NavigateToProductos()
+    {
+        NavigationManager.NavigateTo("/MenuProductos");
+    }
+
+    private void NavigateToSucursales()
+    {
+        NavigationManager.NavigateTo("/MenuSucursal");
+    }
+
+    private void NavigateToEmpleados()
+    {
+        NavigationManager.NavigateTo("/Menuempleados");
+    }
+
+    private void NavigateToLaboratorios()
+    {
+        NavigationManager.NavigateTo("/MenuLaboratorio");
     }
 }
