@@ -221,7 +221,7 @@
         if (ProductoId > 0)
         {
             producto.ProductoId = ProductoId;
-            Buscar();
+            await Buscar();
         }
 
     }
@@ -299,7 +299,7 @@
 
     public async Task Buscar()
     {
-        var productoNotNull = (await HttpClient.GetFromJsonAsync<List<Productos>>($"api/Productos")).ToList().Any(p => p.ProductoId == producto.ProductoId);
+        var productoNotNull = (await HttpClient.GetFromJsonAsync<List<Productos>>($"api/Productos"))!.ToList().Any(p => p.ProductoId == producto.ProductoId);
         if (productoNotNull)
         {
             var productoEncontrado = await HttpClient.GetFromJsonAsync<Productos>($"api/Productos/{producto.ProductoId}");
@@ -392,48 +392,48 @@
         {
             // Manejar la excepción (puedes imprimir en la consola o realizar algún registro de errores)
             Console.WriteLine($"Error al buscar proveedor: {ex.Message}");
-            return null;
+            return null!;
         }
     }
 
 
     public string ObtenerNombre(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Nombre;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nombre!;
     }
 
     public string ObtenerDireccion(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Direccion;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Direccion!;
     }
 
     public string ObtenerTelefono(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Telefono;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Telefono!;
     }
 
     public string ObtenerEmail(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Email;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Email!;
     }
 
     public string ObtenerCategoria(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Categoria;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Categoria!;
     }
 
     public string ObtenerRnc(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().RNC;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.RNC!;
     }
 
     public string ObtenerTipo(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().TipoContribuyente;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.TipoContribuyente!;
     }
 
     public string ObtenerNota(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Nota;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nota!;
     }
 }
