@@ -393,9 +393,9 @@ namespace FarmaYah.Server.Migrations
                 columns: new[] { "SeguroMedicoId", "Eliminado", "Fecha", "Nombre" },
                 values: new object[,]
                 {
-                    { 1, false, new DateTime(2024, 2, 22, 13, 36, 28, 396, DateTimeKind.Local).AddTicks(8164), "ARS Humano" },
-                    { 2, false, new DateTime(2024, 2, 22, 13, 36, 28, 396, DateTimeKind.Local).AddTicks(8183), "ARS Palic" },
-                    { 3, false, new DateTime(2024, 2, 22, 13, 36, 28, 396, DateTimeKind.Local).AddTicks(8185), "ARS Universal" }
+                    { 1, false, new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9744), "ARS Humano" },
+                    { 2, false, new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9757), "ARS Palic" },
+                    { 3, false, new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9759), "ARS Universal" }
                 });
 
             migrationBuilder.InsertData(

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240222175959_Inicial2")]
-    partial class Inicial2
+    [Migration("20240222191249_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -490,21 +490,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1661),
+                            Fecha = new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9744),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1678),
+                            Fecha = new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9757),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1681),
+                            Fecha = new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9759),
                             Nombre = "ARS Universal"
                         });
                 });
