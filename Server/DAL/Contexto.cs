@@ -19,7 +19,9 @@ namespace FarmaYah.Server.DAL
         public DbSet<CuentasPorPagar> CuentasPorPagar { get; set; }
         public DbSet<Unidad> Unidades { get; set; }
         public DbSet<Proveedores> Proveedores { get; set; } 
-        public DbSet<ProveedorProducto> ProveedoresProductos { get; set; } 
+        public DbSet<ProveedorProducto> ProveedoresProductos { get; set; }
+        public DbSet<Clientes> Clientes { get; set; }
+        public DbSet<PagosCuentasPorCobrar> CuentasPorCobrar { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -53,6 +55,16 @@ namespace FarmaYah.Server.DAL
                 new Proveedores(){ProveedorId = 1, Nombre = "mamey", Email="Mamey@gmail.com", Categoria="Nacional", RNC="123456789", TipoContribuyente="Persona Juridica", Direccion="Direccion 1", Telefono="809-546-8915"},
                 new Proveedores(){ProveedorId = 2, Nombre = "Pfizer", Email="Pfizer@gmail.com", Categoria="Internacional", RNC="123456798", TipoContribuyente="Persona Juridica", Direccion="Direccion 2", Telefono="809-546-8519"},
                 new Proveedores(){ProveedorId = 3, Nombre = "Bayer", Email="Bayer@gmail.com", Categoria="Internacional", RNC="123456897", TipoContribuyente="Persona Juridica", Direccion="Direccion 3", Telefono="809-546-8195"},
+            });
+
+            modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
+            {
+                new Clientes(){ClienteId=1, Nombre="Juan Perez", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7}
+            });
+
+            modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
+            {
+                new Clientes(){ClienteId=2, Nombre="Maria Lopez", Dirección="Direccion 2", Teléfono="8091287602", Fidelidad=10}
             });
 
 

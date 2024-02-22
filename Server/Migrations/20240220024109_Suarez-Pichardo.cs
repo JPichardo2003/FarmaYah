@@ -8,7 +8,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmaYah.Server.Migrations
 {
     /// <inheritdoc />
+<<<<<<<< HEAD:Server/Migrations/20240220024109_Suarez-Pichardo.cs
     public partial class SuarezPichardo : Migration
+========
+    public partial class Inicial : Migration
+>>>>>>>> Grupo-3:Server/Migrations/20240209170038_Inicial.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,12 +23,18 @@ namespace FarmaYah.Server.Migrations
                 {
                     CompraId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+<<<<<<<< HEAD:Server/Migrations/20240220024109_Suarez-Pichardo.cs
                     Tipo = table.Column<string>(type: "TEXT", nullable: false),
                     MontoTotal = table.Column<float>(type: "REAL", nullable: false),
                     FechaPedida = table.Column<DateTime>(type: "TEXT", nullable: false),
                     FechaRecibida = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Entregado = table.Column<bool>(type: "INTEGER", nullable: false),
                     Eliminado = table.Column<bool>(type: "INTEGER", nullable: false)
+========
+                    FechaPedida = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    FechaRecibida = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Entregado = table.Column<bool>(type: "INTEGER", nullable: false)
+>>>>>>>> Grupo-3:Server/Migrations/20240209170038_Inicial.cs
                 },
                 constraints: table =>
                 {
@@ -98,6 +108,7 @@ namespace FarmaYah.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+<<<<<<<< HEAD:Server/Migrations/20240220024109_Suarez-Pichardo.cs
                 name: "Unidades",
                 columns: table => new
                 {
@@ -134,6 +145,8 @@ namespace FarmaYah.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+========
+>>>>>>>> Grupo-3:Server/Migrations/20240209170038_Inicial.cs
                 name: "d_Compra",
                 columns: table => new
                 {
@@ -352,6 +365,11 @@ namespace FarmaYah.Server.Migrations
                 column: "CompraId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_d_Compra_CompraId",
+                table: "d_Compra",
+                column: "CompraId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Empleados_SucursalId",
                 table: "Empleados",
                 column: "SucursalId");
@@ -401,9 +419,12 @@ namespace FarmaYah.Server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+<<<<<<<< HEAD:Server/Migrations/20240220024109_Suarez-Pichardo.cs
                 name: "CuentasPorPagar");
 
             migrationBuilder.DropTable(
+========
+>>>>>>>> Grupo-3:Server/Migrations/20240209170038_Inicial.cs
                 name: "d_Compra");
 
             migrationBuilder.DropTable(
@@ -416,9 +437,12 @@ namespace FarmaYah.Server.Migrations
                 name: "SegurosMedicosDetalles");
 
             migrationBuilder.DropTable(
+<<<<<<<< HEAD:Server/Migrations/20240220024109_Suarez-Pichardo.cs
                 name: "Unidades");
 
             migrationBuilder.DropTable(
+========
+>>>>>>>> Grupo-3:Server/Migrations/20240209170038_Inicial.cs
                 name: "Compras");
 
             migrationBuilder.DropTable(

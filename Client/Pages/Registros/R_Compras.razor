@@ -1,14 +1,13 @@
 ﻿@page "/RCompras";
-@page "/RCompras/{CompraId:int}";
+@page "/RCompras/{ComprasId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-@inject NavigationManager NavigationManager;
+
 <EditForm Model="compras" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
      <div class="card">
 
         <div class="card-header d-flex align-items-center">
-            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
             <img src="Images/pngwing.com.png" class="img-logo" />
             <h1>Registro de Compras</h1>
         </div>
@@ -19,6 +18,8 @@
             <label>Fecha del Pedido:</label>
             <InputDate @bind-Value="compras.FechaRecibida" class="form-control"></InputDate>
             </div>*@
+
+
 
         </div>
 
@@ -32,25 +33,9 @@
 
                 <div class="col-md-2">
                     <label>Filtro:</label>
-                    <InputText @bind-Value="Filtro" class="form-control" @onblur="FiltrarProductos!" />
+                    <InputText @bind-Value="Filtro" class="form-control" @onblur="FiltrarProductos" placeholder="Filtrar productos" />
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Forma a Pagar</label>
-                        <div>
-                            <InputSelect @bind-Value="compras.Tipo" class="form-select">
-                                <option value="" hidden="hidden">[Seleccione]</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Credito">Credito</option>
-                            </InputSelect>
-                            <ValidationMessage For="@(() => compras.Tipo)" />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label>Monto a Pagar:</label>
-                    <InputNumber @bind-Value="PrecioT" class="form-control" readonly />
-                </div>
+
                 <div class="row form-inline align-items-center mt-3">
 
                     <div class="col-md-4">
@@ -71,7 +56,7 @@
 
                     <div class="col-md-3">
                         <div class="form-group">
-                           @*  <label>Laboratorio</label>
+                            <label>Laboratorio</label>
                             <div>
                                 <InputSelect @bind-Value="Laboratorios.LaboratorioId" class="form-select" disabled="@LaboratorioDisabled">
                                     <option value="" hidden="hidden">[Seleccione un laboratorio]</option>
@@ -80,7 +65,7 @@
 											<option value="@p.LaboratorioId">@p.Nombre</option>
                                     }
                                 </InputSelect>
-                            </div> *@
+                            </div>
                         </div>
                     </div>
 
@@ -140,11 +125,10 @@
                     }
                 </div>
                 <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
-                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
-
                 @if (EntregadoAntes == false)
                 {
                     <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
+                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
                 }
                 
             </div>
@@ -153,27 +137,11 @@
      </div>
 </EditForm>
 
-@*README MEEEEEEEEEEEEE
-
-	- El boton de + Add no hace nada
-	- El boton de eliminar no hace nada
-	- El boton de guardar no hace nada
-	- El boton de nuevo no hace nada
-	- El boton de buscar no hace nada
-	- El boton de entregar  
-    - Agregue esto al code:
-    public FacturasDetalles Detalles { get; set; } = new FacturasDetalles();
-    public Laboratorios Laboratorios { get; set; } = new Laboratorios();
-        public string Filtro { get; set; }\
-            bool LaboratorioDisabled => Detalles.ProductoId == 0;
-*@
-
-
 @code
 {
     [Parameter]
 
-    public int CompraId { get; set; }
+    public int ComprasId { get; set; }
     public Compras compras { get; set; } = new Compras();
     public d_Compra d_compra { get; set; } = new d_Compra();
     public Laboratorios Laboratorios { get; set; } = new Laboratorios();
@@ -188,14 +156,12 @@
 
     public bool idVacio;
     public bool cantidadCero;
-    public float PrecioT { get; set; } = 0;
-
     public bool EntregadoAntes = false;
     bool LaboratorioDisabled => d_compra.ProductoId == 0;
 
 
 
-    public string? Filtro { get; set; }
+    public string Filtro { get; set; }
 
     private void ToggleEntregado()
     {
@@ -226,25 +192,13 @@
         {
             ListaProductos = productos;
         }
-        if (CompraId > 0)
+        if (ComprasId > 0)
         {
-            this.compras.CompraId = CompraId;
+            this.compras.CompraId = ComprasId;
             await Buscar();
         }
     }
 
-    public void ActualizarPrecioT()
-    {
-        PrecioT = compras.d_Compra.Sum(f => @ObtenerPrecio(f.ProductoId) * f.Cantidad);
-    }
-    private void VolverAtras()
-    {
-        NavigationManager.NavigateTo("/MenuCompras");
-    }
-    public float ObtenerPrecio(int Id)
-    {
-         return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
-    }
     public int ObtenerLaboratorioId(int Id)
     {
         return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!;
@@ -282,11 +236,11 @@
         var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
         if(string.IsNullOrEmpty(Filtro))
         {
-            ListaProductos = productos!;
+            ListaProductos = productos;
             return;
         }
-        productos = productos?.Where(p => p.Nombre!.ToLower().Contains(Filtro.ToLower())).ToList();
-        ListaProductos = productos!;
+        productos = productos?.Where(p => p.Nombre.ToLower().Contains(Filtro.ToLower())).ToList();
+        ListaProductos = productos;
     }
 
     public async Task Buscar()
@@ -294,27 +248,26 @@
         Nuevo();
         try
         {
-            await httpClient.GetFromJsonAsync<Compras>($"api/Compras/{CompraId}");
+            await httpClient.GetFromJsonAsync<Compras>($"api/Compras/{ComprasId}");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             var mensaje = new NotificationMessage
             {
                 Severity = NotificationSeverity.Error,
                 Summary = "Error",
-                Detail = "No se pudo encontrar la Orden",
+                Detail = "No se pudo encontrar la factura",
                 Duration = 4_000
             };
             notificationService.Notify(mensaje);
             Nuevo();
             return;
         }
-        var CompraEncontrada = await httpClient.GetFromJsonAsync<Compras>($"api/Compras/{CompraId}");
+        var CompraEncontrada = await httpClient.GetFromJsonAsync<Compras>($"api/Compras/{ComprasId}");
         if (CompraEncontrada != null)
         {
             this.compras = CompraEncontrada;
-            ActualizarPrecioT();
-            CompraId = compras.CompraId;
+            ComprasId = compras.CompraId;
             EntregadoAntes = compras.Entregado;
             StateHasChanged();
         }
@@ -322,12 +275,10 @@
 
     public async Task Guardar()
     {
-
         if (!ValidarGuardar())
         {
             return;
         }
-        compras.MontoTotal = PrecioT;
         // Si es ya fue entregado la fecha recibida es guardada
         if (EntregadoAntes == false && compras.Entregado == true)
         {
@@ -362,7 +313,7 @@
                 {
                     Severity = NotificationSeverity.Success,
                     Summary = "Éxito",
-                    Detail = "Orden Guardada Correctamente",
+                    Detail = "Factura Guardada Correctamente",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
@@ -408,37 +359,36 @@
         this.d_compra = new d_Compra();
         DetallesRemovidos = new List<d_Compra>();
         ListaDetalles = new List<d_Compra>();
-        PrecioT = 0;
     }
 
 
     public async Task Eliminar()
     {
-        compras.Eliminado = true;
-        using var response = await httpClient.PostAsJsonAsync($"api/Compras", compras);
+        using var response = await httpClient.DeleteAsync($"api/Compras/{compras.CompraId}");
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "Error al eliminar la Compra",
-                    Duration = 5000
+                    Detail = "La factura no fue Eliminada Correctamente",
+                    Duration = 4_000
                 };
             notificationService.Notify(mensaje);
+            return;
         }
         else
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = "Eliminado",
-                    Detail = "Compra eliminada con éxito",
-                    Duration = 5000
+                    Summary = "Éxito",
+                    Detail = "Factura Eliminada Correctamente",
+                    Duration = 4_000
                 };
             notificationService.Notify(mensaje);
-            Nuevo();
         }
+        this.Nuevo();
     }
 
     public bool ValidarDetalle()
@@ -446,7 +396,7 @@
         return true;
     }
 
-    public void AgregarDetalle()
+    public async Task AgregarDetalle()
     {
         if (!ValidarDetalle())
         {
@@ -477,7 +427,6 @@
         compras.d_Compra.Add(d_compra);
         ListaDetalles.Add(d_compra);
         d_compra = new d_Compra();
-        ActualizarPrecioT();
         Laboratorios.LaboratorioId = 0;
         StateHasChanged();
     }
@@ -497,7 +446,6 @@
         if (ListaDetalles.Any(d => d.d_CompraId == detalle.CompraId))
             ListaDetalles.Remove(detalle);
         Laboratorios.LaboratorioId = detalle.LaboratorioId;
-        ActualizarPrecioT();
         StateHasChanged();
     }
    
