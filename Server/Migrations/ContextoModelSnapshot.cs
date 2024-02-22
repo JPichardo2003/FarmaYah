@@ -27,6 +27,9 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal?>("Fidelidad")
                         .HasColumnType("TEXT");
 
@@ -47,6 +50,7 @@ namespace FarmaYah.Server.Migrations
                         {
                             ClienteId = 1,
                             Dirección = "Direccion 1",
+                            Eliminado = false,
                             Fidelidad = 7m,
                             Nombre = "Juan Perez",
                             Teléfono = "8094587412"
@@ -55,6 +59,7 @@ namespace FarmaYah.Server.Migrations
                         {
                             ClienteId = 2,
                             Dirección = "Direccion 2",
+                            Eliminado = false,
                             Fidelidad = 10m,
                             Nombre = "Maria Lopez",
                             Teléfono = "8091287602"
@@ -89,6 +94,27 @@ namespace FarmaYah.Server.Migrations
                     b.HasKey("CompraId");
 
                     b.ToTable("Compras");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Configuracion", b =>
+                {
+                    b.Property<int>("ConfiguracionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ReOrden")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ConfiguracionId");
+
+                    b.ToTable("Configuracion");
+
+                    b.HasData(
+                        new
+                        {
+                            ConfiguracionId = 1,
+                            ReOrden = false
+                        });
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.CuentasPorPagar", b =>
@@ -144,6 +170,12 @@ namespace FarmaYah.Server.Migrations
                             EmpleadoId = 1,
                             Nombre = "Julio",
                             SucursalId = 1
+                        },
+                        new
+                        {
+                            EmpleadoId = 2,
+                            Nombre = "Alexander",
+                            SucursalId = 2
                         });
                 });
 
@@ -187,6 +219,8 @@ namespace FarmaYah.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("FacturaId");
+
+                    b.HasIndex("ClienteId");
 
                     b.HasIndex("ClientesClienteId");
 
@@ -245,6 +279,12 @@ namespace FarmaYah.Server.Migrations
                             LaboratorioId = 1,
                             Direccion = "Direccion 1",
                             Nombre = "Pfizer"
+                        },
+                        new
+                        {
+                            LaboratorioId = 2,
+                            Direccion = "Direccion 2",
+                            Nombre = "Bayer"
                         });
                 });
 
@@ -307,19 +347,43 @@ namespace FarmaYah.Server.Migrations
 
                     b.HasIndex("LaboratorioId");
 
+                    b.HasIndex("UnidadId");
+
                     b.ToTable("Productos");
 
                     b.HasData(
                         new
                         {
                             ProductoId = 1,
-                            Descripcion = "Dolor de cabeza",
+                            Descripcion = "TBA",
                             Eliminado = false,
                             Existencia = 0,
                             LaboratorioId = 1,
                             Nombre = "Ibuprofeno",
                             Precio = 100f,
-                            UnidadId = 0
+                            UnidadId = 3
+                        },
+                        new
+                        {
+                            ProductoId = 2,
+                            Descripcion = "TBA",
+                            Eliminado = false,
+                            Existencia = 0,
+                            LaboratorioId = 1,
+                            Nombre = "Paracetamol",
+                            Precio = 120f,
+                            UnidadId = 4
+                        },
+                        new
+                        {
+                            ProductoId = 3,
+                            Descripcion = "TBA",
+                            Eliminado = false,
+                            Existencia = 0,
+                            LaboratorioId = 1,
+                            Nombre = "Amoxicilina",
+                            Precio = 150f,
+                            UnidadId = 3
                         });
                 });
 
@@ -449,8 +513,22 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 16, 32, 23, 589, DateTimeKind.Local).AddTicks(5795),
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9244),
                             Nombre = "ARS Humano"
+                        },
+                        new
+                        {
+                            SeguroMedicoId = 2,
+                            Eliminado = false,
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9259),
+                            Nombre = "ARS Palic"
+                        },
+                        new
+                        {
+                            SeguroMedicoId = 3,
+                            Eliminado = false,
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9260),
+                            Nombre = "ARS Universal"
                         });
                 });
 
@@ -507,8 +585,16 @@ namespace FarmaYah.Server.Migrations
                             SucursalId = 1,
                             Direccion = "Direccion 1",
                             EstadoOperativo = true,
-                            Nombre = "Sucursal 1",
+                            Nombre = "McCaffe",
                             Telefono = "8094587412"
+                        },
+                        new
+                        {
+                            SucursalId = 2,
+                            Direccion = "Direccion 2",
+                            EstadoOperativo = true,
+                            Nombre = "Pharma King",
+                            Telefono = "8094587413"
                         });
                 });
 
@@ -620,7 +706,13 @@ namespace FarmaYah.Server.Migrations
             modelBuilder.Entity("FarmaYah.Shared.Models.Facturas", b =>
                 {
                     b.HasOne("FarmaYah.Shared.Models.Clientes", null)
-                        .WithMany("facturas")
+                        .WithMany("Facturas")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FarmaYah.Shared.Models.Clientes", null)
+                        .WithMany("ListaFacturas")
                         .HasForeignKey("ClientesClienteId");
 
                     b.HasOne("FarmaYah.Shared.Models.Empleados", null)
@@ -665,6 +757,12 @@ namespace FarmaYah.Server.Migrations
                         .HasForeignKey("LaboratorioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FarmaYah.Shared.Models.Unidad", null)
+                        .WithMany("Productos")
+                        .HasForeignKey("UnidadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.ProveedorProducto", b =>
@@ -702,7 +800,9 @@ namespace FarmaYah.Server.Migrations
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
                 {
-                    b.Navigation("facturas");
+                    b.Navigation("Facturas");
+
+                    b.Navigation("ListaFacturas");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>
@@ -751,6 +851,11 @@ namespace FarmaYah.Server.Migrations
                     b.Navigation("Empleados");
 
                     b.Navigation("Facturas");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Unidad", b =>
+                {
+                    b.Navigation("Productos");
                 });
 #pragma warning restore 612, 618
         }

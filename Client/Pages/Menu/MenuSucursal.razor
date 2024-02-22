@@ -1,5 +1,4 @@
 ﻿@page "/MenuSucursal"
-@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
 <PageTitle>Sucursal</PageTitle>
@@ -30,12 +29,9 @@
 </div>
 
 @code {
-    private async Task VolverAtras()
-    {
-        await JSRuntime.InvokeVoidAsync("history.back");
-    }
+
     public void Back()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("MenuPrincipal");
     }
 }

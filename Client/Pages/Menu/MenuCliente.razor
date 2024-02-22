@@ -1,7 +1,6 @@
 ﻿@page "/MenuClientes"
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
-@inject NavigationManager navigationManager
+
 <PageTitle>Home</PageTitle>
 <div class="card" style="width:1000px">
     <div class="card-header ">
@@ -17,13 +16,13 @@
     <div class="card-body">
         <div class="row justify-content-center">
             <div class="col-md-4 text-center">
-                <button type="button" class="d-block mx-auto">
+                <button type="button" class="d-block mx-auto" @onclick="NavigateToClientes">
                     <img src="Images/icons8-cliente-64.png" class="icon" />Registrar Cliente
                 </button>
             </div>
             <div class="col-md-4 text-center">
-                <button class="d-block mx-auto">
-                    <img src="Images/icons8-clientes-80.png" class="icon" />Clientes
+                <button class="d-block mx-auto" @onclick="NavigateToConsulta">
+                    <img src="Images/icons8-clientes-80.png" class="icon" />Consultar Clientes
                 </button>
             </div>
 
@@ -33,13 +32,19 @@
 
 
 @code {
-    private async Task VolverAtras()
-    {
-        await JSRuntime.InvokeVoidAsync("history.back");
-    }
 
     public void Back()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("MenuPrincipal");
+    }
+
+    private void NavigateToClientes()
+    {
+        NavigationManager.NavigateTo("/RClientes");
+    }
+
+    private void NavigateToConsulta()
+    {
+        NavigationManager.NavigateTo("/CClientes");
     }
 }

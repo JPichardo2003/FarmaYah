@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,11 @@ namespace FarmaYah.Shared.Models
 		public string? Teléfono { get; set; }
 		public decimal? Fidelidad { get; set; } = 0;
 
-		public List<Facturas> facturas { get; set; } = new List<Facturas>();
-	}
+		public bool Eliminado { get; set; } = false;
+
+		public List<Facturas> ListaFacturas { get; set; } = new List<Facturas>();
+
+        [ForeignKey("ClienteId")]
+        public ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();
+    }
 }

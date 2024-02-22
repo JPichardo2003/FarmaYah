@@ -25,7 +25,7 @@
 				<div class="row">
 					<div class="col-4">
 						<label for="Nombre">Nombre Producto:</label>
-						<InputNumber id="Nombre" @bind-Value="Laboratorio.LaboratorioId" class="form-control" />
+						<InputNumber id="Nombre" @bind-Value="Laboratorio!.LaboratorioId" class="form-control" />
 						<ValidationMessage For="@(() => Laboratorio.LaboratorioId)" />
 						<button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
 
@@ -64,7 +64,7 @@
 @code{
 	[Parameter]
 	public int LaboratorioId { get; set; }
-	public Laboratorios Laboratorio { get; set; } = new Laboratorios();
+	public Laboratorios? Laboratorio { get; set; } = new Laboratorios();
 	protected override async Task OnInitializedAsync()
 	{
 		if (LaboratorioId > 0)
@@ -110,7 +110,7 @@
 	}
 	public async Task Eliminar()
 	{
-		using var response = await HttpClient.DeleteAsync($"api/Laboratorios/{Laboratorio.LaboratorioId}");
+		using var response = await HttpClient.DeleteAsync($"api/Laboratorios/{Laboratorio!.LaboratorioId}");
 		if (!response.IsSuccessStatusCode)
 		{
 			var mensaje = new NotificationMessage
@@ -138,10 +138,10 @@
 
 	public async Task Buscar()
 	{
-		var laboratorioNotNull = (await HttpClient.GetFromJsonAsync<List<Laboratorios>>($"api/Laboratorios")).ToList().Any(p => p.LaboratorioId == Laboratorio.LaboratorioId);
+		var laboratorioNotNull = (await HttpClient.GetFromJsonAsync<List<Laboratorios>>($"api/Laboratorios"))!.ToList().Any(p => p.LaboratorioId == Laboratorio!.LaboratorioId);
 		if (laboratorioNotNull)
 		{
-			var laboratorioEncontrado = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{Laboratorio.LaboratorioId}");
+			var laboratorioEncontrado = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{Laboratorio!.LaboratorioId}");
 			if (laboratorioEncontrado is not null)
 			{
 				Laboratorio = laboratorioEncontrado;
@@ -168,7 +168,7 @@
 
 	private void MetodoRelleno()
 	{
-		Console.WriteLine($"Nombre: {Laboratorio.Nombre}");
+		Console.WriteLine($"Nombre: {Laboratorio!.Nombre}");
 		Console.WriteLine($"Correo electrónico: {Laboratorio.Direccion}");
 	}
 }

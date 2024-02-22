@@ -1,69 +1,107 @@
-﻿@* @page "/MenuPrincipal" *@
-@page "/"
+﻿@page "/MenuPrincipal"
 
 @inject NavigationManager NavigationManager
 <PageTitle>Home</PageTitle>
 <div class="card" style="width:1000px">
     <div class="card-header d-flex align-items-center justify-content-center">
         <img src="Images/pngwing.com.png" class="img-logo" />
-        <h1>FarmaYah - Men&uacute; Principal</h1>
+        <h1>FarmaYah - Menú Principal</h1>
     </div>
     <div class="card-body">
-    <div class="container-fluid">
         <div class="row justify-content-center">
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'MenuFactura';">
-                    <img src="Images/icons8-factura-50.png" class="icon" /> Factura
+            <div class="col-md-4 text-center">
+                <button type="button" @onclick="NavigateToFacturas" class="d-block mx-auto">
+                    <img src="Images/icons8-factura-50.png" class="icon" />Factura
                 </button>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'RProveedor';">
-                    <img src="Images/icons8-laboratorio-501.png" class="icon" /> Laboratorios
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToLaboratorios">
+                    <img src="Images/iconslaboratorio.png" class="icon" />Laboratorio
                 </button>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'MenuEmpleados';">
-                    <img src="Images/icons8-trabajo-permanente-100.png" class="icon" /> Empleado
+            <div class="col-md-4 text-center mb-4">
+                <button class="d-block mx-auto" @onclick="NavigateToProveedores">
+                    <img src="Images/icons8-proveedor-50.png" class="icon" />Proveedores
                 </button>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'MenuClientes';">
-                    <img src="Images/icons8-presupuesto-100.png" class="icon" /> Cliente
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToCompras">
+                    <img src="Images/icons8-comprar-100.png" class="icon" />Compras
                 </button>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'MenuProductos';">
-                    <img src="Images/icons8-producto-100.png" class="icon" /> Producto
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToProductos">
+                    <img src="Images/icons8-producto-100.png" class="icon" />Productos
                 </button>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'MenuProveedores';">
-                    <img src="Images/icons8-proveedor-50.png" class="icon" /> Proveedores
+            <div class="col-md-4 text-center mb-4">
+                <button class="d-block mx-auto" @onclick="NavigateToSucursales">
+                    <img src="Images/icons8-tienda-100.png" class="icon" />Sucursal
                 </button>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <button type="button"  onclick="location.href= 'MenuSucursal';">
-                    <img src="Images/icons8-oficina-50.png" class="icon" /> Sucursales
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToSeguros">
+                    <img src="Images/icons8-seguro-de-salud-100.png" class="icon" />Seguros
                 </button>
             </div>
-
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToEmpleados">
+                    <img src="Images/icons8-trabajo-permanente-100.png" class="icon" />Empleados
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToClientes">
+                    <img src="Images/icons8-presupuesto-100.png" class="icon" />Clientes
+                </button>
+            </div>
         </div>
     </div>
-</div>
-
 </div>
 
 @code {
 
     private void NavigateToFacturas()
     {
-        NavigationManager.NavigateTo("/RFacturas");
+        NavigationManager.NavigateTo("/MenuFacturas");
+    }
+
+    private void NavigateToCompras()
+    {
+        NavigationManager.NavigateTo("/MenuCompras");
+    }
+
+    private void NavigateToSeguros()
+    {
+        NavigationManager.NavigateTo("/MenuSeguros");
+    }
+
+    private void NavigateToProveedores()
+    {
+        NavigationManager.NavigateTo("/MenuProveedores");
+    }
+
+    private void NavigateToProductos()
+    {
+        NavigationManager.NavigateTo("/MenuProductos");
+    }
+
+    private void NavigateToSucursales()
+    {
+        NavigationManager.NavigateTo("/MenuSucursal");
+    }
+
+    private void NavigateToEmpleados()
+    {
+        NavigationManager.NavigateTo("/Menuempleados");
+    }
+
+    private void NavigateToLaboratorios()
+    {
+        NavigationManager.NavigateTo("/MenuLaboratorio");
+    }
+
+    private void NavigateToClientes()
+    {
+        NavigationManager.NavigateTo("/MenuClientes");
     }
 }

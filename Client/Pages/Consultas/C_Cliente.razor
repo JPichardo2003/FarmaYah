@@ -1,10 +1,11 @@
 ﻿@page "/CClientes";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-
+@inject NavigationManager NavigationManager;
 <div class="card-header mt-4">
 
 	<div class="card-header d-flex align-items-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
 		<img src="Images/pngwing.com.png" class="img-logo" />
 		<h1>Consulta Clientes</h1>
 	</div>
@@ -86,7 +87,10 @@
     {
         await Buscar();
     }
-
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuClientes");
+    }
     public async Task Buscar()
     {
         ListaClientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes") ?? new List<Clientes>();
@@ -108,15 +112,15 @@
 
         if (opciones == 1)
         {
-            ListaClientes = ListaClientes.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Nombre.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Clientes>();
+            ListaClientes = ListaClientes!.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Nombre!.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Clientes>();
         }
         else if (opciones == 2)
         {
-            ListaClientes = ListaClientes.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Dirección.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Clientes>();
+            ListaClientes = ListaClientes!.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Dirección!.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Clientes>();
         }
         else if (opciones == 3)
         {
-            ListaClientes = ListaClientes.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Teléfono.Contains(FiltroString))).ToList() ?? new List<Clientes>();
+            ListaClientes = ListaClientes!.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Teléfono!.Contains(FiltroString))).ToList() ?? new List<Clientes>();
         }    
 
         Conteo = ListaClientes != null ? ListaClientes!.Count() : 0;
