@@ -1,0 +1,166 @@
+﻿@page "/RClientes";
+@page "/RClientes/{ClienteId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+<EditForm Model="clientes" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />   
+
+	<div class="card">
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de Clientes</h1>
+		</div>
+
+        <div class="card-body">
+            <div class="row-cols-1">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label>Nombre del Cliente</label>
+                        <InputText @bind-Value="clientes.Nombre" class="form-control" placeholder="Nombre del cliente" />
+                        <ValidationMessage For="@(() => clientes.Nombre)" />
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Teléfono</label>
+                        <InputText @bind-Value="clientes.Teléfono" class="form-control" maxlength="10" placeholder="1234567890" />
+                        <ValidationMessage For="@(() => clientes.Teléfono)" />
+                    </div>
+                </div>
+
+                <div class="form-group md-4 mt-2">
+                    <label>Dirección</label>
+                    <InputTextArea @bind-Value="clientes.Dirección" class="form-control" />
+                    <ValidationMessage For="@(() => clientes.Dirección)" />
+                </div>
+            </div>
+        </div>
+
+
+
+
+		<div class="card-footer text-center">
+			<button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+			<button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+			<button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+		</div>
+	</div>	
+
+</EditForm>
+
+
+@code {
+	[Parameter]
+	public int ClienteId { get; set; }
+
+	public Clientes clientes = new Clientes();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ClienteId > 0)
+        {
+            this.clientes.ClienteId = ClienteId;
+            await Buscar();
+        }
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuClientes");
+    }
+
+    public async Task Buscar()
+    {
+        var ClienteIdEncontrado = (await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes"))!
+        .ToList()
+        .Any(c => c.ClienteId == clientes.ClienteId);
+        if (ClienteIdEncontrado)
+        {
+            var clienteEncontrado = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{clientes.ClienteId}");
+            if (clienteEncontrado != null)
+            {
+                this.clientes = clienteEncontrado;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se encontro ningun cliente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Clientes", clientes);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No es posible Guardar",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var clienteDevuelto = await response.Content.ReadFromJsonAsync<Clientes>();
+        if (clienteDevuelto is not null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "validación",
+                    Detail = "Cliente Guardado Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            clientes = clienteDevuelto;
+            this.Nuevo();
+            StateHasChanged();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.clientes = new Clientes();
+    }
+
+    public async Task Eliminar()
+    {
+        clientes.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/Clientes", clientes);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al eliminar el Cliente",
+                    Duration = 5_000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Cliente eliminado con éxito",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
+    }
+}

@@ -21,6 +21,8 @@ namespace FarmaYah.Shared.Models
 
         public int SucursalId { get; set; }
 
+        public int ClienteId { get; set; }
+
         public string? Estado { get; set; }
 
         public float Devolucion { get; set; }

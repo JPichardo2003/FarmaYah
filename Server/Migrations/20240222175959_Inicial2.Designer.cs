@@ -11,14 +11,63 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240220225818_Segunda")]
-    partial class Segunda
+    [Migration("20240222175959_Inicial2")]
+    partial class Inicial2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
+                {
+                    b.Property<int>("ClienteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Dirección")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("Fidelidad")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Teléfono")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ClienteId");
+
+                    b.ToTable("Clientes");
+
+                    b.HasData(
+                        new
+                        {
+                            ClienteId = 1,
+                            Dirección = "Direccion 1",
+                            Eliminado = false,
+                            Fidelidad = 7m,
+                            Nombre = "Juan Perez",
+                            Teléfono = "8094587412"
+                        },
+                        new
+                        {
+                            ClienteId = 2,
+                            Dirección = "Direccion 2",
+                            Eliminado = false,
+                            Fidelidad = 10m,
+                            Nombre = "Maria Lopez",
+                            Teléfono = "8091287602"
+                        });
+                });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>
                 {
@@ -139,6 +188,12 @@ namespace FarmaYah.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ClientesClienteId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<float>("Devolucion")
                         .HasColumnType("REAL");
 
@@ -167,6 +222,10 @@ namespace FarmaYah.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("FacturaId");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("ClientesClienteId");
 
                     b.HasIndex("EmpleadoId");
 
@@ -431,21 +490,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 20, 18, 58, 17, 925, DateTimeKind.Local).AddTicks(7356),
+                            Fecha = new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1661),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 20, 18, 58, 17, 925, DateTimeKind.Local).AddTicks(7372),
+                            Fecha = new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1678),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 20, 18, 58, 17, 925, DateTimeKind.Local).AddTicks(7375),
+                            Fecha = new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1681),
                             Nombre = "ARS Universal"
                         });
                 });
@@ -598,6 +657,16 @@ namespace FarmaYah.Server.Migrations
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Facturas", b =>
                 {
+                    b.HasOne("FarmaYah.Shared.Models.Clientes", null)
+                        .WithMany("Facturas")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FarmaYah.Shared.Models.Clientes", null)
+                        .WithMany("ListaFacturas")
+                        .HasForeignKey("ClientesClienteId");
+
                     b.HasOne("FarmaYah.Shared.Models.Empleados", null)
                         .WithMany("Facturas")
                         .HasForeignKey("EmpleadoId")
@@ -670,6 +739,13 @@ namespace FarmaYah.Server.Migrations
                         .HasForeignKey("CompraId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
+                {
+                    b.Navigation("Facturas");
+
+                    b.Navigation("ListaFacturas");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>

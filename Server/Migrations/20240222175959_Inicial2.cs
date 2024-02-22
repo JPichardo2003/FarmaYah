@@ -6,66 +6,56 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmaYah.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Segunda : Migration
+    public partial class Inicial2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Configuracion",
-                columns: new[] { "ConfiguracionId", "ReOrden" },
-                values: new object[] { 1, false });
-
             migrationBuilder.UpdateData(
                 table: "SegurosMedicos",
                 keyColumn: "SeguroMedicoId",
                 keyValue: 1,
                 column: "Fecha",
-                value: new DateTime(2024, 2, 20, 18, 58, 17, 925, DateTimeKind.Local).AddTicks(7356));
+                value: new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1661));
 
             migrationBuilder.UpdateData(
                 table: "SegurosMedicos",
                 keyColumn: "SeguroMedicoId",
                 keyValue: 2,
                 column: "Fecha",
-                value: new DateTime(2024, 2, 20, 18, 58, 17, 925, DateTimeKind.Local).AddTicks(7372));
+                value: new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1678));
 
             migrationBuilder.UpdateData(
                 table: "SegurosMedicos",
                 keyColumn: "SeguroMedicoId",
                 keyValue: 3,
                 column: "Fecha",
-                value: new DateTime(2024, 2, 20, 18, 58, 17, 925, DateTimeKind.Local).AddTicks(7375));
+                value: new DateTime(2024, 2, 22, 13, 59, 59, 528, DateTimeKind.Local).AddTicks(1681));
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "Configuracion",
-                keyColumn: "ConfiguracionId",
-                keyValue: 1);
-
             migrationBuilder.UpdateData(
                 table: "SegurosMedicos",
                 keyColumn: "SeguroMedicoId",
                 keyValue: 1,
                 column: "Fecha",
-                value: new DateTime(2024, 2, 20, 18, 53, 9, 392, DateTimeKind.Local).AddTicks(3682));
+                value: new DateTime(2024, 2, 22, 13, 36, 28, 396, DateTimeKind.Local).AddTicks(8164));
 
             migrationBuilder.UpdateData(
                 table: "SegurosMedicos",
                 keyColumn: "SeguroMedicoId",
                 keyValue: 2,
                 column: "Fecha",
-                value: new DateTime(2024, 2, 20, 18, 53, 9, 392, DateTimeKind.Local).AddTicks(3699));
+                value: new DateTime(2024, 2, 22, 13, 36, 28, 396, DateTimeKind.Local).AddTicks(8183));
 
             migrationBuilder.UpdateData(
                 table: "SegurosMedicos",
                 keyColumn: "SeguroMedicoId",
                 keyValue: 3,
                 column: "Fecha",
-                value: new DateTime(2024, 2, 20, 18, 53, 9, 392, DateTimeKind.Local).AddTicks(3701));
+                value: new DateTime(2024, 2, 22, 13, 36, 28, 396, DateTimeKind.Local).AddTicks(8185));
         }
     }
 }

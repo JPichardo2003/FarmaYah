@@ -18,6 +18,18 @@
                     <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
                     <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
                 </div> *@
+                
+                <div class="col-md-6">
+                    <label>Nombre del cliente</label>
+                    <InputSelect @bind-Value="facturas.ClienteId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var c in ListaClientes)
+                        {
+                            <option value="@c.ClienteId">@c.Nombre</option>
+
+                        }
+                    </InputSelect>
+                </div>
                 <div class="col-md-6">
                     <label>Fecha:</label>
                     <InputDate @bind-Value="facturas.Fecha" class="form-control" readonly></InputDate>
@@ -42,7 +54,6 @@
                             <option value="@s.SeguroMedicoId">@s.Nombre</option>
                         }
                     </InputSelect>
-                    <ValidationMessage For="@(() => facturas.Pago)" />
                 </div>
                 <div class="col-md-6">
                     <label>Sucursal:</label>
@@ -144,6 +155,7 @@
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
     public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
 
     public List<FacturasDetalles> DetallesRemovidos { get; set; } = new List<FacturasDetalles>();
     public List<FacturasDetalles> ListaDetalles { get; set; } = new List<FacturasDetalles>();
@@ -164,6 +176,12 @@
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
         var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
+        var Clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+
+        if (Clientes is not null)
+        {
+            ListaClientes = Clientes;
+        }
 
         if(laboratorios is not null)
         {
@@ -485,7 +503,7 @@
                 return;
             }
             if((producto.Existencia - Detalles.Cantidad) <=10)
-{
+            {
                 var mensaje = new NotificationMessage
                     {
                         Severity = NotificationSeverity.Warning,
@@ -514,6 +532,8 @@
                 DetallesRemovidos.Remove(Detalles);
             Detalles = new FacturasDetalles();
             ActualizarPrecioT();
+            CalcularPagoYEstado();
+
         }
         StateHasChanged();
     }
