@@ -17,6 +17,50 @@ namespace FarmaYah.Server.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
 
+            modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
+                {
+                    b.Property<int>("ClienteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Dirección")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Fidelidad")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Teléfono")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ClienteId");
+
+                    b.ToTable("Clientes");
+
+                    b.HasData(
+                        new
+                        {
+                            ClienteId = 1,
+                            Dirección = "Direccion 1",
+                            Fidelidad = 7m,
+                            Nombre = "Juan Perez",
+                            Teléfono = "8094587412"
+                        },
+                        new
+                        {
+                            ClienteId = 2,
+                            Dirección = "Direccion 2",
+                            Fidelidad = 10m,
+                            Nombre = "Maria Lopez",
+                            Teléfono = "8091287602"
+                        });
+                });
+
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>
                 {
                     b.Property<int>("CompraId")
@@ -109,6 +153,12 @@ namespace FarmaYah.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ClientesClienteId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<float>("Devolucion")
                         .HasColumnType("REAL");
 
@@ -137,6 +187,8 @@ namespace FarmaYah.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("FacturaId");
+
+                    b.HasIndex("ClientesClienteId");
 
                     b.HasIndex("EmpleadoId");
 
@@ -371,7 +423,7 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 19, 22, 41, 9, 465, DateTimeKind.Local).AddTicks(5717),
+                            Fecha = new DateTime(2024, 2, 20, 15, 46, 55, 288, DateTimeKind.Local).AddTicks(4905),
                             Nombre = "ARS Humano"
                         });
                 });
@@ -494,6 +546,10 @@ namespace FarmaYah.Server.Migrations
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Facturas", b =>
                 {
+                    b.HasOne("FarmaYah.Shared.Models.Clientes", null)
+                        .WithMany("facturas")
+                        .HasForeignKey("ClientesClienteId");
+
                     b.HasOne("FarmaYah.Shared.Models.Empleados", null)
                         .WithMany("Facturas")
                         .HasForeignKey("EmpleadoId")
@@ -560,6 +616,11 @@ namespace FarmaYah.Server.Migrations
                         .HasForeignKey("CompraId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
+                {
+                    b.Navigation("facturas");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>
