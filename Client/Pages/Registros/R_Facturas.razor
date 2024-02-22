@@ -7,36 +7,59 @@
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header d-flex align-items-center">
-            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
             <img src="Images/pngwing.com.png" class="img-logo" />
             <h1>Registro de facturas</h1>
         </div>
         <div class="card-body">
-            <div class="row">
-                @* <label>Factura ID:</label>
+
+            @*Nombre del cliente*@
+            <label>Nombre del cliente</label>
+            <div class="col-md-6">
+                <InputSelect @bind-Value="facturas.ClienteId" class="form-select">
+                    <option value="" hidden="hidden">Seleccione</option>
+                    <option value="">Sin Nombre</option>
+
+                    @foreach (var c in ListaClientes)
+                    {
+                        <option value="@c.ClienteId">@c.Nombre</option>
+
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="row  mt-3">
+
+                @*
+                <label>Factura ID:</label>
                 <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
-                    <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
-                </div> *@
-                <div class="col-md-6">
+                <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
+                <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                </div>
+                *@
+
+
+                <div class="col-md-6 mt-2">
                     <label>Fecha:</label>
-                    <InputDate @bind-Value="facturas.Fecha" class="form-control" readonly></InputDate>
+                    <InputDate @bind-Value="facturas.Fecha" class="form-control"></InputDate>
                     <ValidationMessage For="@(() => facturas.Fecha)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Pago:</label>
-                    <InputNumber @bind-Value="facturas.Pago" class="form-control" @onblur="CalcularPagoYEstado"></InputNumber>
+                    <InputNumber @bind-Value="facturas.Pago" class="form-control"></InputNumber>
                     <ValidationMessage For="@(() => facturas.Pago)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Devoluci&oacute;n:</label>
-                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control" readonly disabled></InputNumber>
+                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control"></InputNumber>
                     <ValidationMessage For="@(() => facturas.Devolucion)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Seguro Medico:</label>
-                    <InputSelect @bind-Value="facturas.SeguroMedicoId" class="form-select" @onclick="ActualizarPrecioT">
-                        <option value="">Seleccione</option>
+                    <InputSelect @bind-Value="facturas.SeguroMedicoId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
                         @foreach (var s in ListaSeguros)
                         {
                             <option value="@s.SeguroMedicoId">@s.Nombre</option>
@@ -44,7 +67,8 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.Pago)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Sucursal:</label>
                     <InputSelect @bind-Value="facturas.SucursalId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -55,7 +79,8 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.SucursalId)" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-2">
                     <label>Empleado:</label>
                     <InputSelect @bind-Value="facturas.EmpleadoId" class="form-select">
                         <option value="" hidden="hidden">Seleccione</option>
@@ -66,8 +91,11 @@
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.EmpleadoId)" />
                 </div>
+
             </div>
         </div>
+
+
         @*Detalles:*@
         <div class="card card-header">
             <h3>Productos</h3>
@@ -77,7 +105,7 @@
                 <div class="col-md-6">
                     <label>Producto</label>
                     <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
+                        <option value="">Seleccione</option>
                         @foreach (var p in ListaProductos)
                         {
                             <option value="@p.ProductoId">@p.Nombre</option>
@@ -138,7 +166,7 @@
     public int FacturaId { get; set; }
     public Facturas facturas { get; set; } = new Facturas();
     public FacturasDetalles Detalles { get; set; } = new FacturasDetalles();
-
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
     public List<Productos> ListaProductos { get; set; } = new List<Productos>();
     public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
@@ -164,12 +192,16 @@
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
         var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
+        var Clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
 
         if(laboratorios is not null)
         {
             ListaLaboratorios = laboratorios;
         }
-
+        if(Clientes is not null)
+        {
+            ListaClientes = Clientes;
+        }
         if( empleados is not null)
         {
             ListaEmpleados = empleados;
@@ -359,53 +391,68 @@
             return;
         }
         CalcularPagoYEstado();
-
-        using var response = await httpClient.PostAsJsonAsync("api/Facturas", facturas);
-        if (!response.IsSuccessStatusCode)
+        var facturasP = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas");
+        var FacutrasPendientes = facturasP.Where(f => f.Estado == "Pendiente");
+        if (FacutrasPendientes.Count() <= 3)
+        {
+            using var response = await httpClient.PostAsJsonAsync("api/Facturas", facturas);
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "No se pudo Guardar correctamente, verifique los campos",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+            var facturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
+            if (facturaDevuelta is not null)
+            {
+                //cuando eliminamos un detalle de un registro y guardamos se devuelve al inventario lo que se habia utilizado
+                if (DetallesRemovidos.Count > 0)
+                {
+                    foreach (var detalle in DetallesRemovidos)
+                    {
+                        await httpClient.DeleteAsync($"api/Facturas/DeleteDetalles/{detalle.FacturaDetalleId}");
+                    }
+                }
+                //cuando creamos un registro se reduce del inventario lo que se utilizo
+                if (ListaDetalles.Count > 0)
+                {
+                    foreach (var detalle in ListaDetalles)
+                    {
+                        var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
+                        reducir!.Existencia = reducir.Existencia - detalle.Cantidad;
+                        using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
+                    }
+                }
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Éxito",
+                        Detail = "Factura Guardada Correctamente",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                facturas = facturaDevuelta;
+                StateHasChanged();
+                this.Nuevo();
+            }
+        }
+        else
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "No se pudo Guardar correctamente, verifique los campos",
+                    Detail = "El cliente posee 3 facturas pendientes, no se puede facturar hasta pagar las facturas anteriores",
                     Duration = 4_000
                 };
-            notificationService.Notify(mensaje);
-            return;
         }
-        var facturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
-        if (facturaDevuelta is not null)
-        {
-            //cuando eliminamos un detalle de un registro y guardamos se devuelve al inventario lo que se habia utilizado
-            if (DetallesRemovidos.Count > 0)
-            {
-                foreach (var detalle in DetallesRemovidos)
-                {
-                    await httpClient.DeleteAsync($"api/Facturas/DeleteDetalles/{detalle.FacturaDetalleId}");
-                }
-            }
-            //cuando creamos un registro se reduce del inventario lo que se utilizo
-            if (ListaDetalles.Count > 0)
-            {
-                foreach (var detalle in ListaDetalles)
-                {
-                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
-                    reducir!.Existencia = reducir.Existencia - detalle.Cantidad;
-                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir.ProductoId}", reducir);
-                }
-            }
-            var mensaje = new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Success,
-                    Summary = "Éxito",
-                    Detail = "Factura Guardada Correctamente",
-                    Duration = 4_000
-                };
-            notificationService.Notify(mensaje);
-            facturas = facturaDevuelta;
-            StateHasChanged();
-            this.Nuevo();
-        }
+
     }
 
     public void Nuevo()

@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240222111846_Agregando PagosCuentasPorCobrar")]
+    partial class AgregandoPagosCuentasPorCobrar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -449,7 +452,7 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 16, 32, 23, 589, DateTimeKind.Local).AddTicks(5795),
+                            Fecha = new DateTime(2024, 2, 22, 7, 18, 46, 92, DateTimeKind.Local).AddTicks(7718),
                             Nombre = "ARS Humano"
                         });
                 });
@@ -525,53 +528,6 @@ namespace FarmaYah.Server.Migrations
                     b.HasKey("UnidadId");
 
                     b.ToTable("Unidades");
-
-                    b.HasData(
-                        new
-                        {
-                            UnidadId = 1,
-                            Descripcion = "Pastilla"
-                        },
-                        new
-                        {
-                            UnidadId = 2,
-                            Descripcion = "Jarabe"
-                        },
-                        new
-                        {
-                            UnidadId = 3,
-                            Descripcion = "Capsulas"
-                        },
-                        new
-                        {
-                            UnidadId = 4,
-                            Descripcion = "Inyección"
-                        },
-                        new
-                        {
-                            UnidadId = 5,
-                            Descripcion = "Crema"
-                        },
-                        new
-                        {
-                            UnidadId = 6,
-                            Descripcion = "Supositorio"
-                        },
-                        new
-                        {
-                            UnidadId = 7,
-                            Descripcion = "Gotas"
-                        },
-                        new
-                        {
-                            UnidadId = 8,
-                            Descripcion = "Spray"
-                        },
-                        new
-                        {
-                            UnidadId = 9,
-                            Descripcion = "Otros"
-                        });
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.d_Compra", b =>

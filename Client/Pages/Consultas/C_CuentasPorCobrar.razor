@@ -1,4 +1,4 @@
-﻿@page "/C_CuentrasPorCobrar"
+﻿@page "/C_CuentasPorCobrar"
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
 <PageTitle>Cuentas por cobrar</PageTitle>
@@ -6,7 +6,7 @@
     <div class="card-header d-flex align-items-center">
         <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
         <img src="Images/pngwing.com.png" class="img-logo" />
-        <h1>Consultas de Facturas</h1>
+        <h1>Cuentas por cobrar</h1>
     </div>
     <div class="card-body">
         <div class="input-group-text">
@@ -52,6 +52,8 @@
                 case 5:
                     <InputNumber @bind-Value="facturas!.MontoTotal" class="form-control"></InputNumber>
                     break;
+                
+                   
             }
         </div>
     </div>
@@ -63,6 +65,7 @@
                 <thead>
                     <tr>
                         <th>Fecha</th>
+                        <th>Cliente</th>
                         <th>Seguro Medico</th>
                         <th>Atendido Por</th>
                         <th>Sucursal</th>
@@ -76,12 +79,13 @@
                     {
                         <tr>
                             <td>@facturas.Fecha.ToString("MM/dd/yyyy")</td>
+                            <td>@ObtenerNombreCliente(facturas.ClienteId)</td>
                             <td>@ObtenerNombreSeguro(facturas.SeguroMedicoId)</td>
                             <td>@ObtenerNombre(facturas.EmpleadoId)</td>
                             <td>@ObtenerNombreSucursal(facturas.SucursalId)</td>
                             <td>@facturas.Estado</td>
                             <td>@facturas.MontoTotal</td>
-                            <td><a href="RFacturas/@facturas.FacturaId"><i class="bi bi-eye-fill"></i></a></td>
+                            <td><a class="btn btn-primary" href="R_CuentasPorCobrar/@facturas.FacturaId">Cobrar</a></td>
                         </tr>
                     }
                     <tr>
@@ -107,6 +111,7 @@
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
     public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
@@ -122,6 +127,7 @@
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
 
         if (seguros is not null)
         {
@@ -134,6 +140,10 @@
         if (empleados is not null)
         {
             ListaEmpleados = empleados;
+        }
+        if (clientes is not null)
+        {
+            ListaClientes = clientes;
         }
         await Buscar();
         Desde = DateTime.Now.AddMonths(-1);
@@ -187,7 +197,7 @@
             .Where(t => t.MontoTotal >= facturas!.MontoTotal && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
             .ToList();
             StateHasChanged();
-        }
+        }       
         else
         {
             FacturasPendientes = await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar");
@@ -218,5 +228,10 @@
     private void VolverAtras()
     {
         NavigationManager.NavigateTo("/MenuFacturas");
+    }
+    public string ObtenerNombreCliente(int Id)
+    {
+        var cliente = ListaClientes.FirstOrDefault(p => p.ClienteId == Id);
+        return cliente?.Nombre ?? "Nombre no encontrado";
     }
 }

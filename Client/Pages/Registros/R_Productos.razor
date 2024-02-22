@@ -68,7 +68,6 @@
                     <div class="col-4">
                         <label for="Unidad">Unidad:</label>
                         
-                        <ValidationMessage For="@(() => producto.UnidadId)" />
                         <InputSelect id="Unidad" @bind-Value="producto.UnidadId" class="form-select">
                             <option value="">Seleccione...</option>
                             @foreach (var unidad in Unidades ?? new List<Unidad>())

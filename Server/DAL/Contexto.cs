@@ -21,7 +21,7 @@ namespace FarmaYah.Server.DAL
         public DbSet<Proveedores> Proveedores { get; set; } 
         public DbSet<ProveedorProducto> ProveedoresProductos { get; set; }
         public DbSet<Clientes> Clientes { get; set; }
-        public DbSet<PagosCuentasPorCobrar> CuentasPorCobrar { get; set; }
+        public DbSet<PagosCuentasPorCobrar> PagosCuentasPorCobrar { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -65,6 +65,18 @@ namespace FarmaYah.Server.DAL
             modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
             {
                 new Clientes(){ClienteId=2, Nombre="Maria Lopez", Dirección="Direccion 2", Teléfono="8091287602", Fidelidad=10}
+            });
+            modelBuilder.Entity<Unidad>().HasData(new List<Unidad>()
+            {
+                new Unidad(){UnidadId = 1, Descripcion="Pastilla" },    
+                new Unidad(){UnidadId = 2, Descripcion="Jarabe" },  
+                new Unidad(){UnidadId = 3, Descripcion="Capsulas" },
+                new Unidad(){UnidadId = 4, Descripcion="Inyección" },
+                new Unidad(){UnidadId = 5, Descripcion="Crema" },   
+                new Unidad(){UnidadId = 6, Descripcion="Supositorio" },
+                new Unidad(){UnidadId = 7, Descripcion="Gotas" },
+                new Unidad(){UnidadId = 8, Descripcion="Spray" },
+                new Unidad(){UnidadId = 9, Descripcion="Otros" }
             });
 
 
