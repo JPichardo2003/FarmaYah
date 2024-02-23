@@ -66,7 +66,7 @@
                             <td>@Compras.FechaPedida.ToString("MM/dd/yyyy")</td>
                             <td>@Compras.FechaRecibida.ToString("MM/dd/yyyy")</td>
                             <td>@Compras.Tipo</td>
-                            <td>@Compras.Entregado</td>
+                            <td>@if (Compras.Entregado == true) { <h6>Entregado</h6>}else{<h6>No Entregado</h6>}</td>
                             <td>@Compras.MontoTotal</td>
                             <td><a href="RCompras/@Compras.CompraId"><i class="bi bi-eye-fill"></i></a></td>
                         </tr>

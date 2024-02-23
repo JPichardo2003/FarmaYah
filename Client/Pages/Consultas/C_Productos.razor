@@ -50,7 +50,7 @@
 						<th>Producto ID</th>
 						<th>Nombre</th>
 						<th>Descripción</th>
-						<th>Laboratorio ID</th>
+						<th>Laboratorio</th>
 						<th>Precio</th>
 						<th>Existencia</th>
 						<th>Unidad</th>
@@ -63,7 +63,7 @@
 							<td>@producto.ProductoId</td>
 							<td>@producto.Nombre</td>
 							<td>@producto.Descripcion</td>
-							<td>@NombreLaboratorio(producto.LaboratorioId)</td>
+							<td>@ObtenerNombreLaboratorio(producto.ProductoId)</td>
 							<td>@producto.Precio</td>
 							<td>@producto.Existencia</td>
 							<td>@NombreUnidad(producto.UnidadId)</td>
@@ -81,9 +81,11 @@
 </div>
 
 @code {
-	List<Productos> productos;
-	List<Productos> productosFiltrados;
-	List<Unidad> Unidades;
+	public List<Productos> productos = new List<Productos>();
+	public List<Productos> productosFiltrados = new List<Productos>();
+	public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
+
+	public List<Unidad> Unidades = new List<Unidad>();
 	public int? filtroId;
 	public string filtroNombre = "";
 	public float? filtroPrecioMin;
@@ -91,9 +93,15 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+
 		productos = await HttpClient.GetFromJsonAsync<List<Productos>>("api/Productos")?? new List<Productos>();
 		productosFiltrados = productos;
 		Unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades")?? new List<Unidad>();
+		var laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios")?? new List<Laboratorios>();
+		if (laboratorios is not null)
+		{
+			ListaLaboratorios = laboratorios;
+		}
 	}
 	public void Back()
     {
@@ -104,11 +112,22 @@
         var unidad = Unidades.FirstOrDefault(u => u.UnidadId == id);
         return unidad?.Descripcion ?? "";
     }
-	public string NombreLaboratorio(int id)
-    {
-        var laboratorio = Unidades.FirstOrDefault(u => u.UnidadId == id);
-        return laboratorio?.Descripcion ?? "";
-    }
+	public string ObtenerNombreLaboratorio(int Id)
+	{
+		var producto = productos.FirstOrDefault(p => p.ProductoId == Id);
+
+		if (producto != null)
+		{
+			var laboratorio = ListaLaboratorios.FirstOrDefault(l => l.LaboratorioId == producto.LaboratorioId);
+
+			if (laboratorio != null)
+			{
+				return laboratorio.Nombre!;
+			}
+		}
+
+		return "Lab Not Found";
+	}
 
 	public void Buscar()
 	{
