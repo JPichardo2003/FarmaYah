@@ -1,0 +1,380 @@
+﻿@page "/R_CuentasPorCobrar"
+@page "/R_CuentasPorCobrar/{FacturaId:int}"
+@inject NotificationService notificationService
+@inject HttpClient httpClient
+
+<div class="card">
+	<div class="card-body">
+		<h1>Cuentas por pagar</h1>
+	</div>
+	<div class="card-body">
+
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label>Nombre del Cliente:</label>
+				<InputText disabled @bind-Value="Cliente.Nombre" class="form-control" placeholder="Nombre del cliente" />
+			</div>
+
+			<div class="form-group col-md-4">
+				<label>Teléfono:</label>
+				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10" placeholder="1234567890" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<label>Fecha:</label>
+				<InputDate disabled @bind-Value="Factura.Fecha" class="form-control" />
+			</div>
+			<div class="col">
+				<label>Pago:</label>
+				<InputNumber disabled @bind-Value="Factura.Pago" class="form-control" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<label>Sucursal:</label>
+				<InputText disabled @bind-Value="NombreSucursal" class="form-control" />
+			</div>
+			<div class="col">
+				<label>Empleado:</label>
+				<InputText disabled @bind-Value="NombreEmpleado" class="form-control" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<label>Devoluc&iacute;on</label>
+				<InputNumber disabled @bind-Value="Factura.Devolucion" class="form-control" />
+			</div>
+			<div class="col">
+				<label>Monto total:</label>
+				<InputNumber disabled @bind-Value="Factura.MontoTotal" class="form-control" />
+			</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-body">
+			<h3>Productos facturados</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Producto</th>
+						<th>Cantidad</th>
+						<th>Precio</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Factura.FacturasDetalles)
+					{
+						<tr>
+							<td>@ObtenerNombreProducto(item.ProductoId)</td>
+							<td>@item.Cantidad</td>
+							<td>@ObtenerPrecioProducto(item.ProductoId)</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-body">
+			<div class="row">
+				<div class="col">
+					<label>Concepto: </label>
+					<InputText @bind-Value="Detalles.Concepto" class="form-control" />
+				</div>
+				<div class="col">
+					<label>Monto: </label>
+					<div class="input-group">
+						<InputNumber @bind-Value="Detalles.Monto" class="form-control" min="0" />
+						<bottom class="btn btn-success" @onclick="AgregarDetalle"><i class="bi bi-plus">Add</i></bottom>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-body">
+			<h3>Pagos</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Concepto</th>
+						<th>Monto</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Factura.PagosCuentasPorCobrar)
+					{
+						<tr>
+							<td>@item.Concepto</td>
+							<td>@item.Monto</td>
+							<td>
+								<button class="btn btn-danger" @onclick="MostrarConfirmacionEliminar"><i class="bi bi-trash"></i></button>
+							</td>
+						</tr>
+						<div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content" style="border: 3px solid black; background-color: dimgrey; color: black;">
+									<div class="modal-header">
+										<h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️Advertencia⚠️</h5>
+										<button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div class="modal-body text-center">
+										<h4 style="font-size: 18px; color: #ff0000">¿Está seguro de que desea eliminar el detalle?</h4>
+										<h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
+									</div>
+									<div class="modal-footer justify-content-center">
+										<button type="button" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: dimgrey; border-color: black; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+										<button type="button" class="btn btn-outline-danger" @onclick="() => EliminarDetalle(item)" style="background-color: #ff0000; border-color: black; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+				</tbody>
+			</table>
+		</div>
+		<div class="card-footer d-flex justify-content-center">
+			<button class="btn btn-primary" @onclick="Guardar">Guardar</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int FacturaId { get; set; }
+	public Facturas Factura = new Facturas();
+	public Clientes Cliente = new Clientes();
+	public PagosCuentasPorCobrar Detalles = new PagosCuentasPorCobrar();
+	public List<Facturas> ListaFactura { get; set; } = new List<Facturas>();
+	public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+	public List<Productos> Listaproductos { get; set; } = new List<Productos>();
+	public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+	public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+	public List<PagosCuentasPorCobrar> ListaDetalles { get; set; } = new List<PagosCuentasPorCobrar>();
+	public List<PagosCuentasPorCobrar> DetallesRemovidos { get; set; } = new List<PagosCuentasPorCobrar>();
+	public string? NombreSucursal { get; set; }
+	public string? NombreEmpleado { get; set; }
+	private bool mostrarConfirmacionEliminar = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var facturas = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas");
+		var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+		var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+		var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+		var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+
+		if (facturas != null)
+		{
+			ListaFactura = facturas;
+		}
+		if (empleados != null)
+		{
+			ListaEmpleados = empleados;
+		}
+		if (sucursales != null)
+		{
+			ListaSucursales = sucursales;
+		}
+		if (productos != null)
+		{
+			Listaproductos = productos;
+		}
+		if (clientes != null)
+		{
+			ListaClientes = clientes;
+		}
+		if (FacturaId > 0)
+		{
+			BuscarFactura();
+		}
+
+	}
+	public void ActualizarPago()
+	{
+		Factura.Pago = (float)(Factura.PagosCuentasPorCobrar.Sum(p => p.Monto));
+		Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
+		if (Factura.Pago >= Factura.MontoTotal)
+		{
+			Factura.Estado = "Pagado";
+		}
+	}
+	public string ObetnerNombreSucursal(int id)
+	{
+		var sucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == id);
+		if (sucursal != null)
+		{
+			return sucursal.Nombre;
+		}
+		return "No encontrado";
+	}
+	public async void Guardar()
+	{
+		ActualizarPago();
+		using var response = await httpClient.PostAsJsonAsync("api/Facturas", Factura);
+		if (!response.IsSuccessStatusCode)
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = "Error al guardar el/los pagos",
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+			return;
+		}
+		var FacturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
+		if (FacturaDevuelta is not null)
+		{
+			Factura = FacturaDevuelta;
+			Nuevo();
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Guardado",
+					Detail = "El/los pagos se han guardado con éxito",
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+			StateHasChanged();
+		}
+	}
+
+	private void Nuevo()
+	{
+		Factura = new Facturas();
+		Cliente = new Clientes();
+		Detalles = new PagosCuentasPorCobrar();
+	}
+
+	private void BuscarFactura()
+	{
+		var facturas = ListaFactura.FirstOrDefault(f => f.FacturaId == FacturaId);
+		var clientes = ListaClientes.FirstOrDefault(c => c.ClienteId == facturas.ClienteId);
+		if (facturas != null)
+		{
+			Factura = facturas;
+			Cliente = clientes;
+			NombreEmpleado = ListaEmpleados.FirstOrDefault(e => e.EmpleadoId == facturas.EmpleadoId)?.Nombre;
+			NombreSucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == facturas.SucursalId)?.Nombre;
+			ActualizarPago();
+		}
+		if (DetallesRemovidos.Count > 0)
+		{
+			Detalles = DetallesRemovidos.Last();
+			DetallesRemovidos.Remove(Detalles);
+		}
+	}
+
+	private string ObtenerNombreProducto(int productoId)
+	{
+		var producto = Listaproductos.FirstOrDefault(p => p.ProductoId == productoId);
+		if (producto != null)
+		{
+			return producto.Nombre;
+		}
+		return "No encontrado";
+	}
+
+	private double ObtenerPrecioProducto(int productoId)
+	{
+		var producto = Listaproductos.FirstOrDefault(p => p.ProductoId == productoId);
+		if (producto != null)
+		{
+			return producto.Precio;
+		}
+		return 0;
+	}
+	private Facturas BuscarFactura(int id)
+	{
+		var factura = ListaFactura.FirstOrDefault(f => f.FacturaId == id);
+		return factura;
+	}
+	public async Task AgregarDetalle()
+	{
+		if (Validar())
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = "Llene los campos del detalle Correctamente",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+			return;
+		}
+		// var factura =  BuscarFactura(Detalles.FacturaId);
+		// if (factura != null)
+		// {
+
+		//     // if (Pago.mo.Cantidad > factura.Existencia)
+		//     // {
+		//     //     var mensaje = new NotificationMessage
+		//     //         {
+		//     //             Severity = NotificationSeverity.Error,
+		//     //             Summary = "Error",
+		//     //             Detail = $"No hay suficiente cantidad de {factura.Nombre} en el inventario ({factura.Existencia})",
+		//     //             Duration = 4_000
+		//     //         };
+		//     //     notificationService.Notify(mensaje);
+		//     //     return;
+		//     // }
+		// }
+
+		if (Factura != null)
+		{
+			var detalleEncontrado = await httpClient.GetFromJsonAsync<List<PagosCuentasPorCobrar>>($"api/Facturas");
+			//aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
+			var detalleExiste = detalleEncontrado!.Any(d => d.CuentasPorCobrarId == Detalles.CuentasPorCobrarId);
+
+			Detalles.FacturaId = Factura.FacturaId;
+			Detalles.FormaDePago = "Efectivo";
+			Factura.PagosCuentasPorCobrar.Add(Detalles);
+			ActualizarPago();
+			if (detalleExiste)
+			{
+				ListaDetalles.Add(Detalles);
+
+			}
+			if (DetallesRemovidos.Any(d => d.CuentasPorCobrarId == Detalles.CuentasPorCobrarId))
+				DetallesRemovidos.Remove(Detalles);
+			Detalles = new PagosCuentasPorCobrar();
+		}
+		StateHasChanged();
+	}
+
+	private void EliminarDetalle(PagosCuentasPorCobrar detalle)
+	{
+		Detalles = detalle;
+		Factura.PagosCuentasPorCobrar.Remove(detalle);
+		DetallesRemovidos.Add(detalle);
+
+		ActualizarPago();
+		StateHasChanged();
+
+		OcultarConfirmacionEliminar();
+	}
+
+	public void MostrarConfirmacionEliminar()
+	{
+		mostrarConfirmacionEliminar = true;
+	}
+
+	public void OcultarConfirmacionEliminar()
+	{
+		mostrarConfirmacionEliminar = false;
+	}
+
+	public bool Validar()
+	{
+		var validacion = Detalles.Concepto is null || Detalles.Monto <= 0;
+		return validacion;
+	}
+}

@@ -37,5 +37,9 @@ namespace FarmaYah.Shared.Models
         [ForeignKey("FacturaId")]
         public ICollection<FacturasDetalles> FacturasDetalles { get; set; } = new List<FacturasDetalles>();
 
+        [ForeignKey("FacturaId")]
+        public ICollection<PagosCuentasPorCobrar> PagosCuentasPorCobrar { get; set; } = new List<PagosCuentasPorCobrar>();
+
     }
 }
+    

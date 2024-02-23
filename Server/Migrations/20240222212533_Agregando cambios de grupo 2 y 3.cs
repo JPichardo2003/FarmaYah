@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmaYah.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class Agregandocambiosdegrupo2y3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -355,6 +355,28 @@ namespace FarmaYah.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PagosCuentasPorCobrar",
+                columns: table => new
+                {
+                    CuentasPorCobrarId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FormaDePago = table.Column<string>(type: "TEXT", nullable: false),
+                    Concepto = table.Column<string>(type: "TEXT", nullable: true),
+                    Monto = table.Column<decimal>(type: "TEXT", nullable: false),
+                    FacturaId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PagosCuentasPorCobrar", x => x.CuentasPorCobrarId);
+                    table.ForeignKey(
+                        name: "FK_PagosCuentasPorCobrar_Facturas_FacturaId",
+                        column: x => x.FacturaId,
+                        principalTable: "Facturas",
+                        principalColumn: "FacturaId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Clientes",
                 columns: new[] { "ClienteId", "Dirección", "Eliminado", "Fidelidad", "Nombre", "Teléfono" },
@@ -393,9 +415,9 @@ namespace FarmaYah.Server.Migrations
                 columns: new[] { "SeguroMedicoId", "Eliminado", "Fecha", "Nombre" },
                 values: new object[,]
                 {
-                    { 1, false, new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9744), "ARS Humano" },
-                    { 2, false, new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9757), "ARS Palic" },
-                    { 3, false, new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9759), "ARS Universal" }
+                    { 1, false, new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9244), "ARS Humano" },
+                    { 2, false, new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9259), "ARS Palic" },
+                    { 3, false, new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9260), "ARS Universal" }
                 });
 
             migrationBuilder.InsertData(
@@ -412,10 +434,15 @@ namespace FarmaYah.Server.Migrations
                 columns: new[] { "UnidadId", "Descripcion" },
                 values: new object[,]
                 {
-                    { 1, "Unidad" },
-                    { 2, "Caja" },
-                    { 3, "Pote" },
-                    { 4, "Pastilla" }
+                    { 1, "Pastilla" },
+                    { 2, "Jarabe" },
+                    { 3, "Capsulas" },
+                    { 4, "Inyección" },
+                    { 5, "Crema" },
+                    { 6, "Supositorio" },
+                    { 7, "Gotas" },
+                    { 8, "Spray" },
+                    { 9, "Otros" }
                 });
 
             migrationBuilder.InsertData(
@@ -483,6 +510,11 @@ namespace FarmaYah.Server.Migrations
                 column: "FacturaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PagosCuentasPorCobrar_FacturaId",
+                table: "PagosCuentasPorCobrar",
+                column: "FacturaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Productos_LaboratorioId",
                 table: "Productos",
                 column: "LaboratorioId");
@@ -522,6 +554,9 @@ namespace FarmaYah.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "FacturasDetalles");
+
+            migrationBuilder.DropTable(
+                name: "PagosCuentasPorCobrar");
 
             migrationBuilder.DropTable(
                 name: "ProveedoresProductos");

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240222191249_Inicial")]
-    partial class Inicial
+    [Migration("20240222212533_Agregando cambios de grupo 2 y 3")]
+    partial class Agregandocambiosdegrupo2y3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -291,6 +291,32 @@ namespace FarmaYah.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("FarmaYah.Shared.Models.PagosCuentasPorCobrar", b =>
+                {
+                    b.Property<int>("CuentasPorCobrarId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Concepto")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FacturaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FormaDePago")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CuentasPorCobrarId");
+
+                    b.HasIndex("FacturaId");
+
+                    b.ToTable("PagosCuentasPorCobrar");
+                });
+
             modelBuilder.Entity("FarmaYah.Shared.Models.Productos", b =>
                 {
                     b.Property<int>("ProductoId")
@@ -490,21 +516,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9744),
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9244),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9757),
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9259),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 22, 15, 12, 48, 938, DateTimeKind.Local).AddTicks(9759),
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9260),
                             Nombre = "ARS Universal"
                         });
                 });
@@ -593,22 +619,47 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             UnidadId = 1,
-                            Descripcion = "Unidad"
+                            Descripcion = "Pastilla"
                         },
                         new
                         {
                             UnidadId = 2,
-                            Descripcion = "Caja"
+                            Descripcion = "Jarabe"
                         },
                         new
                         {
                             UnidadId = 3,
-                            Descripcion = "Pote"
+                            Descripcion = "Capsulas"
                         },
                         new
                         {
                             UnidadId = 4,
-                            Descripcion = "Pastilla"
+                            Descripcion = "Inyección"
+                        },
+                        new
+                        {
+                            UnidadId = 5,
+                            Descripcion = "Crema"
+                        },
+                        new
+                        {
+                            UnidadId = 6,
+                            Descripcion = "Supositorio"
+                        },
+                        new
+                        {
+                            UnidadId = 7,
+                            Descripcion = "Gotas"
+                        },
+                        new
+                        {
+                            UnidadId = 8,
+                            Descripcion = "Spray"
+                        },
+                        new
+                        {
+                            UnidadId = 9,
+                            Descripcion = "Otros"
                         });
                 });
 
@@ -693,6 +744,15 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FarmaYah.Shared.Models.PagosCuentasPorCobrar", b =>
+                {
+                    b.HasOne("FarmaYah.Shared.Models.Facturas", null)
+                        .WithMany("PagosCuentasPorCobrar")
+                        .HasForeignKey("FacturaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FarmaYah.Shared.Models.Productos", b =>
                 {
                     b.HasOne("FarmaYah.Shared.Models.Laboratorios", null)
@@ -763,6 +823,8 @@ namespace FarmaYah.Server.Migrations
             modelBuilder.Entity("FarmaYah.Shared.Models.Facturas", b =>
                 {
                     b.Navigation("FacturasDetalles");
+
+                    b.Navigation("PagosCuentasPorCobrar");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Laboratorios", b =>

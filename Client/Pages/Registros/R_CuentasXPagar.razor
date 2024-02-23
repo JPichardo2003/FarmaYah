@@ -143,6 +143,8 @@
     public bool idVacio;
     public bool cantidadCero;
     public float PrecioT { get; set; } = 0;
+    private bool mostrarConfirmacionEliminar = false;
+
 
     public bool EntregadoAntes = false;
     bool LaboratorioDisabled => d_compra.ProductoId == 0;
@@ -391,21 +393,52 @@
 
     public bool ValidarDetalle()
     {
-        return true;
-    }
-
-    public void AgregarDetalle()
-    {
-        if (!ValidarDetalle())
+        var paso = true;
+        if (PrecioT < DetallesPagar.pago)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "Llene los campos del detalle Correctamente",
+                    Detail = "El pago no puede ser mayor a la deuda",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
+            paso = false;
+
+        }
+        if (DetallesPagar.Concepto is null || DetallesPagar.pago <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Llene el concepto",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            paso = false;
+
+        } 
+        if(DetallesPagar.pago <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El pago no puede ser <= 0",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            paso = false;
+        }
+        return paso;
+    }
+
+    public void AgregarDetalle()
+    {
+        if (!ValidarDetalle())
+        {          
             return;
         }
 
@@ -431,10 +464,20 @@
         DetallesPagar = detalle;
         compras.CuentasPorPagar.Remove(detalle);
         DetallesRemovidosCxP.Add(detalle);
-        if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == detalle.CompraId))
+        if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == detalle.CuentasPorPagarId))
             ListaDetallesCxP.Remove(detalle);
         ActualizarPrecioT();
         StateHasChanged();
+    }
+
+    public void MostrarConfirmacionEliminar()
+    {
+        mostrarConfirmacionEliminar = true;
+    }
+
+    public void OcultarConfirmacionEliminar()
+    {
+        mostrarConfirmacionEliminar = false;
     }
     
 }

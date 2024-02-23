@@ -29,8 +29,20 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Facturas.Where(p => p.Eliminado != true).ToListAsync();
+            return await _context.Facturas.Include(f => f.FacturasDetalles).Include(f => f.PagosCuentasPorCobrar).Where(p => p.Eliminado != true).ToListAsync();
         }
+
+        // GET: api/Facturas/CuentasPorCobrar
+        [HttpGet("CuentasPorCobrar")]
+        public async Task<ActionResult<IEnumerable<Facturas>>> GetCuentasPorCobrar()
+        {
+            if (_context.Facturas == null)
+            {
+                return NotFound();
+            }
+            return await _context.Facturas.Include(f => f.PagosCuentasPorCobrar).Where(p => p.Eliminado != true && p.Estado == "Pendiente").ToListAsync();
+        }
+
 
         // GET: api/Facturas/5
         [HttpGet("{id}")]
@@ -42,6 +54,7 @@ namespace FarmaYah.Server.Controllers
           }
             var facturas = await _context.Facturas
                 .Include(f => f.FacturasDetalles)
+                .Include(f => f.PagosCuentasPorCobrar)
                 .Where(f => f.FacturaId == id && f.Eliminado != true)
                 .FirstOrDefaultAsync();
 
@@ -97,7 +110,20 @@ namespace FarmaYah.Server.Controllers
           await _context.SaveChangesAsync();
           return Ok(facturas);
         }
+        // POST: api/Facturas
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("Pagos")]
+        public async Task<ActionResult<Facturas>> PostPagosFacturas(Facturas facturas)
+        {
+           
+            if (!FacturasExists(facturas.FacturaId))
+                _context.Facturas.Add(facturas);
+            else
+                _context.Facturas.Update(facturas);
 
+            await _context.SaveChangesAsync();
+            return Ok(facturas);
+        }
         // DELETE: api/Facturas/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFacturas(int id)

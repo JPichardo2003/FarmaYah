@@ -350,7 +350,23 @@
     public async Task Guardar()
     {
         ///Cambiar los cambios al post
+        ///
         facturas.MontoTotal = PrecioT;
+
+        var facturasParaValidacion = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas");
+        var facturasSinPagar = facturasParaValidacion!.Where(f => f.Estado == "Pendiente" && f.ClienteId == facturas.ClienteId).ToList().Count();
+        if(facturasSinPagar > 3)
+{
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "A este cliente no se le puede facturar más hasta que page las facturas anteriores",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
 
         if (facturas.FacturaId < 0)
         {

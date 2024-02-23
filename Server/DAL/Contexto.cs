@@ -20,8 +20,10 @@ namespace FarmaYah.Server.DAL
         public DbSet<Unidad> Unidades { get; set; }
         public DbSet<Proveedores> Proveedores { get; set; } 
         public DbSet<ProveedorProducto> ProveedoresProductos { get; set; }
+        public DbSet<PagosCuentasPorCobrar> PagosCuentasPorCobrar { get; set; }
+        public DbSet<Clientes> Clientes { get; set; }   
         public DbSet<Configuracion> Configuracion { get; set; }
-        public DbSet<Clientes> Clientes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,10 +34,15 @@ namespace FarmaYah.Server.DAL
             });
 
             modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
-            { 
-                new Clientes(){ClienteId=1, Nombre="Juan Perez", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7},
+            {
+				new Clientes(){ClienteId=1, Nombre="Juan Perez", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7}
+			});
+
+            modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
+            {
                 new Clientes(){ClienteId=2, Nombre="Maria Lopez", Dirección="Direccion 2", Teléfono="8091287602", Fidelidad=10}
             });
+
             modelBuilder.Entity<Laboratorios>().HasData(new List<Laboratorios>()
             {
                 new Laboratorios(){LaboratorioId=1, Nombre="Pfizer", Direccion="Direccion 1"},
@@ -68,20 +75,18 @@ namespace FarmaYah.Server.DAL
                 new Proveedores(){ProveedorId = 2, Nombre = "Pfizer", Email="Pfizer@gmail.com", Categoria="Internacional", RNC="123456798", TipoContribuyente="Persona Juridica", Direccion="Direccion 2", Telefono="809-546-8519"},
                 new Proveedores(){ProveedorId = 3, Nombre = "Bayer", Email="Bayer@gmail.com", Categoria="Internacional", RNC="123456897", TipoContribuyente="Persona Juridica", Direccion="Direccion 3", Telefono="809-546-8195"},
             });
-
             modelBuilder.Entity<Unidad>().HasData(new List<Unidad>()
-            {
-                new Unidad(){UnidadId=1, Descripcion="Unidad"},
-                new Unidad(){UnidadId=2, Descripcion="Caja"},
-                new Unidad(){UnidadId=3, Descripcion="Pote"},
-                new Unidad(){UnidadId=4, Descripcion="Pastilla"}
-            });
-
-            modelBuilder.Entity<Configuracion>().HasData(new List<Configuracion>()
-            {
-                new Configuracion(){ConfiguracionId=1, ReOrden=false}
-            });
-
+             {
+                 new Unidad(){UnidadId = 1, Descripcion="Pastilla" },
+                 new Unidad(){UnidadId = 2, Descripcion="Jarabe" },
+                 new Unidad(){UnidadId = 3, Descripcion="Capsulas" },
+                 new Unidad(){UnidadId = 4, Descripcion="Inyección" },
+                 new Unidad(){UnidadId = 5, Descripcion="Crema" },
+                 new Unidad(){UnidadId = 6, Descripcion="Supositorio" },
+                 new Unidad(){UnidadId = 7, Descripcion="Gotas" },
+                 new Unidad(){UnidadId = 8, Descripcion="Spray" },
+                 new Unidad(){UnidadId = 9, Descripcion="Otros" }
+             });
 
         }
     }
