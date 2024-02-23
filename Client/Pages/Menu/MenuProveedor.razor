@@ -1,31 +1,25 @@
 ﻿@page "/MenuProveedores"
 @inject NavigationManager NavigationManager
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Proveedores</PageTitle>
 <div class="card" style="width:1000px">
-    <div class="card-header ">
-        <div class="col">
-            <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
-        </div>
-        <div class="col d-flex align-items-center justify-content-center">
-            <img src="Images/pngwing.com.png" class="img-logo" />
-            <h1>FarmaYah - Men&uacute; Proveedor</h1>
-        </div>
+    <div class="card-header d-flex align-items-center justify-content-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>FarmaYah - Proveedores</h1>
     </div>
-
     <div class="card-body">
         <div class="row justify-content-center">
             <div class="col-md-4 text-center">
-                <button type="button" class="d-block mx-auto" onclick="location.href= 'RProveedor';">
-                    <img src="Images/icons8-agregar-Veradministrador.png" class="icon" />Agregar Proveedor
+                <button type="button" @onclick="NavigateToProveedor" class="d-block mx-auto">
+                    <img src="Images/icons8-agregar-Veradministrador.png" class="icon" /> Registro Proveedor
                 </button>
             </div>
-            <div class="col-md-4">
-                <button class="d-block mx-auto" onclick="location.href= 'c_proveedores';">
-                    <img src="Images/icons8-agregar-administrador-100.png" class="icon" />Ver Proveedor
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToConsulta">
+                    <img src="Images/icons8-agregar-administrador-100.png" class="icon" />Consulta Proveedor
                 </button>
             </div>
-
         </div>
     </div>
 </div>
@@ -33,8 +27,18 @@
 
 @code {
 
-    public void Back()
+    public void VolverAtras()
     {
         NavigationManager.NavigateTo("MenuPrincipal");
+    }
+
+    public void NavigateToProveedor()
+    {
+        NavigationManager.NavigateTo("RProveedor");
+    }
+
+    public void NavigateToConsulta()
+    {
+        NavigationManager.NavigateTo("c_proveedores");
     }
 }

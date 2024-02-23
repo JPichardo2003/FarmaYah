@@ -22,12 +22,12 @@
             <div class="card-body">
                 <div class="row">
                     @* <div class="col-4">
-                        <label for="ProductoId">Id Producto:</label>
-                        <div class="input-group">
-                            <InputNumber id="Nombre" @bind-Value="producto.ProductoId" class="form-control" min="0" />
-                            <ValidationMessage For="@(() => producto.ProductoId)" />
-                            <button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
-                        </div>
+                    <label for="ProductoId">Id Producto:</label>
+                    <div class="input-group">
+                    <InputNumber id="Nombre" @bind-Value="producto.ProductoId" class="form-control" min="0" />
+                    <ValidationMessage For="@(() => producto.ProductoId)" />
+                    <button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
+                    </div>
                     </div> *@
                     <div class="col-4">
                         <label for="Nombre">Nombre Producto:</label>
@@ -51,15 +51,15 @@
                         <ValidationMessage For="@(() => producto.Descripcion)" />
                     </div>
 
-                  
+
                 </div>
 
-               @*  <div class="row">
-                    <div class="col-4">
-                        <label for="Precio">Precio del producto:</label>
-                        <InputNumber id="Precio" @bind-Value="producto.Precio" class="form-control" min="0" />
-                        <ValidationMessage For="@(() => producto.Precio)" />
-                    </div>
+                @*  <div class="row">
+                <div class="col-4">
+                <label for="Precio">Precio del producto:</label>
+                <InputNumber id="Precio" @bind-Value="producto.Precio" class="form-control" min="0" />
+                <ValidationMessage For="@(() => producto.Precio)" />
+                </div>
 
 
                 </div> *@
@@ -67,7 +67,8 @@
                 <div class="row">
                     <div class="col-4">
                         <label for="Unidad">Unidad:</label>
-                        
+
+                        <ValidationMessage For="@(() => producto.UnidadId)" />
                         <InputSelect id="Unidad" @bind-Value="producto.UnidadId" class="form-select">
                             <option value="">Seleccione...</option>
                             @foreach (var unidad in Unidades ?? new List<Unidad>())
@@ -85,7 +86,7 @@
                 <option >Seleccione...</option>
                             @foreach (var laboratorio in Laboratorios ?? new List<Laboratorios>())
                             {
-                                 <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
+                                     <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
                             }
                 </InputSelect>
                 <ValidationMessage For="@(() => producto.LaboratorioId)" />
@@ -210,17 +211,17 @@
             ListaProveerdor = proveerdor;
         }
 
-        if(laboratorios != null)
+        if (laboratorios != null)
         {
             Laboratorios = laboratorios;
         }
 
-        
+
 
         if (ProductoId > 0)
         {
             producto.ProductoId = ProductoId;
-            Buscar();
+            await Buscar();
         }
 
     }
@@ -236,24 +237,24 @@
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = "No se pudo guardar el producto",
-                Duration = 4_000
-            };
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo guardar el producto",
+                    Duration = 4_000
+                };
             return;
         }
         var ProductoDevuelto = await response.Content.ReadFromJsonAsync<Productos>();
         if (ProductoDevuelto is not null)
         {
             var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Success,
-                Summary = "Producto guardado",
-                Detail = "El producto ha sido guardado",
-                Duration = 4_000
-            };
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Producto guardado",
+                    Detail = "El producto ha sido guardado",
+                    Duration = 4_000
+                };
             producto = ProductoDevuelto;
             Nuevo();
         }
@@ -265,22 +266,22 @@
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = "No se pudo eliminar el producto",
-                Duration = 4_000
-            };
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo eliminar el producto",
+                    Duration = 4_000
+                };
         }
         else
         {
             var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Success,
-                Summary = "Producto eliminado",
-                Detail = "El producto ha sido eliminado",
-                Duration = 4_000
-            };
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Producto eliminado",
+                    Detail = "El producto ha sido eliminado",
+                    Duration = 4_000
+                };
 
             Nuevo();
         }
@@ -298,7 +299,7 @@
 
     public async Task Buscar()
     {
-        var productoNotNull = (await HttpClient.GetFromJsonAsync<List<Productos>>($"api/Productos")).ToList().Any(p => p.ProductoId == producto.ProductoId);
+        var productoNotNull = (await HttpClient.GetFromJsonAsync<List<Productos>>($"api/Productos"))!.ToList().Any(p => p.ProductoId == producto.ProductoId);
         if (productoNotNull)
         {
             var productoEncontrado = await HttpClient.GetFromJsonAsync<Productos>($"api/Productos/{producto.ProductoId}");
@@ -310,12 +311,12 @@
         else
         {
             var mensaje = new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Summary = "Error",
-                Detail = "El producto no encontrado",
-                Duration = 4_000
-            };
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El producto no encontrado",
+                    Duration = 4_000
+                };
 
         }
     }
@@ -391,48 +392,48 @@
         {
             // Manejar la excepción (puedes imprimir en la consola o realizar algún registro de errores)
             Console.WriteLine($"Error al buscar proveedor: {ex.Message}");
-            return null;
+            return null!;
         }
     }
 
 
     public string ObtenerNombre(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Nombre;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nombre!;
     }
 
     public string ObtenerDireccion(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Direccion;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Direccion!;
     }
 
     public string ObtenerTelefono(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Telefono;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Telefono!;
     }
 
     public string ObtenerEmail(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Email;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Email!;
     }
 
     public string ObtenerCategoria(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Categoria;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Categoria!;
     }
 
     public string ObtenerRnc(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().RNC;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.RNC!;
     }
 
     public string ObtenerTipo(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().TipoContribuyente;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.TipoContribuyente!;
     }
 
     public string ObtenerNota(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault().Nota;
+        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nota!;
     }
 }

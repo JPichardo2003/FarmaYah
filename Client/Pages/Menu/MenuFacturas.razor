@@ -20,6 +20,11 @@
                     <img src="Images/ConsultaFactura.png" class="icon" />Consulta Factura
                 </button>
             </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToConsultaCuentasPorCobrar">
+                    <img src="Images/icons8-recibir-efectivo-50.png" class="icon" /> Cuentas por Cobrar
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -38,6 +43,10 @@
     private void VolverAtras()
     {
         NavigationManager.NavigateTo("/MenuPrincipal");
+    }
+    private void NavigateToConsultaCuentasPorCobrar()
+    {
+        NavigationManager.NavigateTo("/C_CuentasPorCobrar");
     }
 
 }

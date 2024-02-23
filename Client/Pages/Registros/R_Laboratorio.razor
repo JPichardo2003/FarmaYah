@@ -15,7 +15,7 @@
 				</div>
 				<div class="col d-flex align-items-center justify-content-center">
 					<img src="Images/pngwing.com.png" class="img-logo" />
-					<h1>Resgistro Producto</h1>
+					<h1>Registro Laboratorio</h1>
 				</div>
 			</div>
 			<div class="card-header d-flex align-items-center">
@@ -23,31 +23,31 @@
 
 			<div class="card-body">
 				<div class="row">
-					<div class="col-4">
-						<label for="Nombre">Nombre Producto:</label>
-						<InputNumber id="Nombre" @bind-Value="Laboratorio!.LaboratorioId" class="form-control" />
-						<ValidationMessage For="@(() => Laboratorio.LaboratorioId)" />
-						<button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
+					@* <div class="col-4">
+					<label for="Nombre"></label>
+					<InputNumber id="Nombre" @bind-Value="Laboratorio!.LaboratorioId" class="form-control" />
+					<ValidationMessage For="@(() => Laboratorio.LaboratorioId)" />
+					<button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
 
-					</div>
+					</div> *@
 				</div>
 				<div class="row">
-					<div class="col-4">
-						<label for="Nombre">Nombre:</label>
-						<InputText id="Nombre" @bind-Value="Laboratorio.Nombre" class="form-control" />
+					<div class="col-md-4">
+						<label for="Nombre">Nombre del Laboratorio</label>
+						<InputText id="Nombre" @bind-Value="Laboratorio!.Nombre" class="form-control"></InputText>
 						<ValidationMessage For="@(() => Laboratorio.Nombre)" />
 					</div>
 				</div>
 
 				<div class="row">
-					<div class="col-4">
-						<label for="Precio">Direci&oacute;n:</label>
-						<InputText id="Precio" @bind-Value="Laboratorio.Direccion" class="form-control" min="0" />
+					<div class="col-md-4">
+						<label>Direci&oacute;n:</label>
+						<InputText @bind-Value="Laboratorio.Direccion" class="form-control"></InputText>
 						<ValidationMessage For="@(() => Laboratorio.Direccion)" />
 					</div>
 				</div>
 
-				
+
 				@*Botones*@
 				<div class="row justify-content-center">
 					<div class="col-4">
@@ -61,7 +61,7 @@
 	</div>
 </EditForm>
 
-@code{
+@code {
 	[Parameter]
 	public int LaboratorioId { get; set; }
 	public Laboratorios? Laboratorio { get; set; } = new Laboratorios();
@@ -72,39 +72,39 @@
 			Laboratorio = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{LaboratorioId}");
 		}
 	}
-	
+
 	public void Back()
-    {
-        navigationManager.NavigateTo("MenuLaboratorio");
-    }
+	{
+		navigationManager.NavigateTo("MenuLaboratorio");
+	}
 
 	public async Task Guardar()
 	{
-		using var response =  await HttpClient.PostAsJsonAsync("api/Laboratorios", Laboratorio);
+		using var response = await HttpClient.PostAsJsonAsync("api/Laboratorios", Laboratorio);
 		if (!response.IsSuccessStatusCode)
 		{
 			var mensaje = new NotificationMessage
-            {
-                Summary = "Error",
-                Detail = "No se pudo guardar el registro",
-                Severity = NotificationSeverity.Error,
-				Duration = 5000
-            };
+				{
+					Summary = "Error",
+					Detail = "No se pudo guardar el registro",
+					Severity = NotificationSeverity.Error,
+					Duration = 5000
+				};
 			notificationService.Notify(mensaje);
 			return;
 		}
 		var laboratorioDevuelto = await response.Content.ReadFromJsonAsync<Laboratorios>();
-		if(laboratorioDevuelto is not null)
+		if (laboratorioDevuelto is not null)
 		{
 			StateHasChanged();
 			Nuevo();
 			var mensaje = new NotificationMessage
-            {
-                Summary = "Guardado",
-                Detail = "Registro guardado con éxito",
-                Severity = NotificationSeverity.Success,
-                Duration = 5000
-            };
+				{
+					Summary = "Guardado",
+					Detail = "Registro guardado con éxito",
+					Severity = NotificationSeverity.Success,
+					Duration = 5000
+				};
 			notificationService.Notify(mensaje);
 		}
 	}
@@ -114,27 +114,27 @@
 		if (!response.IsSuccessStatusCode)
 		{
 			var mensaje = new NotificationMessage
-            {
-                Summary = "Error",
-                Detail = "No se pudo eliminar el registro",
-                Severity = NotificationSeverity.Error,
-                Duration = 5000
-            };
+				{
+					Summary = "Error",
+					Detail = "No se pudo eliminar el registro",
+					Severity = NotificationSeverity.Error,
+					Duration = 5000
+				};
 			notificationService.Notify(mensaje);
 		}
 		else
 		{
 			Nuevo();
 			var mensaje = new NotificationMessage
-            {
-                Summary = "Eliminado",
-                Detail = "Registro eliminado con éxito",
-                Severity = NotificationSeverity.Success,
-                Duration = 5000
-            };
-            notificationService.Notify(mensaje);
-        }
-    }
+				{
+					Summary = "Eliminado",
+					Detail = "Registro eliminado con éxito",
+					Severity = NotificationSeverity.Success,
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+		}
+	}
 
 	public async Task Buscar()
 	{
@@ -161,10 +161,10 @@
 	}
 
 	public void Nuevo()
-    {
+	{
 		LaboratorioId = 0;
-        Laboratorio = new Laboratorios();
-    }
+		Laboratorio = new Laboratorios();
+	}
 
 	private void MetodoRelleno()
 	{

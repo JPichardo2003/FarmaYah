@@ -63,7 +63,8 @@
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Seguro Medico</th>
+                        <th>Cliente</th>
+                        <th>Seguro M&eacute;dico</th>
                         <th>Atendido Por</th>
                         <th>Sucursal</th>
                         <th>Estado</th>
@@ -71,11 +72,12 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody> 
                     @foreach (var facturas in ListaFacturas)
                     {
                         <tr>
                             <td>@facturas.Fecha.ToString("MM/dd/yyyy")</td>
+                            <td>@ObtenerNombreCliente(facturas.ClienteId)</td>
                             <td>@ObtenerNombreSeguro(facturas.SeguroMedicoId)</td>
                             <td>@ObtenerNombre(facturas.EmpleadoId)</td>
                             <td>@ObtenerNombreSucursal(facturas.SucursalId)</td>
@@ -86,6 +88,7 @@
                     }
                     <tr>
                         <td>Conteo: @Conteo</td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -107,6 +110,7 @@
     public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
     public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
@@ -122,10 +126,14 @@
         var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
         var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
-
+        var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
         if (seguros is not null)
         {
             ListaSeguros = seguros;
+        }
+        if(empleados is not null)
+        {
+            ListaEmpleados = empleados;
         }
         if (sucursales is not null)
         {
@@ -134,6 +142,10 @@
         if (empleados is not null)
         {
             ListaEmpleados = empleados;
+        }
+        if (clientes is not null)
+        {
+            ListaClientes = clientes;
         }
         await Buscar();
         Desde = DateTime.Now.AddMonths(-1);
@@ -213,6 +225,12 @@
     {
         var seguro = ListaSeguros.FirstOrDefault(p => p.SeguroMedicoId == Id);
         return seguro?.Nombre ?? "NULL";
+    }
+
+    public string ObtenerNombreCliente(int Id)
+    {
+        var cliente = ListaClientes.FirstOrDefault(p => p.ClienteId == Id);
+        return cliente?.Nombre ?? "Nombre no encontrado";
     }
 
     private void VolverAtras()
