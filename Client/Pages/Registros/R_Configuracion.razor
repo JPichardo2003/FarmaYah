@@ -3,7 +3,7 @@
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
 @inject NavigationManager NavigationManager;
-<EditForm Model="configuracion">
+<EditForm Model="configuracion" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
 
     <div class="card">
@@ -18,13 +18,16 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label>Reorden</label>
-                            <input type="checkbox" @bind="configuracion.ReOrden" @onclick="ActualizarReOrden" />
+                            <input type="checkbox" @bind="configuracion.ReOrden" @onclick="ActualizarReOrden"/>
                         </div>
                     </div>
                 </div>
 
        
             </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
         </div>
     </div>
 
@@ -47,14 +50,44 @@
         }
     }
 
-    private async Task ActualizarReOrden()
+    private void ActualizarReOrden()
     {
         // Cambiar el estado de configuracion.ReOrden
         configuracion.ConfiguracionId = 1;
         configuracion.ReOrden = !configuracion.ReOrden;
+    }
 
-        // Actualizar el valor de ReOrden en la base de datos
-        var prueba = await httpClient.PutAsJsonAsync("api/Configuracions/1", configuracion);
+    public async Task Guardar()
+    {
+
+        using var response = await httpClient.PostAsJsonAsync("api/Configuracions", configuracion);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No es posible Guardar",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+
+        var configuracionDevuelta = await response.Content.ReadFromJsonAsync<Configuracion>();
+        if (configuracionDevuelta is not null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Exito",
+                    Detail = "Configuracion Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            configuracion = configuracionDevuelta;
+            StateHasChanged();
+        }
     }
 
 }
