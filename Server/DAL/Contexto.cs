@@ -35,12 +35,9 @@ namespace FarmaYah.Server.DAL
 
             modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
             {
-				new Clientes(){ClienteId=1, Nombre="Juan Perez", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7}
-			});
-
-            modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
-            {
+				new Clientes(){ClienteId=1, Nombre="Juan Perez", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7},
                 new Clientes(){ClienteId=2, Nombre="Maria Lopez", Dirección="Direccion 2", Teléfono="8091287602", Fidelidad=10}
+
             });
 
             modelBuilder.Entity<Laboratorios>().HasData(new List<Laboratorios>()
@@ -87,6 +84,12 @@ namespace FarmaYah.Server.DAL
                  new Unidad(){UnidadId = 8, Descripcion="Spray" },
                  new Unidad(){UnidadId = 9, Descripcion="Otros" }
              });
+
+            modelBuilder.Entity<Configuracion>().HasData(new List<Configuracion>()
+            {
+                new Configuracion(){ConfiguracionId = 1, ReOrden = true}
+                
+            });
 
         }
     }

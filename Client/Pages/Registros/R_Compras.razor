@@ -21,12 +21,6 @@
             </div>*@
 
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <label>Reorden</label>
-                <input type="checkbox" @bind="configuracion.ReOrden" @onclick="ActualizarReOrden" />
-            </div>
-        </div>
 
         @*Detalle*@
         <div class="card card-header">
@@ -227,7 +221,7 @@
     {
         foreach (var producto in ListaProductos)
         {
-            if (producto.Existencia <= 10)
+            if (producto.Reordenable == true && producto.Existencia <= 10)
             {
                 // Agregar producto al detalle de compras con concepto "Reorden" y laboratorio id 1
                 compras.d_Compra.Add(new d_Compra

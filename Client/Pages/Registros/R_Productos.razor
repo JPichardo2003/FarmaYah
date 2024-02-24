@@ -29,13 +29,13 @@
                     <button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
                     </div>
                     </div> *@
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <label for="Nombre">Nombre Producto:</label>
                         <InputText id="Nombre" @bind-Value="producto.Nombre" class="form-control" />
                         <ValidationMessage For="@(() => producto.Nombre)" />
                     </div>
 
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <label >Decripci&oacute;n Producto:</label>
                         <InputSelect  @bind-Value="producto.Descripcion" class="form-select">
                             <option value="TBA">TBA</option>
@@ -53,15 +53,20 @@
 
 
                 </div>
-                <div class="col-4">
+                <div class="col-md-4">
                     <label>Cantidad</label>
                     <InputNumber @bind-Value="ProductoExistenciaAux" class="form-control" />
                     <ValidationMessage For="@(() => producto.Existencia)" />
                 </div>
-                <div class="col-4">
+                <div class="col-md-4">
                     <label>Sumar</label>
                     <InputNumber @bind-Value="ProductoSuma" class="form-control" />
                 </div>
+                <div class="col-md-4">
+                    <label>Reorden</label>
+                    <input type="checkbox" @bind="producto.Reordenable" @onclick="ActualizarReOrden" />
+                </div>
+                    
 
                 @*  <div class="row">
                 <div class="col-4">
@@ -74,7 +79,7 @@
                 </div> *@
 
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <label for="Unidad">Unidad:</label>
 
                         <ValidationMessage For="@(() => producto.UnidadId)" />
@@ -89,7 +94,7 @@
                         <ValidationMessage For="@(() => producto.UnidadId)" />
 
                     </div>
-                    <div class="col"
+                    <div class="col-md-4"
                 <label>Laboratorio</label>
                 <InputSelect class="form-select" id="Laboratorios" @bind-Value="producto.LaboratorioId">
                 <option >Seleccione...</option>
@@ -232,6 +237,11 @@
     public void Back()
     {
         navigationManager.NavigateTo("MenuProductos");
+    }
+
+    private void ActualizarReOrden()
+    {
+        producto.Reordenable = !producto.Reordenable;
     }
 
     public async void Guardar()

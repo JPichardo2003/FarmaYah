@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240224145247_Agregando reordenable al producto")]
+    partial class Agregandoreordenablealproducto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -108,13 +111,6 @@ namespace FarmaYah.Server.Migrations
                     b.HasKey("ConfiguracionId");
 
                     b.ToTable("Configuracion");
-
-                    b.HasData(
-                        new
-                        {
-                            ConfiguracionId = 1,
-                            ReOrden = true
-                        });
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.CuentasPorPagar", b =>
@@ -519,21 +515,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 24, 10, 59, 24, 744, DateTimeKind.Local).AddTicks(1542),
+                            Fecha = new DateTime(2024, 2, 24, 10, 52, 47, 197, DateTimeKind.Local).AddTicks(1567),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 24, 10, 59, 24, 744, DateTimeKind.Local).AddTicks(1560),
+                            Fecha = new DateTime(2024, 2, 24, 10, 52, 47, 197, DateTimeKind.Local).AddTicks(1584),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 24, 10, 59, 24, 744, DateTimeKind.Local).AddTicks(1563),
+                            Fecha = new DateTime(2024, 2, 24, 10, 52, 47, 197, DateTimeKind.Local).AddTicks(1586),
                             Nombre = "ARS Universal"
                         });
                 });

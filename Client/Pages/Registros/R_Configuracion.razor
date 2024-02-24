@@ -1,0 +1,60 @@
+﻿@page "/RConfiguracion";
+@page "/RConfiguracion/{ConfiguracionId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+<EditForm Model="configuracion">
+    <DataAnnotationsValidator />
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Configuraci&oacute;n</h1>
+        </div>
+
+        <div class="card-body">
+            <div class="row-cols-1">
+                <div class="row">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Reorden</label>
+                            <input type="checkbox" @bind="configuracion.ReOrden" @onclick="ActualizarReOrden" />
+                        </div>
+                    </div>
+                </div>
+
+       
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int ConfiguracionId { get; set; }
+
+    public Configuracion configuracion = new Configuracion();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var configuracion = await httpClient.GetFromJsonAsync<Configuracion>("api/Configuracions/1");
+
+        if (configuracion is not null)
+        {
+            this.configuracion = configuracion;
+        }
+    }
+
+    private async Task ActualizarReOrden()
+    {
+        // Cambiar el estado de configuracion.ReOrden
+        configuracion.ConfiguracionId = 1;
+        configuracion.ReOrden = !configuracion.ReOrden;
+
+        // Actualizar el valor de ReOrden en la base de datos
+        var prueba = await httpClient.PutAsJsonAsync("api/Configuracions/1", configuracion);
+    }
+
+}
