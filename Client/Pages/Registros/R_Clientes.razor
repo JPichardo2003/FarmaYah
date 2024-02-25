@@ -28,6 +28,16 @@
                         <ValidationMessage For="@(() => clientes.Teléfono)" />
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <label>Seguro Medico:</label>
+                    <InputSelect @bind-Value="clientes.SeguroMedicoId" class="form-select">
+                        <option value="">Null</option>
+                        @foreach (var s in ListaSeguros)
+                        {
+                            <option value="@s.SeguroMedicoId">@s.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
 
                 <div class="form-group md-4 mt-2">
                     <label>Dirección</label>
@@ -55,9 +65,16 @@
 	public int ClienteId { get; set; }
 
 	public Clientes clientes = new Clientes();
+    public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
 
     protected override async Task OnInitializedAsync()
     {
+        var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
+
+        if(seguros is not null)
+        {
+            ListaSeguros = seguros;
+        }
         if (ClienteId > 0)
         {
             this.clientes.ClienteId = ClienteId;

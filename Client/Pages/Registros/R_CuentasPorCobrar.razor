@@ -2,9 +2,11 @@
 @page "/R_CuentasPorCobrar/{FacturaId:int}"
 @inject NotificationService notificationService
 @inject HttpClient httpClient
-
+@inject NavigationManager NavigationManager
 <div class="card">
 	<div class="card-body">
+		<button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+
 		<h1>Cuentas por pagar</h1>
 	</div>
 	<div class="card-body">
@@ -12,12 +14,12 @@
 		<div class="row">
 			<div class="form-group col-md-4">
 				<label>Nombre del Cliente:</label>
-				<InputText disabled @bind-Value="Cliente.Nombre" class="form-control" placeholder="Nombre del cliente" />
+				<InputText disabled @bind-Value="Cliente.Nombre" class="form-control" />
 			</div>
 
 			<div class="form-group col-md-4">
 				<label>Teléfono:</label>
-				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10" placeholder="1234567890" />
+				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10"/>
 			</div>
 		</div>
 		<div class="row">
@@ -194,6 +196,11 @@
 			BuscarFactura();
 		}
 
+	}
+
+	private void VolverAtras()
+	{
+		NavigationManager.NavigateTo("/MenuFacturas");
 	}
 	public void ActualizarPago()
 	{

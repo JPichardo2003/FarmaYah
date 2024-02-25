@@ -25,14 +25,12 @@ namespace FarmaYah.Shared.Models
 
         public string? Estado { get; set; }
 
-        public float Devolucion { get; set; }
-
-        public bool Eliminado { get; set; } = false;
-
+        public float MontoTotal { get; set; }
 
         [Range(0, float.MaxValue, ErrorMessage = "El pago no puede ser negativo")]
         public float Pago { get; set; }
-        public float MontoTotal { get; set; }
+        public float Devolucion { get; set; }
+        public bool Eliminado { get; set; } = false;
 
         [ForeignKey("FacturaId")]
         public ICollection<FacturasDetalles> FacturasDetalles { get; set; } = new List<FacturasDetalles>();
