@@ -1,0 +1,294 @@
+﻿@page "/RMermas";
+@page "/RMermas/{MermasId:int}";
+@page "/RMermas/p/{ProductoId:int}"
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="mermas" OnValidSubmit="Guardar" >
+    <DataAnnotationsValidator />
+
+      <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de Mermas</h1>
+        </div>
+    </div>
+
+        <div class="card card-header">
+            <div class="card-body border border-1">
+            <div class="row mt-2">
+                <div class="col-md-2">
+                    <label>Filtro:</label>
+                    <InputText @bind-Value="Filtro" class="form-control" @onblur="FiltrarProductos!" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-group">
+                        <label>Productos</label>
+                        <div>
+                            <InputSelect @bind-Value="mermas.ProductoId" class="form-select">
+                                <option value="" hidden="hidden">[Seleccione un producto]</option>
+                                @foreach (var p in ListaProductos)
+                                {
+                                    <option value="@p.ProductoId">@p.Nombre</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label>Cantidad da&ntilde;ada</label>
+                    <div class="input-group">
+                        <InputNumber @bind-Value="mermas.Cantidad" class="form-control" min="0"></InputNumber>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label>Fecha:</label>
+                    <InputDate @bind-Value="mermas.Fecha" class="form-control" readonly></InputDate>
+                    <ValidationMessage For="@(() => mermas.Fecha)" />
+                </div>
+            </div>
+
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label>Motivo</label>
+                        <InputText @bind-Value="mermas.Motivo" class="form-control"></InputText>
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label>Observaci&oacute;n</label>
+                        <InputText @bind-Value="mermas.Observaciones" class="form-control"></InputText>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                @if (EsNuevo)
+                {
+                  <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+                }
+                @if (!EsNuevo)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+                }
+            </div>
+        </div>
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int MermasId { get; set; }
+    [Parameter]
+    public int ProductoId { get; set; }
+
+    public Mermas mermas { get; set; } = new Mermas();
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public string Filtro { get; set; } = "";
+    public bool EsNuevo { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        if (MermasId > 0)
+        {
+            EsNuevo = false;
+            this.mermas.MermaId = MermasId;
+            await Buscar();
+        }
+        if (ProductoId > 0)
+        {
+            mermas.ProductoId = ProductoId;
+            return;
+        }
+
+    }
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuProductos");
+    }
+
+    public async Task Guardar()
+    {
+        if (!(await ValidarGuardar()))
+        {
+            return;
+        }
+        using var response = await httpClient.PostAsJsonAsync("api/Mermas", mermas);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = response.RequestMessage + "No se pudo Guardar correctamente, verifique los campos",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var compraDevuelta = await response.Content.ReadFromJsonAsync<Mermas>();
+        if (compraDevuelta is not null)
+        {
+
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Mermas Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+
+            StateHasChanged();
+            var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+            var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == mermas.ProductoId).FirstOrDefault()!;
+            Producto_A_Actualizar.Existencia -= mermas.Cantidad;
+            using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{mermas.ProductoId}", Producto_A_Actualizar);
+
+            this.Nuevo();
+        }
+
+    }
+
+
+    private async Task<bool> ValidarGuardar()
+    {
+        if (mermas.Cantidad <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La cantidad no puede ser menor a 0",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        if (string.IsNullOrEmpty(mermas.Motivo))
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debe haber un motivo",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+        var Producto_A_Revisar = productos!.Where(p => p.ProductoId == mermas.ProductoId).FirstOrDefault()!;
+        Producto_A_Revisar.Existencia -= mermas.Cantidad;
+        if (Producto_A_Revisar.Existencia < 0)
+        {
+
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Está eliminando más de los que hay",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        return true;
+    }
+
+
+    public void Nuevo()
+    {
+        EsNuevo = true;
+        mermas = new Mermas();
+    }
+
+    public async Task Buscar()
+    {
+        try
+        {
+            await httpClient.GetFromJsonAsync<Mermas>($"api/Mermas/{MermasId}");
+        }
+        catch (Exception)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo encontrar la Orden",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+            return;
+        }
+        var MermasEncontrada = await httpClient.GetFromJsonAsync<Mermas>($"api/Mermas/{MermasId}");
+        if (MermasEncontrada != null)
+        {
+            if (MermasEncontrada.Activo = true)
+            {
+                this.mermas = MermasEncontrada;
+                StateHasChanged();
+            }
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var mermatemporal = mermas;
+        mermas.Activo = false;
+        using var response = await httpClient.PostAsJsonAsync($"api/Mermas", mermas);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al eliminar el Merma",
+                    Duration = 5_000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Merma eliminado con éxito",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+        var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == mermatemporal.ProductoId).FirstOrDefault()!;
+        Producto_A_Actualizar.Existencia += mermatemporal.Cantidad;
+        using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{mermatemporal.ProductoId}", Producto_A_Actualizar);
+
+    }
+
+    public async Task? FiltrarProductos()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (string.IsNullOrEmpty(Filtro))
+        {
+            ListaProductos = productos!;
+            return;
+        }
+        productos = productos?.Where(p => p.Nombre!.ToLower().Contains(Filtro.ToLower())).ToList();
+        ListaProductos = productos!;
+    }
+
+
+}
