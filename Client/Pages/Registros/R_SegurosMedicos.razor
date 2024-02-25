@@ -1,0 +1,399 @@
+﻿@page "/RSMedicos";
+@page "/RSMedicos/{SeguroMedicoId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="segurosmedicos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de SegurosMedicos</h1>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @* <label>Seguro Medico ID:</label>
+                <div class="input-group col-md-6">
+                    <InputNumber @bind-Value="segurosmedicos.SeguroMedicoId" class="id-input"></InputNumber>
+                    <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                </div> *@
+                <div class="col-md-6">
+                    <label>Nombre:</label>
+                    <InputText @bind-Value="segurosmedicos.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => segurosmedicos.Nombre)" />
+                </div>
+            </div>
+        </div>
+        @*Detalles:*@
+        <div class="card card-header">
+            <h3>Productos</h3>
+        </div>
+        <div class="card-body border border-1">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Producto</label>
+                    <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
+                        <option value="" hidden="hidden">Seleccione</option>
+                        @foreach (var p in ListaProductos)
+                        {
+                            <option value="@p.ProductoId">@p.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Detalles.ProductoId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Descuento (%)</label>
+                    <div class="input-group">
+                        <InputNumber @bind-Value="Detalles.Descuento" class="form-control"></InputNumber>
+                        <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                        <ValidationMessage For="@(() => Detalles.Descuento)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class='table table-striped table-hover'>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Laboratorio</th>
+                    <th>Precio</th>
+                    <th>Descuento (%)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in segurosmedicos.SegurosMedicosDetalles)
+                {
+                    <tr>
+                        <td>@ObtenerNombre(detalle.ProductoId)</td>
+                        <td>@ObtenerDescripción(detalle.ProductoId)</td>
+                        <td>@ObtenerNombreLaboratorio(detalle.ProductoId)</td>
+                        <td>@ObtenerPrecio(detalle.ProductoId)</td>
+                        <td>@detalle.Descuento %</td>
+                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+    [Parameter]
+
+    public int SeguroMedicoId { get; set; }
+    public SegurosMedicos segurosmedicos { get; set; } = new SegurosMedicos();
+    public SegurosMedicosDetalles Detalles { get; set; } = new SegurosMedicosDetalles();
+
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+    public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
+
+    public List<SegurosMedicosDetalles> DetallesRemovidos { get; set; } = new List<SegurosMedicosDetalles>();
+    public List<SegurosMedicosDetalles> ListaDetalles { get; set; } = new List<SegurosMedicosDetalles>();
+
+    public float PrecioT { get; set; } = 0;
+    public int ReducirProducido = 0;
+    public bool idVacio;
+    public bool cantidadCero;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+        var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+
+        if (laboratorios is not null)
+        {
+            ListaLaboratorios = laboratorios;
+        }
+
+        if (empleados is not null)
+        {
+            ListaEmpleados = empleados;
+        }
+        if (sucursales is not null)
+        {
+            ListaSucursales = sucursales;
+        }
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        if (SeguroMedicoId > 0)
+        {
+            this.segurosmedicos.SeguroMedicoId = SeguroMedicoId;
+            await Buscar();
+        }
+    }
+
+    private async Task<SegurosMedicos> BuscarFactura(int SeguroMedicoId)
+    {
+        SegurosMedicos SegurosMedicos = new SegurosMedicos();
+        var seguroMedicoEncontrado = await httpClient.GetFromJsonAsync<SegurosMedicos>($"api/SegurosMedicos/{SeguroMedicoId}");
+        if (seguroMedicoEncontrado != null)
+            return SegurosMedicos = seguroMedicoEncontrado;
+        return new SegurosMedicos();
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuSeguros");
+    }
+
+    public float ObtenerPrecio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
+    }
+    public int ObtenerLaboratorio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!;
+    }
+
+    public string ObtenerNombre(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Nombre!;
+    }
+
+    public string ObtenerDescripción(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Descripcion!;
+    }
+
+    public string ObtenerNombreLaboratorio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+
+        if (producto != null)
+        {
+            var laboratorio = ListaLaboratorios.FirstOrDefault(l => l.LaboratorioId == producto.LaboratorioId);
+
+            if (laboratorio != null)
+            {
+                return laboratorio.Nombre!;
+            }
+        }
+
+        return "Lab Not Found";
+    }
+
+    public async Task Buscar()
+    {
+        ListaDetalles = new List<SegurosMedicosDetalles>();
+        DetallesRemovidos = new List<SegurosMedicosDetalles>();
+        var SeguroMedicoIdEncontrado = (await httpClient.GetFromJsonAsync<List<SegurosMedicos>>($"api/SegurosMedicos"))!
+        .ToList()
+        .Any(e => e.SeguroMedicoId == segurosmedicos.SeguroMedicoId);
+        if (SeguroMedicoIdEncontrado)
+        {
+            var seguroMedicoEncontrado = await httpClient.GetFromJsonAsync<SegurosMedicos>($"api/SegurosMedicos/{segurosmedicos.SeguroMedicoId}");
+            if (seguroMedicoEncontrado != null)
+            {
+                this.segurosmedicos = seguroMedicoEncontrado;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se encontro ninguna factura",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+    }
+
+    public void Notificaciones()
+    {
+
+    }
+    // En el método Guardar() o en un método separado según sea necesario
+
+
+    public async Task Guardar()
+    {
+        if (segurosmedicos.SeguroMedicoId < 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El SeguroMedicoId no puede ser Negativa.",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        if (segurosmedicos.SegurosMedicosDetalles.Count <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debe agregar al menos un detalle a la factura",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        using var response = await httpClient.PostAsJsonAsync("api/SegurosMedicos", segurosmedicos);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo Guardar correctamente, verifique los campos",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var seguroMedicoDevuelto = await response.Content.ReadFromJsonAsync<SegurosMedicos>();
+        if (seguroMedicoDevuelto is not null)
+        {
+            //cuando eliminamos un detalle de un registro y guardamos se devuelve al inventario lo que se habia utilizado
+            if (DetallesRemovidos.Count > 0)
+            {
+                foreach (var detalle in DetallesRemovidos)
+                {
+                    await httpClient.DeleteAsync($"api/SegurosMedicos/DeleteDetalles/{detalle.SeguroMedicoDetalleId}");
+                }
+            }
+            //cuando creamos un registro se reduce del inventario lo que se utilizo
+            if (ListaDetalles.Count > 0)
+            {
+                foreach (var detalle in ListaDetalles)
+                {
+                    var reducir = ListaProductos.FirstOrDefault(p => p.ProductoId == detalle.ProductoId);
+                    using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{reducir!.ProductoId}", reducir);
+                }
+            }
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Factura Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            segurosmedicos = seguroMedicoDevuelto;
+            StateHasChanged();
+            this.Nuevo();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.segurosmedicos = new SegurosMedicos();
+        this.Detalles = new SegurosMedicosDetalles();
+        DetallesRemovidos = new List<SegurosMedicosDetalles>();
+        ListaDetalles = new List<SegurosMedicosDetalles>();
+        PrecioT = 0;
+    }
+
+    public async Task Eliminar()
+    {
+        segurosmedicos.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/SegurosMedicos", segurosmedicos);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al eliminar el Seguro Medico",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Seguro Medico eliminado con éxito",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
+    }
+
+    public bool Validar()
+    {
+        idVacio = (Detalles.ProductoId <= 0);
+        cantidadCero = (Detalles.Descuento <= 0);
+        return idVacio || cantidadCero;
+    }
+
+    public async Task AgregarDetalle()
+    {
+        if (Validar())
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Llene los campos del detalle Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        var producto = await BuscarProductos(Detalles.ProductoId);
+
+        if (segurosmedicos != null)
+        {
+            var detalleEncontrado = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>($"api/SegurosMedicos");
+            //aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
+            var detalleExiste = detalleEncontrado!.Any(d => d.SeguroMedicoDetalleId == Detalles.SeguroMedicoDetalleId);
+
+            Detalles.SeguroMedicoId = segurosmedicos.SeguroMedicoId;
+            segurosmedicos.SegurosMedicosDetalles.Add(Detalles);
+            if (detalleExiste)
+            {
+                ListaDetalles.Add(Detalles);
+
+            }
+            if (DetallesRemovidos.Any(d => d.SeguroMedicoDetalleId == Detalles.SeguroMedicoDetalleId))
+                DetallesRemovidos.Remove(Detalles);
+            Detalles = new SegurosMedicosDetalles();
+
+        }
+        StateHasChanged();
+    }
+
+    public void RemoverDetalle(SegurosMedicosDetalles detalle)
+    {
+        Detalles = detalle;
+        segurosmedicos.SegurosMedicosDetalles.Remove(detalle);
+        DetallesRemovidos.Add(detalle);
+        if (ListaDetalles.Any(d => d.SeguroMedicoDetalleId == detalle.SeguroMedicoDetalleId))
+            ListaDetalles.Remove(detalle);
+        StateHasChanged();
+    }
+
+    private async Task<Productos> BuscarProductos(int ProductoId)
+    {
+        var producto = await httpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}");
+
+        return producto ?? new Productos();
+    }
+}

@@ -30,7 +30,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Compras.Include(f => f.d_Compra).ToListAsync();
+            return await _context.Compras.Include(f => f.d_Compra).Include(c => c.CuentasPorPagar).Where(c => c.Eliminado != true).ToListAsync();
         }
 
         // GET: api/Compras/5
@@ -42,8 +42,9 @@ namespace FarmaYah.Server.Controllers
               return NotFound();
           }
             var compras = await _context.Compras
-                        .Include(f => f.d_Compra)
-                        .Where(f => f.CompraId == id)
+                        .Include(c => c.d_Compra)
+                        .Include(c => c.CuentasPorPagar)
+                        .Where(c => c.CompraId == id && c.Eliminado != true)
                         .FirstOrDefaultAsync();
 
 
@@ -138,6 +139,24 @@ namespace FarmaYah.Server.Controllers
                 return NotFound();
             }
             _context.d_Compra.Remove(compras);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpDelete("DeleteDetallesCxP/{id}")]
+        public async Task<IActionResult> DeleteDetallesCxP(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+            var compras = await _context.CuentasPorPagar.FirstOrDefaultAsync(fd => fd.CompraId == id);
+            if (compras is null)
+            {
+                return NotFound();
+            }
+            _context.CuentasPorPagar.Remove(compras);
             await _context.SaveChangesAsync();
 
             return Ok();

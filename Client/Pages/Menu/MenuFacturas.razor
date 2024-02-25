@@ -1,0 +1,52 @@
+﻿@page "/MenuFacturas"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+<PageTitle>Facturas</PageTitle>
+<div class="card" style="width:1000px">
+    <div class="card-header d-flex align-items-center justify-content-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>FarmaYah - Facturación</h1>
+    </div>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-md-4 text-center">
+                <button type="button" @onclick="NavigateToRegistro" class="d-block mx-auto">
+                    <img src="Images/icons8-factura-50.png" class="icon" /> Registro Factura
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToConsulta">
+                    <img src="Images/ConsultaFactura.png" class="icon" />Consulta Factura
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToConsultaCuentasPorCobrar">
+                    <img src="Images/icons8-recibir-efectivo-50.png" class="icon" /> Cuentas por Cobrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private void NavigateToRegistro()
+    {
+        NavigationManager.NavigateTo("/RFacturas");
+    }
+
+    private void NavigateToConsulta()
+    {
+        NavigationManager.NavigateTo("/CFacturas");
+    }
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuPrincipal");
+    }
+    private void NavigateToConsultaCuentasPorCobrar()
+    {
+        NavigationManager.NavigateTo("/C_CuentasPorCobrar");
+    }
+
+}

@@ -1,10 +1,12 @@
 ﻿@page "/Ctransaccion/{ClienteId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-
+@inject NavigationManager NavigationManager;
 <div class="card-header mt-4">
 
 	<div class="card-header d-flex align-items-center">
+		<button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+
 		<img src="Images/pngwing.com.png" class="img-logo" />
 		<h1>Consulta de Transacciones de @Cliente.Nombre</h1>
 	</div>
@@ -109,7 +111,7 @@
 	public DateTime Hasta { get; set; }
 
 	public int opciones { get; set; }
-public string FiltroString { get; set; } = "";
+	public string FiltroString { get; set; } = "";
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -119,9 +121,14 @@ public string FiltroString { get; set; } = "";
 		await ObtenerFacturasDelCliente();
 	}
 
+	private void VolverAtras()
+	{
+		NavigationManager.NavigateTo("/MenuCompras");
+	}
+
 	public async Task BuscarCliente()
 	{
-		var ClienteIdEncontrado = (await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{ClienteId}"));
+		var ClienteIdEncontrado = (await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{ClienteId}"))!;
 		Cliente = ClienteIdEncontrado;
 	}
 

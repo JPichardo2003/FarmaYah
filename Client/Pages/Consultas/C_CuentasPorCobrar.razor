@@ -1,0 +1,237 @@
+﻿@page "/C_CuentasPorCobrar"
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+<PageTitle>Cuentas por cobrar</PageTitle>
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>Cuentas por cobrar</h1>
+    </div>
+    <div class="card-body">
+        <div class="input-group-text">
+            <label class="form-control-label col-1">Desde:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Desde" />
+            </div>
+            <label class="form-control-label col-1">Hasta:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Hasta" />
+            </div>
+            <button type="button" @onclick="Buscar" class="btn btn-outline-primary">
+                <i class="bi bi-search" />
+            </button>
+        </div>
+    </div>
+    <label>Filtrar Por:</label>
+    <div>
+        <div class="col-md-6 filter-input">
+            <InputSelect @bind-Value="Filtro" class="form-select">
+                <option value="1">Seguro Medico</option>
+                <option value="2">Empleado</option>
+                <option value="3">Sucursal</option>
+                <option value="4">Estado</option>
+                <option value="5">Montos a partir de</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            @switch (Filtro)
+            {
+                case 1:
+                    <InputText @bind-Value="SeguroName" class="form-control"></InputText>
+                    break;
+                case 2:
+                    <InputText @bind-Value="EmpleadoName" class="form-control"></InputText>
+                    break;
+                case 3:
+                    <InputText @bind-Value="SucursalName" class="form-control"></InputText>
+                    break;
+                case 4:
+                    <InputText @bind-Value="facturas!.Estado" class="form-control"></InputText>
+                    break;
+                case 5:
+                    <InputNumber @bind-Value="facturas!.MontoTotal" class="form-control"></InputNumber>
+                    break;
+                
+                   
+            }
+        </div>
+    </div>
+
+    @if (FacturasPendientes is not null)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Seguro Medico</th>
+                        <th>Atendido Por</th>
+                        <th>Sucursal</th>
+                        <th>Estado</th>
+                        <th>Monto</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var facturas in FacturasPendientes)
+                    {
+                        <tr>
+                            <td>@facturas.Fecha.ToString("MM/dd/yyyy")</td>
+                            <td>@ObtenerNombreCliente(facturas.ClienteId)</td>
+                            <td>@ObtenerNombreSeguro(facturas.SeguroMedicoId)</td>
+                            <td>@ObtenerNombre(facturas.EmpleadoId)</td>
+                            <td>@ObtenerNombreSucursal(facturas.SucursalId)</td>
+                            <td>@facturas.Estado</td>
+                            <td>@facturas.MontoTotal</td>
+                            <td><a class="btn btn-primary" href="R_CuentasPorCobrar/@facturas.FacturaId">Cobrar</a></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Conteo: @Conteo</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Total: @TotalPesos $</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+@code {
+
+    public int Filtro { get; set; }
+    public List<Facturas>? FacturasPendientes { get; set; }
+    public Facturas? facturas { get; set; } = new Facturas();
+    public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+    public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
+    public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+
+    public int Conteo { get; set; }
+    public float TotalPesos { get; set; }
+    public string? EmpleadoName { get; set; }
+    public string? SeguroName { get; set; }
+    public string? SucursalName { get; set; }
+
+    public DateTime Desde { get; set; }
+    public DateTime Hasta { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+        var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
+        var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+
+        if (seguros is not null)
+        {
+            ListaSeguros = seguros;
+        }
+        if (sucursales is not null)
+        {
+            ListaSucursales = sucursales;
+        }
+        if (empleados is not null)
+        {
+            ListaEmpleados = empleados;
+        }
+        if (clientes is not null)
+        {
+            ListaClientes = clientes;
+        }
+        await Buscar();
+        Desde = DateTime.Now.AddMonths(-1);
+        Hasta = DateTime.Now;
+    }
+
+    public async Task Buscar()
+    {
+        if (Filtro == 1 && !string.IsNullOrEmpty(SeguroName))
+        {
+            var seguroBusqueda = SeguroName.ToLower();
+            FacturasPendientes = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar"))!
+                .Where(t => ListaSeguros!.Any(p => p.SeguroMedicoId == t.SeguroMedicoId && p.Nombre!.ToLower().Contains(seguroBusqueda))
+                            && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
+            StateHasChanged();
+        }
+        else
+        if (Filtro == 2 && !string.IsNullOrEmpty(EmpleadoName))
+        {
+            var empleadoBusqueda = EmpleadoName.ToLower();
+            FacturasPendientes = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar"))!
+                .Where(t => ListaEmpleados!.Any(p => p.EmpleadoId == t.EmpleadoId && p.Nombre!.ToLower().Contains(empleadoBusqueda))
+                            && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
+            StateHasChanged();
+        }
+        else
+        if (Filtro == 3 && !string.IsNullOrEmpty(SucursalName))
+        {
+            var sucursalBusqueda = SucursalName.ToLower();
+            FacturasPendientes = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar"))!
+                .Where(t => ListaSucursales!.Any(p => p.SucursalId == t.SucursalId && p.Nombre!.ToLower().Contains(sucursalBusqueda))
+                            && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
+            StateHasChanged();
+        }
+        else
+        if (Filtro == 4 && !string.IsNullOrEmpty(facturas!.Estado))
+        {
+            var estadoBusqueda = facturas!.Estado.ToLower();
+            FacturasPendientes = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar"))!
+                .Where(t => t.Estado != null && t.Estado.ToLower().Contains(estadoBusqueda) && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .ToList();
+            StateHasChanged();
+        }
+        else
+        if (Filtro == 5 && facturas!.MontoTotal > 0)
+        {
+            FacturasPendientes = (await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar"))!
+            .Where(t => t.MontoTotal >= facturas!.MontoTotal && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+            .ToList();
+            StateHasChanged();
+        }       
+        else
+        {
+            FacturasPendientes = await httpClient.GetFromJsonAsync<List<Facturas>>($"api/Facturas/CuentasPorCobrar");
+            StateHasChanged();
+        }
+        Conteo = FacturasPendientes != null ? FacturasPendientes!.Count() : 0;
+        TotalPesos = FacturasPendientes != null ? FacturasPendientes!.Sum(f => f.MontoTotal) : 0;
+    }
+
+    public string ObtenerNombre(int Id)
+    {
+        var empleado = ListaEmpleados.FirstOrDefault(p => p.EmpleadoId == Id);
+        return empleado?.Nombre ?? "Nombre no encontrado";
+    }
+
+    public string ObtenerNombreSucursal(int Id)
+    {
+        var sucursal = ListaSucursales.FirstOrDefault(p => p.SucursalId == Id);
+        return sucursal?.Nombre ?? "Nombre no encontrado";
+    }
+
+    public string ObtenerNombreSeguro(int? Id)
+    {
+        var seguro = ListaSeguros.FirstOrDefault(p => p.SeguroMedicoId == Id);
+        return seguro?.Nombre ?? "NULL";
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuFacturas");
+    }
+    public string ObtenerNombreCliente(int Id)
+    {
+        var cliente = ListaClientes.FirstOrDefault(p => p.ClienteId == Id);
+        return cliente?.Nombre ?? "Nombre no encontrado";
+    }
+}

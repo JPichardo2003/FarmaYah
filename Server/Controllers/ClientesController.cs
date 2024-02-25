@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmaYah.Server.DAL;
 using FarmaYah.Shared.Models;
-using FarmaYah.Client.Pages.Registros;
 
 namespace FarmaYah.Server.Controllers
 {
@@ -30,7 +29,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Clientes.ToListAsync();
+            return await _context.Clientes.Where(c => c.Eliminado != true).ToListAsync();
         }
 
         // GET: api/Clientes/5
@@ -41,7 +40,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            var clientes = await _context.Clientes.FindAsync(id);
+            var clientes = await _context.Clientes.Where(c => c.Eliminado != true).FirstOrDefaultAsync();
 
             if (clientes == null)
             {

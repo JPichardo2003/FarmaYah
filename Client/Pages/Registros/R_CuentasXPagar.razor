@@ -1,0 +1,435 @@
+﻿@page "/RCuentasPorPagar";
+@page "/RCuentasPorPagar/{CompraId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+<EditForm Model="compras" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de Compras</h1>
+        </div>
+        <div class="card-body">
+            @*  COSAS DEL ADMIN
+            <div class="row">
+            <div class="col-md-6">
+            <label>Fecha del Pedido:</label>
+            <InputDate @bind-Value="compras.FechaRecibida" class="form-control"></InputDate>
+            </div>*@
+
+        </div>
+
+        @*Detalle*@
+        <div class="card card-header">
+            <div class="col-md-2">
+                <h3>Productos</h3>
+            </div>
+
+            <div class="card-body border border-1">
+                <div class="col-md-2">
+                    <label>Deuda:</label>
+                    <InputNumber @bind-Value="PrecioT" class="form-control" readonly />
+                </div>
+            </div>
+
+            <table class='table table-striped table-hover'>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Laboratorio</th>
+                        <th>Cantidad Deseada</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var Detalles in compras.d_Compra)
+                    {
+                        <tr>
+                            <td>@ObtenerNombreProducto(Detalles.ProductoId)</td>
+                            <td>@ObtenerDescripciónProducto(Detalles.ProductoId)</td>
+                            <td>@ObtenerNombreLaboratorio(Detalles.ProductoId)</td>
+                            <td>@Detalles.Cantidad</td>
+                        </tr>
+                    }
+
+                    <tr>
+                        <td>Total Productos: @compras.d_Compra.Count() </td>
+                    </tr>
+                </tbody>
+            </table>
+            @*Detalles con CxP*@
+
+            <div class="card card-header">
+                <h3>Realizar Pago</h3>
+            </div>
+            <div class="card-body border border-1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Concepto</label>
+                        <InputText @bind-Value="DetallesPagar.Concepto" class="form-control"></InputText>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Pago</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="DetallesPagar.pago" class="form-control" max="@PrecioT"></InputNumber>
+                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class='table table-striped table-hover'>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Concepto</th>
+                        <th>Abono</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in compras.CuentasPorPagar)
+                    {
+                        <tr>
+                            <td>@detalle.Fecha.ToString("MM/dd/yyyy")</td>
+                            <td>@detalle.Concepto</td>
+                            <td>@detalle.pago</td>
+                            <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Monto Total:$ @PrecioT</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="card-footer text-center">
+           
+                    <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
+                    @* <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button> *@
+
+            </div>
+        </div>
+
+    </div>
+</EditForm>
+
+@code
+{
+    [Parameter]
+
+    public int CompraId { get; set; }
+    public Compras compras { get; set; } = new Compras();
+    public d_Compra d_compra { get; set; } = new d_Compra();
+    public CuentasPorPagar DetallesPagar { get; set; } = new CuentasPorPagar();
+    public Laboratorios Laboratorios { get; set; } = new Laboratorios();
+
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+    public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+    public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
+
+    public List<d_Compra> DetallesRemovidos { get; set; } = new List<d_Compra>();
+    public List<d_Compra> ListaDetalles { get; set; } = new List<d_Compra>();
+    public List<CuentasPorPagar> DetallesRemovidosCxP { get; set; } = new List<CuentasPorPagar>();
+    public List<CuentasPorPagar> ListaDetallesCxP { get; set; } = new List<CuentasPorPagar>();
+
+    public bool idVacio;
+    public bool cantidadCero;
+    public float PrecioT { get; set; } = 0;
+
+    public bool EntregadoAntes = false;
+    bool LaboratorioDisabled => d_compra.ProductoId == 0;
+
+
+
+    public string? Filtro { get; set; }
+
+    private void ToggleEntregado()
+    {
+        compras.Entregado = !compras.Entregado;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+        var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        var laboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
+
+        if (laboratorios is not null)
+        {
+            ListaLaboratorios = laboratorios;
+        }
+
+        if (empleados is not null)
+        {
+            ListaEmpleados = empleados;
+        }
+        if (sucursales is not null)
+        {
+            ListaSucursales = sucursales;
+        }
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        if (CompraId > 0)
+        {
+            this.compras.CompraId = CompraId;
+            await Buscar();
+        }
+    }
+
+    public void ActualizarPrecioT()
+    {
+        // Suma de los precios de los productos
+        float sumaProductos = compras.d_Compra.Sum(f => ObtenerPrecio(f.ProductoId) * f.Cantidad);
+
+        // Suma de los pagos realizados
+        float sumaPagos = compras.CuentasPorPagar.Sum(p => p.pago);
+
+        // Restar la suma de los pagos realizados al total de los productos
+        PrecioT = sumaProductos - sumaPagos;
+    }
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuCompras");
+    }
+    public float ObtenerPrecio(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Precio!;
+    }
+    public int ObtenerLaboratorioId(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.LaboratorioId!;
+    }
+
+    public string ObtenerNombreProducto(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Nombre!;
+    }
+
+    public string ObtenerDescripciónProducto(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Descripcion!;
+    }
+
+    public string ObtenerNombreLaboratorio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+
+        if (producto != null)
+        {
+            var laboratorio = ListaLaboratorios.FirstOrDefault(l => l.LaboratorioId == producto.LaboratorioId);
+
+            if (laboratorio != null)
+            {
+                return laboratorio.Nombre!;
+            }
+        }
+
+        return "Lab Not Found";
+    }
+
+    public async Task? FiltrarProductos()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (string.IsNullOrEmpty(Filtro))
+        {
+            ListaProductos = productos!;
+            return;
+        }
+        productos = productos?.Where(p => p.Nombre!.ToLower().Contains(Filtro.ToLower())).ToList();
+        ListaProductos = productos!;
+    }
+
+    public async Task Buscar()
+    {
+        Nuevo();
+        try
+        {
+            await httpClient.GetFromJsonAsync<Compras>($"api/Compras/{CompraId}");
+        }
+        catch (Exception)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se pudo encontrar la Orden",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+            return;
+        }
+        var CompraEncontrada = await httpClient.GetFromJsonAsync<Compras>($"api/Compras/{CompraId}");
+        if (CompraEncontrada != null)
+        {
+            this.compras = CompraEncontrada;
+            ActualizarPrecioT();
+            CompraId = compras.CompraId;
+            EntregadoAntes = compras.Entregado;
+            StateHasChanged();
+        }
+    }
+
+    public async Task Guardar()
+    {
+        DetallesPagar.Deuda = PrecioT;//OJO AQUI
+
+        if (!ValidarGuardar())
+        {
+            return;
+        }
+        compras.CuentasPorPagar.Where(c => c.CuentasPorPagarId == DetallesPagar.CuentasPorPagarId).FirstOrDefault()!.Deuda = PrecioT;
+
+        // Si es ya fue entregado la fecha recibida es guardada
+        using var response = await httpClient.PostAsJsonAsync("api/Compras", compras);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = response.RequestMessage + "No se pudo Guardar correctamente, verifique los campos",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        if (DetallesRemovidosCxP.Count > 0)
+        {
+            foreach (var detalle in DetallesRemovidosCxP)
+            {
+                await httpClient.DeleteAsync($"api/Compras/DeleteDetallesCxP/{detalle.CompraId}");
+            }
+        }
+        var compraDevuelta = await response.Content.ReadFromJsonAsync<Compras>();
+        if (compraDevuelta is not null)
+        {
+
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Guardada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            compras = compraDevuelta;
+            StateHasChanged();
+            this.Nuevo();
+        }
+    }
+
+    private bool ValidarGuardar()
+    {
+        if (compras.CuentasPorPagar.Count <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debe agregar al menos un detalle a la compra",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        return true;
+    }
+
+    public void Nuevo()
+    {
+        this.compras = new Compras();
+        this.d_compra = new d_Compra();
+        DetallesRemovidos = new List<d_Compra>();
+        ListaDetalles = new List<d_Compra>();
+        DetallesPagar = new CuentasPorPagar();
+        DetallesRemovidosCxP = new List<CuentasPorPagar>();
+        ListaDetallesCxP = new List<CuentasPorPagar>();
+        PrecioT = 0;
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Compras/{compras.CompraId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La Orden no fue Eliminada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = "Orden Eliminada Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+        }
+        this.Nuevo();
+    }
+
+    public bool ValidarDetalle()
+    {
+        return true;
+    }
+
+    public void AgregarDetalle()
+    {
+        if (!ValidarDetalle())
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Llene los campos del detalle Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+
+        DetallesPagar.CompraId = compras.CompraId;
+        compras.CuentasPorPagar.Add(DetallesPagar);
+        ListaDetallesCxP.Add(DetallesPagar);
+        if (DetallesRemovidosCxP.Any(d => d.CuentasPorPagarId == DetallesPagar.CuentasPorPagarId))
+            DetallesRemovidosCxP.Remove(DetallesPagar);
+        DetallesPagar = new CuentasPorPagar();
+        ActualizarPrecioT();
+        StateHasChanged();
+    }
+
+    private async Task<Productos> BuscarProductos(int ProductoId)
+    {
+        var producto = await httpClient.GetFromJsonAsync<Productos>($"api/Productos/{ProductoId}");
+
+        return producto ?? new Productos();
+    }
+
+    public void RemoverDetalle(CuentasPorPagar detalle)
+    {
+        DetallesPagar = detalle;
+        compras.CuentasPorPagar.Remove(detalle);
+        DetallesRemovidosCxP.Add(detalle);
+        if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == detalle.CompraId))
+            ListaDetallesCxP.Remove(detalle);
+        ActualizarPrecioT();
+        StateHasChanged();
+    }
+    
+}

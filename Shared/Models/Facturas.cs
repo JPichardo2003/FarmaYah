@@ -21,18 +21,25 @@ namespace FarmaYah.Shared.Models
 
         public int SucursalId { get; set; }
 
+        public int ClienteId { get; set; }
+
         public string? Estado { get; set; }
 
         public float Devolucion { get; set; }
 
+        public bool Eliminado { get; set; } = false;
+
+
         [Range(0, float.MaxValue, ErrorMessage = "El pago no puede ser negativo")]
         public float Pago { get; set; }
         public float MontoTotal { get; set; }
-        [ForeignKey("ClienteId")]
-        public int ClienteId { get; set; }
 
         [ForeignKey("FacturaId")]
         public ICollection<FacturasDetalles> FacturasDetalles { get; set; } = new List<FacturasDetalles>();
 
+        [ForeignKey("FacturaId")]
+        public ICollection<PagosCuentasPorCobrar> PagosCuentasPorCobrar { get; set; } = new List<PagosCuentasPorCobrar>();
+
     }
 }
+    

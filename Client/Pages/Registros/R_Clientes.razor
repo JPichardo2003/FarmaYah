@@ -2,12 +2,13 @@
 @page "/RClientes/{ClienteId:int}";
 @inject HttpClient httpClient
 @inject NotificationService notificationService;
-
+@inject NavigationManager NavigationManager;
 <EditForm Model="clientes" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />   
 
 	<div class="card">
         <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
             <img src="Images/pngwing.com.png" class="img-logo" />
             <h1>Registro de Clientes</h1>
 		</div>
@@ -59,6 +60,11 @@
             this.clientes.ClienteId = ClienteId;
             await Buscar();
         }
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuClientes");
     }
 
     public async Task Buscar()
@@ -128,31 +134,30 @@
 
     public async Task Eliminar()
     {
-        using var response = await httpClient.DeleteAsync($"api/Clientes/{clientes.ClienteId}");
+        clientes.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/Clientes", clientes);
         if (!response.IsSuccessStatusCode)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "No es posible Eliminar",
-                    Duration = 4_000
+                    Detail = "Error al eliminar el Cliente",
+                    Duration = 5_000
                 };
             notificationService.Notify(mensaje);
-            return;
         }
         else
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = "Validación",
-                    Detail = "Cliente Eliminado Correctamente",
-                    Duration = 4_000
+                    Summary = "Eliminado",
+                    Detail = "Cliente eliminado con éxito",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
-
+            Nuevo();
         }
-        Nuevo();
     }
 }

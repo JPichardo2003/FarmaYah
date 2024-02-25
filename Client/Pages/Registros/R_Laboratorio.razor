@@ -1,0 +1,174 @@
+﻿@page "/RLaboratorio"
+@page "/RLaboratorio/{LaboratorioId:int}"
+@inject HttpClient HttpClient
+@inject NotificationService notificationService
+@inject NavigationManager navigationManager
+
+<EditForm Model="@Laboratorio" OnValidSubmit="Guardar">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header ">
+				<div class="col">
+					<button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+				</div>
+				<div class="col d-flex align-items-center justify-content-center">
+					<img src="Images/pngwing.com.png" class="img-logo" />
+					<h1>Registro Laboratorio</h1>
+				</div>
+			</div>
+			<div class="card-header d-flex align-items-center">
+			</div>
+
+			<div class="card-body">
+				<div class="row">
+					@* <div class="col-4">
+					<label for="Nombre"></label>
+					<InputNumber id="Nombre" @bind-Value="Laboratorio!.LaboratorioId" class="form-control" />
+					<ValidationMessage For="@(() => Laboratorio.LaboratorioId)" />
+					<button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
+
+					</div> *@
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<label for="Nombre">Nombre del Laboratorio</label>
+						<InputText id="Nombre" @bind-Value="Laboratorio!.Nombre" class="form-control"></InputText>
+						<ValidationMessage For="@(() => Laboratorio.Nombre)" />
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4">
+						<label>Direci&oacute;n:</label>
+						<InputText @bind-Value="Laboratorio.Direccion" class="form-control"></InputText>
+						<ValidationMessage For="@(() => Laboratorio.Direccion)" />
+					</div>
+				</div>
+
+
+				@*Botones*@
+				<div class="row justify-content-center">
+					<div class="col-4">
+						<button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
+						<button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
+						<button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	[Parameter]
+	public int LaboratorioId { get; set; }
+	public Laboratorios? Laboratorio { get; set; } = new Laboratorios();
+	protected override async Task OnInitializedAsync()
+	{
+		if (LaboratorioId > 0)
+		{
+			Laboratorio = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{LaboratorioId}");
+		}
+	}
+
+	public void Back()
+	{
+		navigationManager.NavigateTo("MenuLaboratorio");
+	}
+
+	public async Task Guardar()
+	{
+		using var response = await HttpClient.PostAsJsonAsync("api/Laboratorios", Laboratorio);
+		if (!response.IsSuccessStatusCode)
+		{
+			var mensaje = new NotificationMessage
+				{
+					Summary = "Error",
+					Detail = "No se pudo guardar el registro",
+					Severity = NotificationSeverity.Error,
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+			return;
+		}
+		var laboratorioDevuelto = await response.Content.ReadFromJsonAsync<Laboratorios>();
+		if (laboratorioDevuelto is not null)
+		{
+			StateHasChanged();
+			Nuevo();
+			var mensaje = new NotificationMessage
+				{
+					Summary = "Guardado",
+					Detail = "Registro guardado con éxito",
+					Severity = NotificationSeverity.Success,
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+		}
+	}
+	public async Task Eliminar()
+	{
+		using var response = await HttpClient.DeleteAsync($"api/Laboratorios/{Laboratorio!.LaboratorioId}");
+		if (!response.IsSuccessStatusCode)
+		{
+			var mensaje = new NotificationMessage
+				{
+					Summary = "Error",
+					Detail = "No se pudo eliminar el registro",
+					Severity = NotificationSeverity.Error,
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+		}
+		else
+		{
+			Nuevo();
+			var mensaje = new NotificationMessage
+				{
+					Summary = "Eliminado",
+					Detail = "Registro eliminado con éxito",
+					Severity = NotificationSeverity.Success,
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+		}
+	}
+
+	public async Task Buscar()
+	{
+		var laboratorioNotNull = (await HttpClient.GetFromJsonAsync<List<Laboratorios>>($"api/Laboratorios"))!.ToList().Any(p => p.LaboratorioId == Laboratorio!.LaboratorioId);
+		if (laboratorioNotNull)
+		{
+			var laboratorioEncontrado = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{Laboratorio!.LaboratorioId}");
+			if (laboratorioEncontrado is not null)
+			{
+				Laboratorio = laboratorioEncontrado;
+			}
+		}
+		else
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = "Laboratorio no encontrado",
+					Duration = 5000
+				};
+			notificationService.Notify(mensaje);
+		}
+	}
+
+	public void Nuevo()
+	{
+		LaboratorioId = 0;
+		Laboratorio = new Laboratorios();
+	}
+
+	private void MetodoRelleno()
+	{
+		Console.WriteLine($"Nombre: {Laboratorio!.Nombre}");
+		Console.WriteLine($"Correo electrónico: {Laboratorio.Direccion}");
+	}
+}

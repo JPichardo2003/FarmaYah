@@ -1,0 +1,125 @@
+﻿@page "/c_proveedores"
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+
+<div class="card">
+    <div class="card-header ">
+        <div class="col">
+            <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+        </div>
+        <div class="col d-flex align-items-center justify-content-center">
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Consulta de Proveedores</h1>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-3">
+                <label for="nombre">Buscar por nombre:</label>
+                <input type="text" id="nombre" @bind="filtroNombre" class="form-control" />
+            </div>
+
+            <div class="col-3">
+                <label for="tipoContribuyente">Tipo de contribuyente:</label>
+                <select id="tipoContribuyente" @bind="filtroTipoContribuyente" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="Persona Fisica">Persona Fisica</option>
+                    <option value="Persona Juridica">Persona Juridica</option>
+                </select>
+            </div>
+
+            <div class="col-3">
+                <label for="categoria">Categoría comercial:</label>
+                <select id="categoria" @bind="filtroCategoria" class="form-control">
+                    <option value="">Todas</option>
+                    <option value="Nacional">Nacional</option>
+                    <option value="Internacional">Internacional</option>
+                </select>
+            </div>
+
+            <div class="col-3">
+                <label for="buscarButton">Buscar:</label>
+                <div class="input-group">
+                    <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="buscarButton">
+                        <i class="oi oi-magnifying-glass" />
+                    </button>
+                    <button @onclick="VaciarInputs" class="btn btn-outline-secondary" type="button" id="buscarButton">
+                        <i class="oi oi-trash" />
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @if (proveedores != null && proveedores.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>RNC</th>
+                        <th>Telefono</th>
+                        <th>Email</th>
+                        <th>Dirección</th>
+                        <th>Tipo de contribuyente</th>
+                        <th>Categoría comercial</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var proveedor in proveedoresFiltrados)
+                    {
+                        <tr>
+                            <td>@proveedor.Nombre</td>
+                            <td>@proveedor.RNC</td>
+                            <td>@proveedor.Telefono</td>
+                            <td>@proveedor.Email</td>
+                            <td>@proveedor.Direccion</td>
+                            <td>@proveedor.TipoContribuyente</td>
+                            <td>@proveedor.Categoria</td>
+                            <td><button class="btn btn-outline-info"><a href="RProveedor/@proveedor.ProveedorId">Editar</a></button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Cargando...</p>
+        }
+    </div>
+</div>
+
+@code {
+    List<Proveedores> proveedores;
+    List<Proveedores> proveedoresFiltrados;
+    public string filtroNombre = "";
+    public string filtroTipoContribuyente = "";
+    public string filtroCategoria = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        proveedores = await httpClient.GetFromJsonAsync<List<Proveedores>>("api/Proveedores") ?? new List<Proveedores>();
+        proveedoresFiltrados = proveedores;
+    }
+
+    public void Back()
+    {
+        navigationManager.NavigateTo("MenuProveedores");
+    }
+
+    public void Buscar()
+    {
+        proveedoresFiltrados = proveedores
+            .Where(p => (string.IsNullOrEmpty(filtroNombre) || p.Nombre.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(filtroTipoContribuyente) || p.TipoContribuyente.Equals(filtroTipoContribuyente, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(filtroCategoria) || p.Categoria.Equals(filtroCategoria, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+    }
+
+    public void VaciarInputs()
+    {
+        filtroNombre = "";
+        filtroTipoContribuyente = "";
+        filtroCategoria = "";
+        proveedoresFiltrados = proveedores;
+    }
+}

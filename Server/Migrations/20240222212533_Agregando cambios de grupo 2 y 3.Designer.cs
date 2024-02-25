@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240216192413_FidelidadChange")]
-    partial class FidelidadChange
+    [Migration("20240222212533_Agregando cambios de grupo 2 y 3")]
+    partial class Agregandocambiosdegrupo2y3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,6 +29,9 @@ namespace FarmaYah.Server.Migrations
                     b.Property<string>("Dirección")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal?>("Fidelidad")
                         .HasColumnType("TEXT");
@@ -50,6 +53,7 @@ namespace FarmaYah.Server.Migrations
                         {
                             ClienteId = 1,
                             Dirección = "Direccion 1",
+                            Eliminado = false,
                             Fidelidad = 7m,
                             Nombre = "Juan Perez",
                             Teléfono = "8094587412"
@@ -58,6 +62,7 @@ namespace FarmaYah.Server.Migrations
                         {
                             ClienteId = 2,
                             Dirección = "Direccion 2",
+                            Eliminado = false,
                             Fidelidad = 10m,
                             Nombre = "Maria Lopez",
                             Teléfono = "8091287602"
@@ -70,6 +75,9 @@ namespace FarmaYah.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("Entregado")
                         .HasColumnType("INTEGER");
 
@@ -79,9 +87,65 @@ namespace FarmaYah.Server.Migrations
                     b.Property<DateTime>("FechaRecibida")
                         .HasColumnType("TEXT");
 
+                    b.Property<float>("MontoTotal")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("CompraId");
 
                     b.ToTable("Compras");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Configuracion", b =>
+                {
+                    b.Property<int>("ConfiguracionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ReOrden")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ConfiguracionId");
+
+                    b.ToTable("Configuracion");
+
+                    b.HasData(
+                        new
+                        {
+                            ConfiguracionId = 1,
+                            ReOrden = false
+                        });
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.CuentasPorPagar", b =>
+                {
+                    b.Property<int>("CuentasPorPagarId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CompraId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Concepto")
+                        .HasColumnType("TEXT");
+
+                    b.Property<float>("Deuda")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("TEXT");
+
+                    b.Property<float>("pago")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("CuentasPorPagarId");
+
+                    b.HasIndex("CompraId");
+
+                    b.ToTable("CuentasPorPagar");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Empleados", b =>
@@ -109,6 +173,12 @@ namespace FarmaYah.Server.Migrations
                             EmpleadoId = 1,
                             Nombre = "Julio",
                             SucursalId = 1
+                        },
+                        new
+                        {
+                            EmpleadoId = 2,
+                            Nombre = "Alexander",
+                            SucursalId = 2
                         });
                 });
 
@@ -126,6 +196,9 @@ namespace FarmaYah.Server.Migrations
 
                     b.Property<float>("Devolucion")
                         .HasColumnType("REAL");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("EmpleadoId")
                         .HasColumnType("INTEGER");
@@ -150,6 +223,8 @@ namespace FarmaYah.Server.Migrations
 
                     b.HasKey("FacturaId");
 
+                    b.HasIndex("ClienteId");
+
                     b.HasIndex("ClientesClienteId");
 
                     b.HasIndex("EmpleadoId");
@@ -167,8 +242,8 @@ namespace FarmaYah.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<float>("Cantidad")
-                        .HasColumnType("REAL");
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("FacturaId")
                         .HasColumnType("INTEGER");
@@ -207,7 +282,39 @@ namespace FarmaYah.Server.Migrations
                             LaboratorioId = 1,
                             Direccion = "Direccion 1",
                             Nombre = "Pfizer"
+                        },
+                        new
+                        {
+                            LaboratorioId = 2,
+                            Direccion = "Direccion 2",
+                            Nombre = "Bayer"
                         });
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.PagosCuentasPorCobrar", b =>
+                {
+                    b.Property<int>("CuentasPorCobrarId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Concepto")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FacturaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FormaDePago")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CuentasPorCobrarId");
+
+                    b.HasIndex("FacturaId");
+
+                    b.ToTable("PagosCuentasPorCobrar");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Productos", b =>
@@ -220,8 +327,11 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<float>("Existencia")
-                        .HasColumnType("REAL");
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Existencia")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("LaboratorioId")
                         .HasColumnType("INTEGER");
@@ -233,9 +343,14 @@ namespace FarmaYah.Server.Migrations
                     b.Property<float>("Precio")
                         .HasColumnType("REAL");
 
+                    b.Property<int>("UnidadId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("ProductoId");
 
                     b.HasIndex("LaboratorioId");
+
+                    b.HasIndex("UnidadId");
 
                     b.ToTable("Productos");
 
@@ -243,11 +358,136 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             ProductoId = 1,
-                            Descripcion = "Dolor de cabeza",
-                            Existencia = 0f,
+                            Descripcion = "TBA",
+                            Eliminado = false,
+                            Existencia = 0,
                             LaboratorioId = 1,
                             Nombre = "Ibuprofeno",
-                            Precio = 100f
+                            Precio = 100f,
+                            UnidadId = 3
+                        },
+                        new
+                        {
+                            ProductoId = 2,
+                            Descripcion = "TBA",
+                            Eliminado = false,
+                            Existencia = 0,
+                            LaboratorioId = 1,
+                            Nombre = "Paracetamol",
+                            Precio = 120f,
+                            UnidadId = 4
+                        },
+                        new
+                        {
+                            ProductoId = 3,
+                            Descripcion = "TBA",
+                            Eliminado = false,
+                            Existencia = 0,
+                            LaboratorioId = 1,
+                            Nombre = "Amoxicilina",
+                            Precio = 150f,
+                            UnidadId = 3
+                        });
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.ProveedorProducto", b =>
+                {
+                    b.Property<int>("ProveedorProductoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProveedorId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ProveedorProductoId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("ProveedorId");
+
+                    b.ToTable("ProveedoresProductos");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Proveedores", b =>
+                {
+                    b.Property<int>("ProveedorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Direccion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nota")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RNC")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Telefono")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TipoContribuyente")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ProveedorId");
+
+                    b.ToTable("Proveedores");
+
+                    b.HasData(
+                        new
+                        {
+                            ProveedorId = 1,
+                            Categoria = "Nacional",
+                            Direccion = "Direccion 1",
+                            Eliminado = false,
+                            Email = "Mamey@gmail.com",
+                            Nombre = "mamey",
+                            RNC = "123456789",
+                            Telefono = "809-546-8915",
+                            TipoContribuyente = "Persona Juridica"
+                        },
+                        new
+                        {
+                            ProveedorId = 2,
+                            Categoria = "Internacional",
+                            Direccion = "Direccion 2",
+                            Eliminado = false,
+                            Email = "Pfizer@gmail.com",
+                            Nombre = "Pfizer",
+                            RNC = "123456798",
+                            Telefono = "809-546-8519",
+                            TipoContribuyente = "Persona Juridica"
+                        },
+                        new
+                        {
+                            ProveedorId = 3,
+                            Categoria = "Internacional",
+                            Direccion = "Direccion 3",
+                            Eliminado = false,
+                            Email = "Bayer@gmail.com",
+                            Nombre = "Bayer",
+                            RNC = "123456897",
+                            Telefono = "809-546-8195",
+                            TipoContribuyente = "Persona Juridica"
                         });
                 });
 
@@ -256,6 +496,12 @@ namespace FarmaYah.Server.Migrations
                     b.Property<int>("SeguroMedicoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -269,7 +515,23 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             SeguroMedicoId = 1,
+                            Eliminado = false,
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9244),
                             Nombre = "ARS Humano"
+                        },
+                        new
+                        {
+                            SeguroMedicoId = 2,
+                            Eliminado = false,
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9259),
+                            Nombre = "ARS Palic"
+                        },
+                        new
+                        {
+                            SeguroMedicoId = 3,
+                            Eliminado = false,
+                            Fecha = new DateTime(2024, 2, 22, 17, 25, 33, 82, DateTimeKind.Local).AddTicks(9260),
+                            Nombre = "ARS Universal"
                         });
                 });
 
@@ -326,8 +588,78 @@ namespace FarmaYah.Server.Migrations
                             SucursalId = 1,
                             Direccion = "Direccion 1",
                             EstadoOperativo = true,
-                            Nombre = "Sucursal 1",
+                            Nombre = "McCaffe",
                             Telefono = "8094587412"
+                        },
+                        new
+                        {
+                            SucursalId = 2,
+                            Direccion = "Direccion 2",
+                            EstadoOperativo = true,
+                            Nombre = "Pharma King",
+                            Telefono = "8094587413"
+                        });
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Unidad", b =>
+                {
+                    b.Property<int>("UnidadId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UnidadId");
+
+                    b.ToTable("Unidades");
+
+                    b.HasData(
+                        new
+                        {
+                            UnidadId = 1,
+                            Descripcion = "Pastilla"
+                        },
+                        new
+                        {
+                            UnidadId = 2,
+                            Descripcion = "Jarabe"
+                        },
+                        new
+                        {
+                            UnidadId = 3,
+                            Descripcion = "Capsulas"
+                        },
+                        new
+                        {
+                            UnidadId = 4,
+                            Descripcion = "Inyección"
+                        },
+                        new
+                        {
+                            UnidadId = 5,
+                            Descripcion = "Crema"
+                        },
+                        new
+                        {
+                            UnidadId = 6,
+                            Descripcion = "Supositorio"
+                        },
+                        new
+                        {
+                            UnidadId = 7,
+                            Descripcion = "Gotas"
+                        },
+                        new
+                        {
+                            UnidadId = 8,
+                            Descripcion = "Spray"
+                        },
+                        new
+                        {
+                            UnidadId = 9,
+                            Descripcion = "Otros"
                         });
                 });
 
@@ -356,6 +688,15 @@ namespace FarmaYah.Server.Migrations
                     b.ToTable("d_Compra");
                 });
 
+            modelBuilder.Entity("FarmaYah.Shared.Models.CuentasPorPagar", b =>
+                {
+                    b.HasOne("FarmaYah.Shared.Models.Compras", null)
+                        .WithMany("CuentasPorPagar")
+                        .HasForeignKey("CompraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FarmaYah.Shared.Models.Empleados", b =>
                 {
                     b.HasOne("FarmaYah.Shared.Models.Sucursales", null)
@@ -368,7 +709,13 @@ namespace FarmaYah.Server.Migrations
             modelBuilder.Entity("FarmaYah.Shared.Models.Facturas", b =>
                 {
                     b.HasOne("FarmaYah.Shared.Models.Clientes", null)
-                        .WithMany("facturas")
+                        .WithMany("Facturas")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FarmaYah.Shared.Models.Clientes", null)
+                        .WithMany("ListaFacturas")
                         .HasForeignKey("ClientesClienteId");
 
                     b.HasOne("FarmaYah.Shared.Models.Empleados", null)
@@ -397,11 +744,41 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FarmaYah.Shared.Models.PagosCuentasPorCobrar", b =>
+                {
+                    b.HasOne("FarmaYah.Shared.Models.Facturas", null)
+                        .WithMany("PagosCuentasPorCobrar")
+                        .HasForeignKey("FacturaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FarmaYah.Shared.Models.Productos", b =>
                 {
                     b.HasOne("FarmaYah.Shared.Models.Laboratorios", null)
                         .WithMany("Productos")
                         .HasForeignKey("LaboratorioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FarmaYah.Shared.Models.Unidad", null)
+                        .WithMany("Productos")
+                        .HasForeignKey("UnidadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.ProveedorProducto", b =>
+                {
+                    b.HasOne("FarmaYah.Shared.Models.Productos", null)
+                        .WithMany("ProveedorProducto")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FarmaYah.Shared.Models.Proveedores", null)
+                        .WithMany("ProveedorProducto")
+                        .HasForeignKey("ProveedorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -426,11 +803,15 @@ namespace FarmaYah.Server.Migrations
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
                 {
-                    b.Navigation("facturas");
+                    b.Navigation("Facturas");
+
+                    b.Navigation("ListaFacturas");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Compras", b =>
                 {
+                    b.Navigation("CuentasPorPagar");
+
                     b.Navigation("d_Compra");
                 });
 
@@ -442,11 +823,23 @@ namespace FarmaYah.Server.Migrations
             modelBuilder.Entity("FarmaYah.Shared.Models.Facturas", b =>
                 {
                     b.Navigation("FacturasDetalles");
+
+                    b.Navigation("PagosCuentasPorCobrar");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Laboratorios", b =>
                 {
                     b.Navigation("Productos");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Productos", b =>
+                {
+                    b.Navigation("ProveedorProducto");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Proveedores", b =>
+                {
+                    b.Navigation("ProveedorProducto");
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.SegurosMedicos", b =>
@@ -461,6 +854,11 @@ namespace FarmaYah.Server.Migrations
                     b.Navigation("Empleados");
 
                     b.Navigation("Facturas");
+                });
+
+            modelBuilder.Entity("FarmaYah.Shared.Models.Unidad", b =>
+                {
+                    b.Navigation("Productos");
                 });
 #pragma warning restore 612, 618
         }
