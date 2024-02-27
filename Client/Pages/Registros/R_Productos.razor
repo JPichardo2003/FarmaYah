@@ -86,7 +86,7 @@
                 <option >Seleccione...</option>
                             @foreach (var laboratorio in Laboratorios ?? new List<Laboratorios>())
                             {
-                                     <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
+                                         <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
                             }
                 </InputSelect>
                 <ValidationMessage For="@(() => producto.LaboratorioId)" />
@@ -152,24 +152,16 @@
             <br>
             <br>
             <br>
-
-
-
-
-        </div>
-
-
-
-
-        @*Botones*@
-        <div class="row justify-content-center">
-            <div class="col-4">
-                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
-                <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
-                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
-                @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
-                <i class="io io-trash" /> Agregar laboratorio
-                </button> *@
+            @*Botones*@
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
+                    <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
+                    @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
+                    <i class="io io-trash" /> Agregar laboratorio
+                    </button> *@
+                </div>
             </div>
         </div>
     </div>
@@ -235,7 +227,7 @@
     {
         using var response = await HttpClient.PostAsJsonAsync("api/Productos", producto);
         if (!response.IsSuccessStatusCode)
-        {
+        { 
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,

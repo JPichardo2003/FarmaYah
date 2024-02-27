@@ -29,7 +29,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Productos.Where(p => p.Eliminado != true).ToListAsync();
+            return await _context.Productos.Include(p => p.ProveedorProducto).Where(p => p.Eliminado != true).ToListAsync();
         }
 
         // GET: api/Productos/5
@@ -40,7 +40,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            var productos = await _context.Productos.Where(p => p.Eliminado != true && p.ProductoId == id).FirstOrDefaultAsync(); 
+            var productos = await _context.Productos.Include(p => p.ProveedorProducto).Where(p => p.Eliminado != true && p.ProductoId == id).FirstOrDefaultAsync(); 
 
             if (productos == null)
             {

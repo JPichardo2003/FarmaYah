@@ -15,6 +15,8 @@ namespace FarmaYah.Shared.Models
 		[Required(ErrorMessage = "Este campo es Obligatorio")]
 		public string? Descripcion { get; set; }
 
+		public bool Eliminado { get; set; } = false;
+
         [ForeignKey("UnidadId")]
         public ICollection<Productos> Productos { get; set; } = new List<Productos>();
     }

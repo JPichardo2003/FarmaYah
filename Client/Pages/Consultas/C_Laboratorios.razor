@@ -1,0 +1,130 @@
+﻿@page "/CLaboratorios"
+@inject HttpClient httpClient
+@inject NotificationService notificationService
+@inject NavigationManager NavigationManager
+
+<div class="card-header mt-4">
+
+    <div class="card-header d-flex align-items-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>Consulta Laboratorios</h1>
+    </div>
+
+    <div class="row mt-2">
+        <label class="mt-2">Filtrar por:</label>
+
+        <div class="col">
+            <select class="form-select" @bind="opciones">
+                <option value="0" disabled selected>Elija una opci&oacute;n</option>
+                <option value="1">Nombre laboratorio</option>
+                <option value="2">Dirección</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            @if (opciones != 0)
+            {
+                <input type="text" class="form-control" @bind="FiltroString"></input>
+            }
+        </div>
+
+        <div class="col col-md-4">
+            <button class="btn btn-primary ml-2" type="button" @onclick="Buscar">
+                <i class="oi oi-magnifying-glass" />
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive ">
+                <table border="1" class="table table-bordered table-striped ">
+                    <thead>
+                        <tr class="table-secondary">
+                            <th>Nombre Laboratorio</th>
+                            <th>Dirección</th>
+                            <th>Ver Productos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var Laboratorio in ListaLaboratorios)
+                        {
+                            <tr>
+                                <td>@Laboratorio.Nombre</td>
+                                <td>@Laboratorio.Direccion</td>
+                                <td>
+                                    <a href="
+                                        @($"c_productos/{Laboratorio.LaboratorioId}")
+                                            " class="btn btn-outline-primary">
+                                        Ver Productos
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+    public int opciones { get; set; }
+    public int Conteo { get; set; }
+    public string FiltroString { get; set; } = "";
+    List<Laboratorios> ListaLaboratorios = new List<Laboratorios>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Buscar();
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuLaboratorio");
+    }
+
+    public async Task Buscar()
+    {
+        ListaLaboratorios = await httpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios") ?? new List<Laboratorios>();
+        Conteo = ListaLaboratorios != null ? ListaLaboratorios.Count() : 0;
+
+        if (Conteo == 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No tiene registros guardados.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+
+            return;
+        }
+
+        if (opciones == 1)
+        {
+            ListaLaboratorios = ListaLaboratorios!.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Nombre!.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Laboratorios>();
+        }
+        else if (opciones == 2)
+        {
+            ListaLaboratorios = ListaLaboratorios!.Where(p => (string.IsNullOrEmpty(FiltroString) || p.Direccion!.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Laboratorios>();
+        }
+
+        Conteo = ListaLaboratorios != null ? ListaLaboratorios!.Count() : 0;
+        if (Conteo == 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha encontrado ningún registro",
+                    Detail = "Revise los parámetros utilizados.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+        }
+
+        StateHasChanged();
+    }
+}

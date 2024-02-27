@@ -18,8 +18,7 @@
 					<h1>Registro Laboratorio</h1>
 				</div>
 			</div>
-			<div class="card-header d-flex align-items-center">
-			</div>
+
 
 			<div class="card-body">
 				<div class="row">
@@ -37,15 +36,14 @@
 						<InputText id="Nombre" @bind-Value="Laboratorio!.Nombre" class="form-control"></InputText>
 						<ValidationMessage For="@(() => Laboratorio.Nombre)" />
 					</div>
+						<div class="col-md-4">
+							<label>Direci&oacute;n:</label>
+							<InputText @bind-Value="Laboratorio.Direccion" class="form-control"></InputText>
+							<ValidationMessage For="@(() => Laboratorio.Direccion)" />
+						</div>
 				</div>
 
-				<div class="row">
-					<div class="col-md-4">
-						<label>Direci&oacute;n:</label>
-						<InputText @bind-Value="Laboratorio.Direccion" class="form-control"></InputText>
-						<ValidationMessage For="@(() => Laboratorio.Direccion)" />
-					</div>
-				</div>
+				<br />
 
 
 				@*Botones*@

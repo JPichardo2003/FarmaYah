@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 /Server/Data/FarmaYah.Db-shm
 /Server/Data/FarmaYah.Db-wal
-/Server/DAL/Contexto.cs
+

@@ -29,7 +29,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Unidades.ToListAsync();
+            return await _context.Unidades.Where(u => u.Eliminado == false).ToListAsync();
         }
 
         // GET: api/Unidades/5
@@ -40,7 +40,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            var unidad = await _context.Unidades.FindAsync(id);
+            var unidad = await _context.Unidades.FirstOrDefaultAsync(u => u.Eliminado == false && u.UnidadId == id);
 
             if (unidad == null)
             {
@@ -86,15 +86,16 @@ namespace FarmaYah.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Unidad>> PostUnidad(Unidad unidad)
         {
-          if (_context.Unidades == null)
-          {
-              return Problem("Entity set 'Contexto.Unidad'  is null.");
-          }
-            _context.Unidades.Add(unidad);
-            await _context.SaveChangesAsync();
+			if (!UnidadExists(unidad.UnidadId))
+				_context.Unidades.Add(unidad);
+			else
+				_context.Unidades.Update(unidad);
 
-            return CreatedAtAction("GetUnidad", new { id = unidad.UnidadId }, unidad);
-        }
+			await _context.SaveChangesAsync();
+			return Ok(unidad);
+		}
+         
+
 
         // DELETE: api/Unidades/5
         [HttpDelete("{id}")]
@@ -109,8 +110,8 @@ namespace FarmaYah.Server.Controllers
             {
                 return NotFound();
             }
-
-            _context.Unidades.Remove(unidad);
+            unidad.Eliminado = true;
+            _context.Unidades.Update(unidad);
             await _context.SaveChangesAsync();
 
             return NoContent();

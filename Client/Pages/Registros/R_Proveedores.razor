@@ -40,7 +40,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>Email:</label>
-                    <InputText @bind-Value="proveedor.Email" class="form-control"></InputText>
+                    <InputText type="email" @bind-Value="proveedor.Email" class="form-control"></InputText>
                     <ValidationMessage For="@(() => proveedor.Email)" />
                 </div>
                 <div class="col-md-6">
@@ -76,59 +76,6 @@
                 </div>
             </div>
             <br />
-
-            @*Detalles:*@
-           @*  <div class="card card-header">
-                <h3>Productos</h3>
-            </div>
-            <div class="card-body border border-1">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>Producto</label>
-                        <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
-                            <option value="" hidden="hidden">Seleccione</option>
-                            @foreach (var p in ListaProductos)
-                            {
-                                <option value="@p.ProductoId">@p.Nombre</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => Detalles.ProductoId)" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Cantidad</label>
-                        <div class="input-group">
-                          
-                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div>
-
-            </div>
-                <div class="card">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Laboratorio</th>
-                            <th>Unidad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var producto in proveedor.ProveedorProducto)
-                        {
-                            <tr>
-                                <td>@NombreProducto(producto.ProductoId)</td>
-                                <td>@DescripcionProducto(producto.ProductoId)</td>
-                                <td>@NombreLaboratorio(producto.ProductoId)</td>
-                                <td>@NombreUnidad(producto.ProductoId)</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div> *@
             <br />
             <div class="row justify-content-center">
                 <div class="col-4">

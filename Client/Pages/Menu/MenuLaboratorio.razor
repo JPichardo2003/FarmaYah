@@ -22,7 +22,7 @@
                 </button>
             </div>
             <div class="col-md-4 text-center">
-                <button class="d-block mx-auto">
+                <button class="d-block mx-auto" @onclick="NavigateToConsultaLaboratorio">
                     <img src="Images/icons8-laboratorio-501.png" class="icon" />Consultar Laboratorios
                 </button>
             </div>
@@ -38,5 +38,8 @@
     public void NavigateToLaboratorio()
     {
         NavigationManager.NavigateTo("RLaboratorio");
+    }public void NavigateToConsultaLaboratorio()
+    {
+        NavigationManager.NavigateTo("CLaboratorios");
     }
 }

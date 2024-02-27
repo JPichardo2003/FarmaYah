@@ -2,10 +2,17 @@
 @page "/R_CuentasPorCobrar/{FacturaId:int}"
 @inject NotificationService notificationService
 @inject HttpClient httpClient
+@inject NavigationManager NavigationManager;
 
 <div class="card">
-	<div class="card-body">
+	<div class="card-header">
+	</div>
+
+	<div class="card-header d-flex align-items-center">
+		<button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+		<img src="Images/pngwing.com.png" class="img-logo" />
 		<h1>Cuentas por pagar</h1>
+
 	</div>
 	<div class="card-body">
 
@@ -245,7 +252,10 @@
 			StateHasChanged();
 		}
 	}
-
+	private void VolverAtras()
+	{
+		NavigationManager.NavigateTo("/C_CuentasPorCobrar");
+	}
 	private void Nuevo()
 	{
 		Factura = new Facturas();
@@ -361,7 +371,7 @@
 
 		OcultarConfirmacionEliminar();
 	}
-
+	
 	public void MostrarConfirmacionEliminar()
 	{
 		mostrarConfirmacionEliminar = true;
