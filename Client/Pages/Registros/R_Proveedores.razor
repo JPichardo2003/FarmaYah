@@ -119,6 +119,18 @@
 
     public async void Guardar()
     {
+        if(Validar())
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debes llenar almenos un capo que nos permita comunicaronos, como telefono o email",
+                    Duration = 5_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
         using var response = await httpClient.PostAsJsonAsync("api/Proveedores", proveedor);
         if (!response.IsSuccessStatusCode)
         {
@@ -184,15 +196,20 @@
 
 
     }
-    public bool Validar()
+    public bool ValidarDetalle()
     {
         idVacio = (Detalles.ProductoId <= 0);
 
         return idVacio;
     }
+    public bool Validar()
+    {
+        var validacion = (string.IsNullOrWhiteSpace(proveedor.Telefono) && string.IsNullOrWhiteSpace(proveedor.Email));
+        return validacion;
+    }
     public async Task AgregarDetalle()
     {
-        if (Validar())
+        if (ValidarDetalle())
         {
             var mensaje = new NotificationMessage
                 {

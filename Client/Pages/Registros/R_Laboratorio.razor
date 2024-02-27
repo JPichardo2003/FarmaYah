@@ -67,7 +67,7 @@
 	{
 		if (LaboratorioId > 0)
 		{
-			Laboratorio = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{LaboratorioId}");
+			Laboratorio = await HttpClient.GetFromJsonAsync<Laboratorios>($"api/Laboratorios/{LaboratorioId}")?? new Laboratorios();
 		}
 	}
 

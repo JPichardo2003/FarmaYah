@@ -17,12 +17,14 @@ namespace FarmaYah.Shared.Models
         public string? Nombre { get; set; }
         [Required(ErrorMessage = "Este campo es obligatorio")]
         public string? Direccion { get; set; }
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = "Este campo solo acepta números")]
         public string? Telefono { get; set; }
         public string? Email { get; set; }
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Este campo no acepta digitos")]
         public string? Categoria { get; set; }
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "Este campo solo acepta números")]
+        [Required(ErrorMessage = "Este campo es obligatorio")]
         public string? RNC { get; set; }
         [Required(ErrorMessage = "Este campo es obligatorio")]
         public string? TipoContribuyente { get; set; }
