@@ -70,7 +70,7 @@
 						<tr>
 							<td>@ObtenerNombreProducto(item.ProductoId)</td>
 							<td>@item.Cantidad</td>
-							<td>@ObtenerPrecioProducto(item.ProductoId)</td>
+							<td>@ObtenerPrecio(item.ProductoId)</td>
 						</tr>
 					}
 				</tbody>
@@ -157,6 +157,8 @@
 	public List<Productos> Listaproductos { get; set; } = new List<Productos>();
 	public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
 	public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+	public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+	public List<SegurosMedicosDetalles> ListaSegurosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
 	public List<PagosCuentasPorCobrar> ListaDetalles { get; set; } = new List<PagosCuentasPorCobrar>();
 	public List<PagosCuentasPorCobrar> DetallesRemovidos { get; set; } = new List<PagosCuentasPorCobrar>();
 	public string? NombreSucursal { get; set; }
@@ -170,6 +172,18 @@
 		var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
 		var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
 		var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+		var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
+		var producto = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+
+		if(producto != null)
+        {
+            ListaProductos = producto;
+        }
+
+		if (segurosDetalles != null)
+        {
+            ListaSegurosDetalles = segurosDetalles;
+        }
 
 		if (facturas != null)
 		{
@@ -289,15 +303,31 @@
 		return "No encontrado";
 	}
 
-	private double ObtenerPrecioProducto(int productoId)
-	{
-		var producto = Listaproductos.FirstOrDefault(p => p.ProductoId == productoId);
-		if (producto != null)
-		{
-			return producto.Precio;
-		}
-		return 0;
-	}
+	public float ObtenerPrecio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+        var precioProducto = producto!.Precio;
+
+        // Verificar si hay un seguro médico asociado a la factura
+        if (Factura.SeguroMedicoId > 0)
+        {
+            // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
+            var detallesSeguro = ListaSegurosDetalles
+				.Where(d => d.ProductoId == producto.ProductoId && d.SeguroMedicoId == Factura.SeguroMedicoId)
+                .ToList();
+
+            // Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
+            if (detallesSeguro != null && detallesSeguro.Count > 0)
+            {
+                // Aplicar el descuento del detalle de seguro médico al precio del producto
+                foreach (var detalle in detallesSeguro)
+                {
+                    precioProducto -= (precioProducto * detalle.Descuento / 100);  
+                }
+            }
+        }
+        return precioProducto;
+    }
 	private Facturas BuscarFactura(int id)
 	{
 		var factura = ListaFactura.FirstOrDefault(f => f.FacturaId == id);

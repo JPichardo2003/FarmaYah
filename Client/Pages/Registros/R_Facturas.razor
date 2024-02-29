@@ -212,7 +212,7 @@
         var precioProducto = producto!.Precio;
 
         // Verificar si hay un seguro médico asociado a la factura
-        if (facturas.SeguroMedicoId > 0)
+        if (facturas.SeguroMedicoId is not null)
         {
             // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
             var detallesSeguro = ListaSegurosDetalles
@@ -276,7 +276,7 @@
                 return seguroMedico.Nombre!;
             }
         }
-        facturas.SeguroMedicoId = 0;
+        facturas.SeguroMedicoId = null;
         ActualizarPrecioT();
         return "Sin Seguro";
     }

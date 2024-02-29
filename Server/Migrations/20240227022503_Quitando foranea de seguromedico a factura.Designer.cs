@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240227022503_Quitando foranea de seguromedico a factura")]
+    partial class Quitandoforaneadeseguromedicoafactura
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -238,8 +241,6 @@ namespace FarmaYah.Server.Migrations
                     b.HasIndex("ClienteId");
 
                     b.HasIndex("EmpleadoId");
-
-                    b.HasIndex("SeguroMedicoId");
 
                     b.HasIndex("SucursalId");
 
@@ -532,21 +533,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4212),
+                            Fecha = new DateTime(2024, 2, 26, 22, 25, 2, 752, DateTimeKind.Local).AddTicks(8233),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4228),
+                            Fecha = new DateTime(2024, 2, 26, 22, 25, 2, 752, DateTimeKind.Local).AddTicks(8250),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4231),
+                            Fecha = new DateTime(2024, 2, 26, 22, 25, 2, 752, DateTimeKind.Local).AddTicks(8252),
                             Nombre = "ARS Universal"
                         });
                 });
@@ -590,10 +591,6 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("RNC")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Telefono")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -606,19 +603,17 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             SucursalId = 1,
-                            Direccion = "Libertad",
+                            Direccion = "Direccion 1",
                             EstadoOperativo = true,
                             Nombre = "McCaffe",
-                            RNC = "402456782",
                             Telefono = "8094587412"
                         },
                         new
                         {
                             SucursalId = 2,
-                            Direccion = "New York",
+                            Direccion = "Direccion 2",
                             EstadoOperativo = true,
                             Nombre = "Pharma King",
-                            RNC = "402456783",
                             Telefono = "8094587413"
                         });
                 });
@@ -749,10 +744,6 @@ namespace FarmaYah.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FarmaYah.Shared.Models.SegurosMedicos", null)
-                        .WithMany("Facturas")
-                        .HasForeignKey("SeguroMedicoId");
-
                     b.HasOne("FarmaYah.Shared.Models.Sucursales", null)
                         .WithMany("Facturas")
                         .HasForeignKey("SucursalId")
@@ -868,8 +859,6 @@ namespace FarmaYah.Server.Migrations
             modelBuilder.Entity("FarmaYah.Shared.Models.SegurosMedicos", b =>
                 {
                     b.Navigation("Clientes");
-
-                    b.Navigation("Facturas");
 
                     b.Navigation("SegurosMedicosDetalles");
                 });

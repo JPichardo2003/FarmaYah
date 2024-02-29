@@ -86,6 +86,23 @@ namespace FarmaYah.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Clientes>> PostClientes(Clientes clientes)
         {
+            var clienteCedula = _context.Clientes.Where(c => c.Cedula == clientes.Cedula && c.ClienteId != clientes.ClienteId).FirstOrDefault();
+            if (clienteCedula != null)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un cliente con la misma cédula");
+            }
+
+            var clienteSeguro = _context.Clientes.Where(c => c.NumSeguroMedico == clientes.NumSeguroMedico && c.ClienteId != clientes.ClienteId).FirstOrDefault();
+            if (clienteSeguro != null)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un cliente con el mismo Numero de seguro");
+            }
+
+            var clienteTelefono = _context.Clientes.Where(c => c.Teléfono == clientes.Teléfono && c.ClienteId != clientes.ClienteId).FirstOrDefault();
+            if (clienteTelefono != null)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un cliente con el mismo número de teléfono");
+            }
             if (!ClientesExists(clientes.ClienteId))
                 _context.Clientes.Add(clientes);
             else

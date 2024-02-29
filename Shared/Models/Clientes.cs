@@ -17,7 +17,13 @@ namespace FarmaYah.Shared.Models
 		[RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Solo se permiten letras y espacios")]
 		public string? Nombre { get; set; }
 
+		[Required(ErrorMessage = "La cedula es obligatoria")]
+        [RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "Escriba la cedula correctamente xxx-xxxxxxx-x")]
+        public string? Cedula { get; set; }
         public int? SeguroMedicoId { get; set; }
+		
+		[RegularExpression(@"^\d{9}$", ErrorMessage = "El número de seguro médico debe tener 9 dígitos")]
+		public string? NumSeguroMedico { get; set; }
 
         [Required(ErrorMessage = "La dirección es obligatoria")]
 		public string? Dirección { get; set; }

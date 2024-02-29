@@ -20,6 +20,10 @@ namespace FarmaYah.Shared.Models
         public string? Direccion { get; set; }
 
         [Required(ErrorMessage = "Este campo es Obligatorio")]
+        [RegularExpression(@"^\d{9}$", ErrorMessage = "Ingrese el RNC correctamente, Ejemplo: 101010101")]
+        public string? RNC { get; set; }
+
+        [Required(ErrorMessage = "Este campo es Obligatorio")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Ingrese el telefono correctamente, Ejemplo: 8094587412")]
         public string? Telefono { get; set; }
 

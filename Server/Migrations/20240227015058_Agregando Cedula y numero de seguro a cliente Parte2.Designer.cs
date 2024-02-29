@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240227015058_Agregando Cedula y numero de seguro a cliente Parte2")]
+    partial class AgregandoCedulaynumerodeseguroaclienteParte2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -42,6 +45,7 @@ namespace FarmaYah.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NumSeguroMedico")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("SeguroMedicoId")
@@ -532,21 +536,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4212),
+                            Fecha = new DateTime(2024, 2, 26, 21, 50, 57, 876, DateTimeKind.Local).AddTicks(4283),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4228),
+                            Fecha = new DateTime(2024, 2, 26, 21, 50, 57, 876, DateTimeKind.Local).AddTicks(4300),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4231),
+                            Fecha = new DateTime(2024, 2, 26, 21, 50, 57, 876, DateTimeKind.Local).AddTicks(4303),
                             Nombre = "ARS Universal"
                         });
                 });
@@ -590,10 +594,6 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("RNC")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Telefono")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -606,19 +606,17 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             SucursalId = 1,
-                            Direccion = "Libertad",
+                            Direccion = "Direccion 1",
                             EstadoOperativo = true,
                             Nombre = "McCaffe",
-                            RNC = "402456782",
                             Telefono = "8094587412"
                         },
                         new
                         {
                             SucursalId = 2,
-                            Direccion = "New York",
+                            Direccion = "Direccion 2",
                             EstadoOperativo = true,
                             Nombre = "Pharma King",
-                            RNC = "402456783",
                             Telefono = "8094587413"
                         });
                 });
