@@ -129,7 +129,7 @@
 
                     <div class="row d-flex align-items-center justify-content-center">
                         <div id="logoEmpresa" class="text-center">
-                            <img style="width: 150px; height: 120px; border-radius: 10%;" src="/Images/pngwing.com.png" /> <!--AQUI VA EL LOGO DE TU EMPRESA-->
+                            <img style="width: 150px; height: 120px; border-radius: 10%;" src="/Images/pngwing.com.png" /> 
                         </div>
                         <h5 class="fw-bold fs-6 text-center">@sucursal.Nombre</h5>
 
@@ -159,13 +159,13 @@
                             <label class="fw-bold" style="font-size: 12px;">Hora: <span class="fw-normal">@facturas.Fecha.ToString("h:mm tt")</span></label>
                         </div>
                         @* <div class="text-start">
-                            <label class="fw-bold" style="font-size: 12px;">N°: <span class="fw-normal">@facturas.FacturaId</span></label> <!--TIENES QUE GENERAR EL CODIGO AL REGISTRAR LA FACTURA -->
+                            <label class="fw-bold" style="font-size: 12px;">N°: <span class="fw-normal">@facturas.FacturaId</span></label> 
                         </div> *@
                         <div class="text-start">
                             <label class="fw-bold" style="font-size: 12px;">Estado: <span class="fw-normal">@facturas.Estado</span></label>
                         </div>
                         <div class="text-start">
-                            <label class="fw-bold" style="font-size: 12px;">Metodo pago: <span class="fw-normal">Efectivo</span></label> <!--DEBES ANADIR EL METODO DE PAGO -->
+                            <label class="fw-bold" style="font-size: 12px;">Metodo pago: <span class="fw-normal">Efectivo</span></label> 
                         </div>
                         <div class="text-start">
                             <label class="fw-bold" style="font-size: 12px;">Cedula: <span class="fw-normal">@Cliente.Cedula</span></label>
@@ -229,7 +229,7 @@
                                     <tr>
                                         <td>
                                             <div class="row">
-                                                <span>* @ObtenerNombreProducto(f.ProductoId)</span>
+                                                <span>* @ObtenerNombreProducto(f.ProductoId) - @ObtenerUnidad(f.ProductoId)</span>
                                             </div>
                                             <div class="row mb-3">
                                                 <span>(@f.Cantidad x @ObtenerPrecio(f.ProductoId).ToString("N2"))</span>
@@ -256,7 +256,7 @@
                         </div>
                         <div class="text-end mb-4">
                             <label class="fw-bold">Total:</label>
-                            <span>RD$ @total.ToString("N2")</span> <!--SubTotal - Descuento segudo -->
+                            <span>RD$ @total.ToString("N2")</span> <!--SubTotal - Descuento -->
                         </div>
 
                         <div class="datoInferior">
@@ -270,9 +270,12 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row text-center centrado datoInferior">
-                        <label class="fw-bold">Gracias por preferirnos!</label> <!--AQUI DEBES AGREGAR UN PIE DE PAGINA-->
+                        <label class="fw-bold">Firma</label> <!--PIE DE PAGINA-->
+                        <label class="fw-bold">__________________</label> <!--PIE DE PAGINA-->
+                    </div>
+                    <div class="row text-center centrado datoInferior">
+                        <label class="fw-bold">Gracias por preferirnos!</label> <!--PIE DE PAGINA-->
                     </div>
                 </div>
             </div>
@@ -286,20 +289,12 @@
 
 @code {
 
-    /*
-     * 
-     RECORDATORIO:
-       1. Debes agregar el estilo de la factura que esta en: wwwroot/factura_58mm.css
-       2. Debes agregar la funcion que imprime que esta en: wwwroot/index.html
-       3. Luego solo tienes que pegar lo que se ha agregado hasta el momento
+       /*
+       * 
+       RECORDATORIO:
+       1. el estilo de la factura que esta en: wwwroot/factura_58mm.css
+       2. la funcion que imprime que esta en: wwwroot/index.html
      */
-
-
-
-    
-
-
-
 
     public int Filtro { get; set; }
     public List<Facturas>? ListaFacturas { get; set; }
@@ -309,8 +304,10 @@
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
     public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
     public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<Unidad> ListaUnidades { get; set; } = new List<Unidad>();
     public List<SegurosMedicosDetalles> ListaSegurosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
-    /* INICIO VARIABLES NUEVAS ITILIZADAS */
+
+    /*  VARIABLES PARA FACTURAS */
 
     public bool ModalVerFactura = false;
     public Clientes Cliente = new Clientes();
@@ -335,10 +332,10 @@
     public async Task ImprimirFactura()
     {
         ModalVerFactura = false;
-        await JSRuntime.InvokeVoidAsync("printDiv"); //DEBES AGREGAR LA FUNCION printDiv en el index.html y agrega el estilo para imprimir
+        await JSRuntime.InvokeVoidAsync("printDiv"); //LA FUNCION printDiv en el index.html y el estilo para imprimir
     }
 
-    /* FIN VARIABLES NUEVAS ITILIZADAS */
+    /* FIN VARIABLES PARA FACTURAS */
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
@@ -357,7 +354,12 @@
         var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
         var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
         var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
+        var unidades = await httpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades");
 
+        if (unidades is not null)
+        {
+            ListaUnidades = unidades;
+        }
         if(segurosDetalles is not null)
         {
             ListaSegurosDetalles = segurosDetalles;
@@ -367,6 +369,9 @@
         {
             ListaProductos = productos;
         }
+
+        
+
         if (seguros is not null)
         {
             ListaSeguros = seguros;
@@ -503,6 +508,12 @@
         return producto?.Nombre ?? "Nombre no encontrado";
     }
 
+    public string ObtenerUnidad(int id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == id);
+        var unidad = ListaUnidades.FirstOrDefault(p => p.UnidadId == producto!.UnidadId);
+        return unidad?.Descripcion ?? "";
+    }
     private void VolverAtras()
     {
         NavigationManager.NavigateTo("/MenuFacturas");
