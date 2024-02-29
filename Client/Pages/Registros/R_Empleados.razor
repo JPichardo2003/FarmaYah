@@ -1,0 +1,211 @@
+﻿@page "/REmpleados";
+@page "/REmpleados/{EmpleadoId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+<EditForm Model="empleados" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de Empleados</h1>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Nombre del Cliente</label>
+                    <InputText @bind-Value="empleados.Nombre" class="form-control"/>
+                    <ValidationMessage For="@(() => empleados.Nombre)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Teléfono</label>
+                    <InputText @bind-Value="empleados.Telefono" class="form-control" @oninput="AgregarGuionTelefono" placeholder="809-587-7789" />
+                    <ValidationMessage For="@(() => empleados.Telefono)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Sucursal:</label>
+                    <InputSelect @bind-Value="empleados.SucursalId" class="form-select">
+                        <option value="">Seleccione</option>
+                        @foreach (var s in ListaSucursales)
+                        {
+                            <option value="@s.SucursalId">@s.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => empleados.SucursalId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Direcci&oacute;n</label>
+                    <InputText @bind-Value="empleados.Direccion" class="form-control" />
+                    <ValidationMessage For="@(() => empleados.Direccion)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+            @if(empleados.EmpleadoId > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+            }
+        </div>
+    </div>
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int EmpleadoId { get; set; }
+
+    public Empleados empleados = new Empleados();
+    public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
+    public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
+        if(sucursales is not null)
+        {
+            ListaSucursales = sucursales;
+        }
+        if (EmpleadoId > 0)
+        {
+            this.empleados.EmpleadoId = EmpleadoId;
+            await Buscar();
+        }
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuEmpleados");
+    }
+
+    public async Task Buscar()
+    {
+        var EmpleadoIdEncontrado = (await httpClient.GetFromJsonAsync<List<Empleados>>($"api/Empleados"))!
+        .ToList()
+        .Any(c => c.EmpleadoId == empleados.EmpleadoId);
+        if (EmpleadoIdEncontrado)
+        {
+            var empleadoEncontrado = await httpClient.GetFromJsonAsync<Empleados>($"api/Empleados/{empleados.EmpleadoId}");
+            if (empleadoEncontrado != null)
+            {
+                this.empleados = empleadoEncontrado;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No se encontro ningun empleado",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Empleados", empleados);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = response.Content.ReadAsStringAsync().Result,
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "No es posible Guardar",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+
+        }
+        var empleadoDevuelto = await response.Content.ReadFromJsonAsync<Empleados>();
+        if (empleadoDevuelto is not null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "validación",
+                    Detail = "Empleado Guardado Correctamente",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            empleados = empleadoDevuelto;
+            this.Nuevo();
+            StateHasChanged();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.empleados = new Empleados();
+    }
+
+    public async Task Eliminar()
+    {
+        empleados.Eliminado = true;
+        using var response = await httpClient.PostAsJsonAsync($"api/Empleados", empleados);
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Error al eliminar el Empleado",
+                    Duration = 5_000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Empleado eliminado con éxito",
+                    Duration = 5000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
+    }
+
+
+    public void AgregarGuionTelefono(ChangeEventArgs e)
+    {
+        // Obtener el valor actual del teléfono
+        var telefono = (string)e.Value!;
+
+        // Verificar si ya se han ingresado los primeros tres dígitos y si el último carácter no es ya un guión
+        if (telefono!.Length == 3 && !telefono.EndsWith("-") || telefono.Length == 7 && !telefono.EndsWith("-"))
+        {
+            // Agregar el guión después de los primeros tres dígitos
+            empleados.Telefono = telefono + "-";
+        }
+    }
+}

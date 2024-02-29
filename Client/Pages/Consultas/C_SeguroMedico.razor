@@ -92,7 +92,7 @@
         {
             var nombreBusqueda = seguros!.Nombre.ToLower();
             ListaSeguros = (await httpClient.GetFromJsonAsync<List<SegurosMedicos>>($"api/SegurosMedicos"))!
-                .Where(t => t.Nombre != null && t.Nombre.ToLower().Contains(nombreBusqueda) && t.Fecha.Date >= Desde.Date && t.Fecha.Date <= Hasta.Date)
+                .Where(t => t.Nombre != null && t.Nombre.ToLower().Contains(nombreBusqueda))
                 .ToList();
             StateHasChanged();
         }

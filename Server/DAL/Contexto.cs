@@ -29,8 +29,8 @@ namespace FarmaYah.Server.DAL
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Empleados>().HasData(new List<Empleados>()
             {
-                new Empleados(){EmpleadoId=1, Nombre="Julio", SucursalId = 1},
-                new Empleados(){EmpleadoId=2, Nombre="Alexander", SucursalId = 2}
+                new Empleados(){EmpleadoId=1, Nombre="Julio", SucursalId = 1, Telefono="829-487-1203", Direccion="Yaguiza"},
+                new Empleados(){EmpleadoId=2, Nombre="Alexander", SucursalId = 2, Telefono="827-478-3917", Direccion ="Los Cocos"}
             });
 
             modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
