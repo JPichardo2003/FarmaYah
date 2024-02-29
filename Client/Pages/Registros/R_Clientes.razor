@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>Teléfono</label>
-                    <InputText @bind-Value="clientes.Teléfono" class="form-control" maxlength="10" placeholder="8095877789" />
+                    <InputText @bind-Value="clientes.Teléfono" class="form-control" @oninput="AgregarGuionTelefono" placeholder="809-587-7789" />
                     <ValidationMessage For="@(() => clientes.Teléfono)" />
                 </div>
                 <div class="col-md-6">
@@ -148,7 +148,7 @@
                 notificationService.Notify(mensaje);
                 return;
             }
-            
+
         }
         var clienteDevuelto = await response.Content.ReadFromJsonAsync<Clientes>();
         if (clienteDevuelto is not null)
@@ -212,7 +212,18 @@
             // Agregar el guión después de los primeros tres dígitos
             clientes.Cedula = cedula + "-";
         }
+    }
 
-        
+    public void AgregarGuionTelefono(ChangeEventArgs e)
+    {
+        // Obtener el valor actual del teléfono
+        var telefono = (string)e.Value!;
+
+        // Verificar si ya se han ingresado los primeros tres dígitos y si el último carácter no es ya un guión
+        if (telefono!.Length == 3 && !telefono.EndsWith("-") || telefono.Length == 7 && !telefono.EndsWith("-"))
+        {
+            // Agregar el guión después de los primeros tres dígitos
+            clientes.Teléfono = telefono + "-";
+        }
     }
 }

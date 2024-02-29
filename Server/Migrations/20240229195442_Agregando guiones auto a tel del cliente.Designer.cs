@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240229195442_Agregando guiones auto a tel del cliente")]
+    partial class Agregandoguionesautoateldelcliente
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -532,21 +535,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 29, 16, 2, 50, 316, DateTimeKind.Local).AddTicks(7851),
+                            Fecha = new DateTime(2024, 2, 29, 15, 54, 42, 237, DateTimeKind.Local).AddTicks(8803),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 29, 16, 2, 50, 316, DateTimeKind.Local).AddTicks(7866),
+                            Fecha = new DateTime(2024, 2, 29, 15, 54, 42, 237, DateTimeKind.Local).AddTicks(8819),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 29, 16, 2, 50, 316, DateTimeKind.Local).AddTicks(7869),
+                            Fecha = new DateTime(2024, 2, 29, 15, 54, 42, 237, DateTimeKind.Local).AddTicks(8822),
                             Nombre = "ARS Universal"
                         });
                 });
