@@ -35,12 +35,9 @@ namespace FarmaYah.Server.DAL
 
             modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
             {
-				new Clientes(){ClienteId=1, Nombre="Juan Perez", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7}
-			});
+				new Clientes(){ClienteId=1, Nombre="Juan Perez", Cedula="402-3257845-9", Dirección="Direccion 1", Teléfono="8094587412", Fidelidad=7, SeguroMedicoId =1, NumSeguroMedico="123456789"},
+                new Clientes(){ClienteId=2, Nombre="Maria Lopez", Cedula="055-0004578-9", Dirección="Direccion 2", Teléfono="8091287602", Fidelidad=10, SeguroMedicoId = 3, NumSeguroMedico = "012345678"}
 
-            modelBuilder.Entity<Clientes>().HasData(new List<Clientes>()
-            {
-                new Clientes(){ClienteId=2, Nombre="Maria Lopez", Dirección="Direccion 2", Teléfono="8091287602", Fidelidad=10}
             });
 
             modelBuilder.Entity<Laboratorios>().HasData(new List<Laboratorios>()
@@ -51,8 +48,8 @@ namespace FarmaYah.Server.DAL
 
             modelBuilder.Entity<Sucursales>().HasData(new List<Sucursales>()
             {
-                new Sucursales(){SucursalId=1, Nombre="McCaffe", Direccion="Direccion 1", Telefono="8094587412", EstadoOperativo=true},
-                new Sucursales(){SucursalId=2, Nombre="Pharma King", Direccion="Direccion 2", Telefono="8094587413", EstadoOperativo=true}
+                new Sucursales(){SucursalId=1, Nombre="McCaffe", Direccion="Libertad", Telefono="8094587412", EstadoOperativo=true, RNC="402456782"},
+                new Sucursales(){SucursalId=2, Nombre="Pharma King", Direccion="New York", Telefono="8094587413", EstadoOperativo=true, RNC= "402456783"}
             });
 
             modelBuilder.Entity<SegurosMedicos>().HasData(new List<SegurosMedicos>()
@@ -64,9 +61,9 @@ namespace FarmaYah.Server.DAL
 
             modelBuilder.Entity<Productos>().HasData(new List<Productos>()
             {
-                new Productos(){ProductoId=1, Nombre="Ibuprofeno", Precio=100, LaboratorioId=1, Existencia = 0, Descripcion = "TBA", UnidadId=3},
-                new Productos(){ProductoId=2, Nombre="Paracetamol", Precio=120, LaboratorioId=1, Existencia = 0, Descripcion = "TBA", UnidadId=4},
-                new Productos(){ProductoId=3, Nombre="Amoxicilina", Precio=150, LaboratorioId=1, Existencia = 0, Descripcion = "TBA", UnidadId = 3}
+                new Productos(){ProductoId=1, Nombre="Ibuprofeno", Precio=100, LaboratorioId=1, Existencia = 0, Descripcion = "TBA", UnidadId=3, Reordenable = true},
+                new Productos(){ProductoId=2, Nombre="Paracetamol", Precio=120, LaboratorioId=1, Existencia = 0, Descripcion = "TBA", UnidadId=4, Reordenable = false},
+                new Productos(){ProductoId=3, Nombre="Amoxicilina", Precio=150, LaboratorioId=1, Existencia = 0, Descripcion = "TBA", UnidadId = 3, Reordenable = true}
             });
 
             modelBuilder.Entity<Proveedores>().HasData(new List<Proveedores>()
@@ -87,6 +84,12 @@ namespace FarmaYah.Server.DAL
                  new Unidad(){UnidadId = 8, Descripcion="Spray" },
                  new Unidad(){UnidadId = 9, Descripcion="Otros" }
              });
+
+            modelBuilder.Entity<Configuracion>().HasData(new List<Configuracion>()
+            {
+                new Configuracion(){ConfiguracionId = 1, ReOrden = false}
+                
+            });
 
         }
     }

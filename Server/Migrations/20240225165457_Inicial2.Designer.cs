@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240225165457_Inicial2")]
+    partial class Inicial2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
@@ -22,10 +25,6 @@ namespace FarmaYah.Server.Migrations
                     b.Property<int>("ClienteId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Cedula")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Dirección")
                         .IsRequired()
@@ -39,9 +38,6 @@ namespace FarmaYah.Server.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NumSeguroMedico")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("SeguroMedicoId")
@@ -61,24 +57,20 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             ClienteId = 1,
-                            Cedula = "402-3257845-9",
                             Dirección = "Direccion 1",
                             Eliminado = false,
                             Fidelidad = 7m,
                             Nombre = "Juan Perez",
-                            NumSeguroMedico = "123456789",
                             SeguroMedicoId = 1,
                             Teléfono = "8094587412"
                         },
                         new
                         {
                             ClienteId = 2,
-                            Cedula = "055-0004578-9",
                             Dirección = "Direccion 2",
                             Eliminado = false,
                             Fidelidad = 10m,
                             Nombre = "Maria Lopez",
-                            NumSeguroMedico = "012345678",
                             SeguroMedicoId = 3,
                             Teléfono = "8091287602"
                         });
@@ -126,6 +118,13 @@ namespace FarmaYah.Server.Migrations
                     b.HasKey("ConfiguracionId");
 
                     b.ToTable("Configuracion");
+
+                    b.HasData(
+                        new
+                        {
+                            ConfiguracionId = 1,
+                            ReOrden = false
+                        });
                 });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.CuentasPorPagar", b =>
@@ -271,9 +270,6 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -287,14 +283,12 @@ namespace FarmaYah.Server.Migrations
                         {
                             LaboratorioId = 1,
                             Direccion = "Direccion 1",
-                            Eliminado = false,
                             Nombre = "Pfizer"
                         },
                         new
                         {
                             LaboratorioId = 2,
                             Direccion = "Direccion 2",
-                            Eliminado = false,
                             Nombre = "Bayer"
                         });
                 });
@@ -530,21 +524,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4212),
+                            Fecha = new DateTime(2024, 2, 25, 12, 54, 57, 252, DateTimeKind.Local).AddTicks(8313),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4228),
+                            Fecha = new DateTime(2024, 2, 25, 12, 54, 57, 252, DateTimeKind.Local).AddTicks(8333),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 2, 27, 16, 50, 12, 707, DateTimeKind.Local).AddTicks(4231),
+                            Fecha = new DateTime(2024, 2, 25, 12, 54, 57, 252, DateTimeKind.Local).AddTicks(8337),
                             Nombre = "ARS Universal"
                         });
                 });
@@ -588,10 +582,6 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("RNC")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Telefono")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -604,19 +594,17 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             SucursalId = 1,
-                            Direccion = "Libertad",
+                            Direccion = "Direccion 1",
                             EstadoOperativo = true,
                             Nombre = "McCaffe",
-                            RNC = "402456782",
                             Telefono = "8094587412"
                         },
                         new
                         {
                             SucursalId = 2,
-                            Direccion = "New York",
+                            Direccion = "Direccion 2",
                             EstadoOperativo = true,
                             Nombre = "Pharma King",
-                            RNC = "402456783",
                             Telefono = "8094587413"
                         });
                 });
@@ -631,9 +619,6 @@ namespace FarmaYah.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("UnidadId");
 
                     b.ToTable("Unidades");
@@ -642,56 +627,47 @@ namespace FarmaYah.Server.Migrations
                         new
                         {
                             UnidadId = 1,
-                            Descripcion = "Pastilla",
-                            Eliminado = false
+                            Descripcion = "Pastilla"
                         },
                         new
                         {
                             UnidadId = 2,
-                            Descripcion = "Jarabe",
-                            Eliminado = false
+                            Descripcion = "Jarabe"
                         },
                         new
                         {
                             UnidadId = 3,
-                            Descripcion = "Capsulas",
-                            Eliminado = false
+                            Descripcion = "Capsulas"
                         },
                         new
                         {
                             UnidadId = 4,
-                            Descripcion = "Inyección",
-                            Eliminado = false
+                            Descripcion = "Inyección"
                         },
                         new
                         {
                             UnidadId = 5,
-                            Descripcion = "Crema",
-                            Eliminado = false
+                            Descripcion = "Crema"
                         },
                         new
                         {
                             UnidadId = 6,
-                            Descripcion = "Supositorio",
-                            Eliminado = false
+                            Descripcion = "Supositorio"
                         },
                         new
                         {
                             UnidadId = 7,
-                            Descripcion = "Gotas",
-                            Eliminado = false
+                            Descripcion = "Gotas"
                         },
                         new
                         {
                             UnidadId = 8,
-                            Descripcion = "Spray",
-                            Eliminado = false
+                            Descripcion = "Spray"
                         },
                         new
                         {
                             UnidadId = 9,
-                            Descripcion = "Otros",
-                            Eliminado = false
+                            Descripcion = "Otros"
                         });
                 });
 

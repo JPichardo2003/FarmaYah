@@ -2,29 +2,24 @@
 @page "/R_CuentasPorCobrar/{FacturaId:int}"
 @inject NotificationService notificationService
 @inject HttpClient httpClient
-@inject NavigationManager NavigationManager;
-
+@inject NavigationManager NavigationManager
 <div class="card">
-	<div class="card-header">
-	</div>
-
-	<div class="card-header d-flex align-items-center">
+	<div class="card-body">
 		<button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
-		<img src="Images/pngwing.com.png" class="img-logo" />
-		<h1>Cuentas por pagar</h1>
 
+		<h1>Cuentas por pagar</h1>
 	</div>
 	<div class="card-body">
 
 		<div class="row">
 			<div class="form-group col-md-4">
 				<label>Nombre del Cliente:</label>
-				<InputText disabled @bind-Value="Cliente.Nombre" class="form-control" placeholder="Nombre del cliente" />
+				<InputText disabled @bind-Value="Cliente.Nombre" class="form-control" />
 			</div>
 
 			<div class="form-group col-md-4">
 				<label>Teléfono:</label>
-				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10" placeholder="1234567890" />
+				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10"/>
 			</div>
 		</div>
 		<div class="row">
@@ -75,7 +70,7 @@
 						<tr>
 							<td>@ObtenerNombreProducto(item.ProductoId)</td>
 							<td>@item.Cantidad</td>
-							<td>@ObtenerPrecioProducto(item.ProductoId)</td>
+							<td>@ObtenerPrecio(item.ProductoId)</td>
 						</tr>
 					}
 				</tbody>
@@ -157,11 +152,13 @@
 	public Facturas Factura = new Facturas();
 	public Clientes Cliente = new Clientes();
 	public PagosCuentasPorCobrar Detalles = new PagosCuentasPorCobrar();
-	public List<Facturas> ListaFactura { get; set; }
-	public List<Clientes> ListaClientes { get; set; }
-	public List<Productos> Listaproductos { get; set; }
-	public List<Sucursales> ListaSucursales { get; set; }
-	public List<Empleados> ListaEmpleados { get; set; }
+	public List<Facturas> ListaFactura { get; set; } = new List<Facturas>();
+	public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+	public List<Productos> Listaproductos { get; set; } = new List<Productos>();
+	public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
+	public List<Empleados> ListaEmpleados { get; set; } = new List<Empleados>();
+	public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+	public List<SegurosMedicosDetalles> ListaSegurosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
 	public List<PagosCuentasPorCobrar> ListaDetalles { get; set; } = new List<PagosCuentasPorCobrar>();
 	public List<PagosCuentasPorCobrar> DetallesRemovidos { get; set; } = new List<PagosCuentasPorCobrar>();
 	public string? NombreSucursal { get; set; }
@@ -175,6 +172,18 @@
 		var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
 		var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
 		var empleados = await httpClient.GetFromJsonAsync<List<Empleados>>("api/Empleados");
+		var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
+		var producto = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+
+		if(producto != null)
+        {
+            ListaProductos = producto;
+        }
+
+		if (segurosDetalles != null)
+        {
+            ListaSegurosDetalles = segurosDetalles;
+        }
 
 		if (facturas != null)
 		{
@@ -201,6 +210,11 @@
 			BuscarFactura();
 		}
 
+	}
+
+	private void VolverAtras()
+	{
+		NavigationManager.NavigateTo("/MenuFacturas");
 	}
 	public void ActualizarPago()
 	{
@@ -252,10 +266,7 @@
 			StateHasChanged();
 		}
 	}
-	private void VolverAtras()
-	{
-		NavigationManager.NavigateTo("/C_CuentasPorCobrar");
-	}
+
 	private void Nuevo()
 	{
 		Factura = new Facturas();
@@ -292,15 +303,31 @@
 		return "No encontrado";
 	}
 
-	private double ObtenerPrecioProducto(int productoId)
-	{
-		var producto = Listaproductos.FirstOrDefault(p => p.ProductoId == productoId);
-		if (producto != null)
-		{
-			return producto.Precio;
-		}
-		return 0;
-	}
+	public float ObtenerPrecio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+        var precioProducto = producto!.Precio;
+
+        // Verificar si hay un seguro médico asociado a la factura
+        if (Factura.SeguroMedicoId > 0)
+        {
+            // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
+            var detallesSeguro = ListaSegurosDetalles
+				.Where(d => d.ProductoId == producto.ProductoId && d.SeguroMedicoId == Factura.SeguroMedicoId)
+                .ToList();
+
+            // Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
+            if (detallesSeguro != null && detallesSeguro.Count > 0)
+            {
+                // Aplicar el descuento del detalle de seguro médico al precio del producto
+                foreach (var detalle in detallesSeguro)
+                {
+                    precioProducto -= (precioProducto * detalle.Descuento / 100);  
+                }
+            }
+        }
+        return precioProducto;
+    }
 	private Facturas BuscarFactura(int id)
 	{
 		var factura = ListaFactura.FirstOrDefault(f => f.FacturaId == id);
@@ -371,7 +398,7 @@
 
 		OcultarConfirmacionEliminar();
 	}
-	
+
 	public void MostrarConfirmacionEliminar()
 	{
 		mostrarConfirmacionEliminar = true;

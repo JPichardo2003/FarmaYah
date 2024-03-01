@@ -1,6 +1,8 @@
 ﻿@page "/CFacturas"
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+
 <PageTitle>Consulta Facturación</PageTitle>
 <div class="card">
     <div class="card-header d-flex align-items-center">
@@ -69,7 +71,8 @@
                         <th>Sucursal</th>
                         <th>Estado</th>
                         <th>Monto</th>
-                        <th></th>
+                        <th>Reporte</th>
+                        <th>Ver</th>
                     </tr>
                 </thead>
                 <tbody> 
@@ -83,6 +86,7 @@
                             <td>@ObtenerNombreSucursal(facturas.SucursalId)</td>
                             <td>@facturas.Estado</td>
                             <td>@facturas.MontoTotal</td>
+                            <td><button @onclick="(() => mostrarModalImprimir(facturas))"><i class="bi bi-printer"></i></button></td>
                             <td><a href="RFacturas/@facturas.FacturaId"><i class="bi bi-eye-fill"></i></a></td>
                         </tr>
                     }
@@ -102,7 +106,200 @@
 </div>
 
 
+
+<!-- INICIO AGREGA ESTO PARA MOSTRAR EL MODAL DE LA FACTURA (VISTA PREVIA DE LA FACTURA) -->
+@if (ModalVerFactura)
+{
+    subtotal = 0;
+    descuento = 0;
+    <div class="modal d-block autoridad">
+
+        <div class="position-fixed top-50 start-50 translate-middle" style="width: 28rem;">
+            <div class="modal-content" style="border-radius: 25px;">
+
+                <div class="card-header h-50 text-white bg-primary" style="border-radius: 20px 20px 0px 0px;">
+                    <h5 class="fs-6 fw-bold"><img style="width: 20px; height: 20px;" src="/favicon.png" /> Vista Previa </h5>
+                    <div class="text-end d-flex justify-content-end align-items-end" style="margin-top: -30px;">
+                        <button style="background: transparent; border: none; margin-top: -3px;" @onclick="ImprimirFactura"> <img style="width: 25px; height: 25px; margin-right: 10px;" src="/Images/ico_factura.png" /></button>
+                        <button style="border-radius: 50%; background-color: red; border: none; width: 22px; height: 22px;" @onclick="(() => ModalVerFactura = false)"><i class="bi bi-x-lg" /></button>
+                    </div>
+                </div>
+
+                <div id="factura" class="modal-body" style="height: 35rem; overflow-y: auto;">
+
+                    <div class="row d-flex align-items-center justify-content-center">
+                        <div id="logoEmpresa" class="text-center">
+                            <img style="width: 150px; height: 120px; border-radius: 10%;" src="/Images/pngwing.com.png" /> <!--AQUI VA EL LOGO DE TU EMPRESA-->
+                        </div>
+                        <h5 class="fw-bold fs-6 text-center">@sucursal.Nombre</h5>
+
+                        <div class="row">
+                            <div id="telefonoEmpresa" class="col text-start">
+                                <label class="fw-bold"> <i class="fas fa-phone"></i> Telf.: <span class="fw-normal">@sucursal.Telefono</span></label>
+                            </div>
+                            <div id="rnc" class="col text-end">
+                                <label class="fw-bold"> <i class="fas fa-building"></i> RNC: <span class="fw-normal">@sucursal.RNC</span></label>
+                            </div>
+                        </div>
+
+                        <div id="direccionEmpresa" class="fw-bold text-center">
+                            <label> <i class="fas fa-map-marker"></i> Dirc.: <span class="fw-normal">@sucursal.Direccion</span></label>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h5 class="fw-bold text-center titular" style="font-size: 14px; font-weight: bold;">DATOS DE LA VENTA</h5>
+                    <hr>
+
+                    <div class="row">
+                        <div class="col text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Fecha:<span class="fw-normal">@facturas!.Fecha.ToString("dd/MM/yyyy")</span></label>
+                        </div>
+                        <div id="fechaFactura" class="col text-end">
+                            <label class="fw-bold" style="font-size: 12px;">Hora: <span class="fw-normal">@facturas.Fecha.ToString("h:mm tt")</span></label>
+                        </div>
+                        @* <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">N°: <span class="fw-normal">@facturas.FacturaId</span></label> <!--TIENES QUE GENERAR EL CODIGO AL REGISTRAR LA FACTURA -->
+                        </div> *@
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Estado: <span class="fw-normal">@facturas.Estado</span></label>
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Metodo pago: <span class="fw-normal">Efectivo</span></label> <!--DEBES ANADIR EL METODO DE PAGO -->
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Cedula: <span class="fw-normal">@Cliente.Cedula</span></label>
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Cliente: <span class="fw-normal">@Cliente.Nombre</span></label>
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Telefono: <span class="fw-normal">@Cliente.Teléfono</span></label>
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Seguro Medico: <span class="fw-normal">@ObtenerNombreSeguro(Cliente.SeguroMedicoId)</span></label>
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Numero de Seguro: <span class="fw-normal">@Cliente.NumSeguroMedico</span></label>
+                        </div>
+                        <div class="text-start">
+                            <label class="fw-bold" style="font-size: 12px;">Dirección: <span class="fw-normal">@Cliente.Dirección</span></label>
+                        </div>
+
+                    </div>
+
+                    <hr>
+                    <h5 class="fw-bold text-center titular" style="font-size: 14px; font-weight: bold;">ARTICULOS</h5>
+                    <hr>
+
+                    <div class="row mb-4">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th class="text-end derecha">Cobertura </th>
+                                    <th class="text-end derecha">Importe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                                @foreach (var f in facturas.FacturasDetalles)
+                                {
+
+                                    subtotal += ObtenerPrecio(f.ProductoId) * f.Cantidad;
+                                    var seguro = ObtenerSeguroMedico(facturas.SeguroMedicoId);
+                                    
+                                    if (seguro != null)
+                                    {
+                                        var detalleSeguro = ObtenerDetalleSeguro(seguro.SeguroMedicoId, f.ProductoId);
+                                        if (detalleSeguro != null)
+                                        {
+                                            descuento += ObtenerPrecio(f.ProductoId) * f.Cantidad * (detalleSeguro.Descuento/100);
+                                            descuentoStatic = ObtenerPrecio(f.ProductoId) * f.Cantidad * (detalleSeguro.Descuento / 100);
+                                            subtotalStatic = ObtenerPrecio(f.ProductoId) * f.Cantidad - descuentoStatic;
+
+                                        }
+                                        else
+                                        {
+                                            subtotalStatic = ObtenerPrecio(f.ProductoId) * f.Cantidad;
+                                            descuentoStatic = 0;
+                                        }
+                                    }
+                                    total = subtotal - descuento;
+                                    <tr>
+                                        <td>
+                                            <div class="row">
+                                                <span>* @ObtenerNombreProducto(f.ProductoId)</span>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <span>(@f.Cantidad x @ObtenerPrecio(f.ProductoId).ToString("N2"))</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end derecha">@descuentoStatic.ToString("N2")</td>
+                                        <td class="text-end derecha">@subtotalStatic.ToString("N2")</td>
+                                    </tr> 
+                                    
+                                }
+                               
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mb-5 derecha">
+                        <div class="text-end">
+                            <label class="fw-bold">SubTotal:</label>
+                            <span>RD$ @subtotal.ToString("N2")</span> <!--SUB TOTAL AQUI -->
+                        </div>
+                        <div class="text-end">
+                            <label class="fw-bold">Cobertura del Seguro:</label>
+                            <span>RD$ @descuento.ToString("N2")</span> <!--DESCUENTO AQUI -->
+                        </div>
+                        <div class="text-end mb-4">
+                            <label class="fw-bold">Total:</label>
+                            <span>RD$ @total.ToString("N2")</span> <!--SubTotal - Descuento segudo -->
+                        </div>
+
+                        <div class="datoInferior">
+                            <div class="text-end">
+                                <label class="fw-bold">Pago con:</label>
+                                <span>RD$ @facturas.Pago</span>
+                            </div>
+                            <div class="text-end">
+                                <label class="fw-bold">Devuelta:</label>
+                                <span>RD$ @facturas.Devolucion</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row text-center centrado datoInferior">
+                        <label class="fw-bold">Gracias por preferirnos!</label> <!--AQUI DEBES AGREGAR UN PIE DE PAGINA-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<!-- FIN AGREGA ESTO PARA MOSTRAR EL MODAL DE LA FACTURA (VISTA PREVIA DE LA FACTURA) -->
+
+
+
+
 @code {
+
+    /*
+     * 
+     RECORDATORIO:
+       1. Debes agregar el estilo de la factura que esta en: wwwroot/factura_58mm.css
+       2. Debes agregar la funcion que imprime que esta en: wwwroot/index.html
+       3. Luego solo tienes que pegar lo que se ha agregado hasta el momento
+     */
+
+
+
+    
+
+
+
 
     public int Filtro { get; set; }
     public List<Facturas>? ListaFacturas { get; set; }
@@ -111,6 +308,37 @@
     public List<SegurosMedicos> ListaSeguros { get; set; } = new List<SegurosMedicos>();
     public List<Sucursales> ListaSucursales { get; set; } = new List<Sucursales>();
     public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<SegurosMedicosDetalles> ListaSegurosDetalles { get; set; } = new List<SegurosMedicosDetalles>();
+    /* INICIO VARIABLES NUEVAS ITILIZADAS */
+
+    public bool ModalVerFactura = false;
+    public Clientes Cliente = new Clientes();
+    public Sucursales sucursal = new Sucursales();
+
+    float subtotal = 0;
+    float subtotalStatic = 0;
+    float descuento = 0;
+    float descuentoStatic = 0;
+    float total = 0;
+
+
+    public void mostrarModalImprimir(Facturas factura)
+    {
+        Cliente = ListaClientes.FirstOrDefault(p => p.ClienteId == factura.ClienteId)!;
+        sucursal = ListaSucursales.FirstOrDefault(p => p.SucursalId == factura.SucursalId)!;
+        facturas = ListaFacturas!.FirstOrDefault(p => p.FacturaId == factura.FacturaId);
+        ModalVerFactura = true;
+
+    }
+
+    public async Task ImprimirFactura()
+    {
+        ModalVerFactura = false;
+        await JSRuntime.InvokeVoidAsync("printDiv"); //DEBES AGREGAR LA FUNCION printDiv en el index.html y agrega el estilo para imprimir
+    }
+
+    /* FIN VARIABLES NUEVAS ITILIZADAS */
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
@@ -127,6 +355,18 @@
         var seguros = await httpClient.GetFromJsonAsync<List<SegurosMedicos>>("api/SegurosMedicos");
         var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
         var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
+
+        if(segurosDetalles is not null)
+        {
+            ListaSegurosDetalles = segurosDetalles;
+        }
+
+        if(productos is not null)
+        {
+            ListaProductos = productos;
+        }
         if (seguros is not null)
         {
             ListaSeguros = seguros;
@@ -151,6 +391,30 @@
         Desde = DateTime.Now.AddMonths(-1);
         Hasta = DateTime.Now;
     }
+
+    public float ObtenerPrecio(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+        var precioProducto = producto!.Precio;
+        return precioProducto;
+    }
+    public SegurosMedicos ObtenerSeguroMedico(int? seguroMedicoId)
+    {
+        // Buscar el seguro médico por su ID en la lista de seguros médicos
+        var seguroMedico = ListaSeguros.FirstOrDefault(s => s.SeguroMedicoId == seguroMedicoId)!;
+
+        return seguroMedico; // Retorna el seguro médico encontrado o null si no se encuentra
+    }
+
+
+    public SegurosMedicosDetalles? ObtenerDetalleSeguro(int seguroMedicoId, int productoId)
+    {
+        // Buscar el detalle del seguro médico por su ID en la lista de detalles de seguros médicos
+        var detalleSeguro = ListaSegurosDetalles.FirstOrDefault(d => d.SeguroMedicoId == seguroMedicoId && d.ProductoId == productoId);
+
+        return detalleSeguro; // Retorna el detalle del seguro médico encontrado o null si no se encuentra
+    }
+
 
     public async Task Buscar()
     {
@@ -224,7 +488,7 @@
     public string ObtenerNombreSeguro(int? Id)
     {
         var seguro = ListaSeguros.FirstOrDefault(p => p.SeguroMedicoId == Id);
-        return seguro?.Nombre ?? "NULL";
+        return seguro?.Nombre ?? "";
     }
 
     public string ObtenerNombreCliente(int Id)
@@ -233,8 +497,16 @@
         return cliente?.Nombre ?? "Nombre no encontrado";
     }
 
+    public string ObtenerNombreProducto(int id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == id);
+        return producto?.Nombre ?? "Nombre no encontrado";
+    }
+
     private void VolverAtras()
     {
         NavigationManager.NavigateTo("/MenuFacturas");
     }
+
+
 }

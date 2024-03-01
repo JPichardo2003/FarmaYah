@@ -29,16 +29,16 @@
                     <button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
                     </div>
                     </div> *@
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <label for="Nombre">Nombre Producto:</label>
                         <InputText id="Nombre" @bind-Value="producto.Nombre" class="form-control" />
                         <ValidationMessage For="@(() => producto.Nombre)" />
                     </div>
 
-                    <div class="col-4">
-                        <label for="Descripcion">Decripci&oacute;n Producto:</label>
-                        <InputSelect id="Descripcion" @bind-Value="producto.Descripcion" class="form-select">
-                            <option>Seleccione...</option>
+                    <div class="col-md-4">
+                        <label >Decripci&oacute;n Producto:</label>
+                        <InputSelect  @bind-Value="producto.Descripcion" class="form-select">
+                            <option value="TBA">TBA</option>
                             <option value="Analgésicos">Analgésicos</option>
                             <option value="Antiinflamatorios">Antiinflamatorios</option>
                             <option value="Antialérgicos">Antialérgicos</option>
@@ -53,6 +53,20 @@
 
 
                 </div>
+                <div class="col-md-4">
+                    <label>Cantidad</label>
+                    <InputNumber @bind-Value="ProductoExistenciaAux" class="form-control" />
+                    <ValidationMessage For="@(() => producto.Existencia)" />
+                </div>
+                <div class="col-md-4">
+                    <label>Sumar</label>
+                    <InputNumber @bind-Value="ProductoSuma" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>Reorden</label>
+                    <input type="checkbox" @bind="producto.Reordenable" @onclick="ActualizarReOrden" />
+                </div>
+                    
 
                 @*  <div class="row">
                 <div class="col-4">
@@ -65,7 +79,7 @@
                 </div> *@
 
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <label for="Unidad">Unidad:</label>
 
                         <ValidationMessage For="@(() => producto.UnidadId)" />
@@ -80,13 +94,13 @@
                         <ValidationMessage For="@(() => producto.UnidadId)" />
 
                     </div>
-                    <div class="col"
+                    <div class="col-md-4"
                 <label>Laboratorio</label>
                 <InputSelect class="form-select" id="Laboratorios" @bind-Value="producto.LaboratorioId">
                 <option >Seleccione...</option>
                             @foreach (var laboratorio in Laboratorios ?? new List<Laboratorios>())
                             {
-                                         <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
+                                     <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
                             }
                 </InputSelect>
                 <ValidationMessage For="@(() => producto.LaboratorioId)" />
@@ -152,16 +166,20 @@
             <br>
             <br>
             <br>
-            @*Botones*@
-            <div class="row justify-content-center">
-                <div class="col-4">
-                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
-                    <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
-                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
-                    @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
-                    <i class="io io-trash" /> Agregar laboratorio
-                    </button> *@
-                </div>
+
+        </div>
+
+
+
+        @*Botones*@
+        <div class="row justify-content-center">
+            <div class="col-4">
+                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
+                <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
+                @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
+                <i class="io io-trash" /> Agregar laboratorio
+                </button> *@
             </div>
         </div>
     </div>
@@ -186,11 +204,11 @@
 
     public ProveedorProducto Detalles { get; set; } = new ProveedorProducto();
     public bool idVacio { get; set; }
-
+    public int ProductoSuma { get; set; }
+    public int ProductoExistenciaAux { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var proveerdor = await HttpClient.GetFromJsonAsync<List<Proveedores>>("api/Proveedores");
-
         var unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades");
         var laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios");
 
@@ -208,8 +226,6 @@
             Laboratorios = laboratorios;
         }
 
-
-
         if (ProductoId > 0)
         {
             producto.ProductoId = ProductoId;
@@ -223,11 +239,20 @@
         navigationManager.NavigateTo("MenuProductos");
     }
 
+    private void ActualizarReOrden()
+    {
+        producto.Reordenable = !producto.Reordenable;
+    }
+
     public async void Guardar()
     {
+        if (ProductoExistenciaAux > 0)
+            producto.Existencia = ProductoExistenciaAux;
+        if(ProductoSuma > 0)
+            producto.Existencia += ProductoSuma;
         using var response = await HttpClient.PostAsJsonAsync("api/Productos", producto);
         if (!response.IsSuccessStatusCode)
-        { 
+        {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
@@ -235,6 +260,7 @@
                     Detail = "No se pudo guardar el producto",
                     Duration = 4_000
                 };
+            notificationService.Notify(mensaje);
             return;
         }
         var ProductoDevuelto = await response.Content.ReadFromJsonAsync<Productos>();
@@ -247,8 +273,9 @@
                     Detail = "El producto ha sido guardado",
                     Duration = 4_000
                 };
+            notificationService.Notify(mensaje);
             producto = ProductoDevuelto;
-            Nuevo();
+            this.Nuevo();
         }
     }
     public async Task Eliminar()
@@ -264,6 +291,7 @@
                     Detail = "No se pudo eliminar el producto",
                     Duration = 4_000
                 };
+            notificationService.Notify(mensaje);
         }
         else
         {
@@ -274,7 +302,7 @@
                     Detail = "El producto ha sido eliminado",
                     Duration = 4_000
                 };
-
+            notificationService.Notify(mensaje);
             Nuevo();
         }
 
@@ -284,9 +312,8 @@
         producto = new Productos();
         Detalles = new ProveedorProducto();
         ProductoId = 0;
+        ProductoSuma = 0;
         StateHasChanged();
-
-
     }
 
     public async Task Buscar()
@@ -298,6 +325,7 @@
             if (productoEncontrado is not null)
             {
                 producto = productoEncontrado;
+                
             }
         }
         else
@@ -309,6 +337,7 @@
                     Detail = "El producto no encontrado",
                     Duration = 4_000
                 };
+                notificationService.Notify(mensaje);
 
         }
     }

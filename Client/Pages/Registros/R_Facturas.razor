@@ -31,6 +31,10 @@
                     </InputSelect>
                 </div>
                 <div class="col-md-6">
+                    <label>Seguro Medico:</label>
+                    <div>@ObtenerNombreSeguroMedico()</div>
+                </div>
+                <div class="col-md-6">
                     <label>Fecha:</label>
                     <InputDate @bind-Value="facturas.Fecha" class="form-control" readonly></InputDate>
                     <ValidationMessage For="@(() => facturas.Fecha)" />
@@ -39,32 +43,6 @@
                     <label>Pago:</label>
                     <InputNumber @bind-Value="facturas.Pago" class="form-control" @onblur="CalcularPagoYEstado"></InputNumber>
                     <ValidationMessage For="@(() => facturas.Pago)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Devoluci&oacute;n:</label>
-                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control" readonly disabled></InputNumber>
-                    <ValidationMessage For="@(() => facturas.Devolucion)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Seguro Medico:</label>
-                    <InputSelect @bind-Value="facturas.SeguroMedicoId" class="form-select" @onclick="ActualizarPrecioT">
-                        <option value="">Seleccione</option>
-                        @foreach (var s in ListaSeguros)
-                        {
-                            <option value="@s.SeguroMedicoId">@s.Nombre</option>
-                        }
-                    </InputSelect>
-                </div>
-                <div class="col-md-6">
-                    <label>Sucursal:</label>
-                    <InputSelect @bind-Value="facturas.SucursalId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var s in ListaSucursales)
-                        {
-                            <option value="@s.SucursalId">@s.Nombre</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => facturas.SucursalId)" />
                 </div>
                 <div class="col-md-6">
                     <label>Empleado:</label>
@@ -76,6 +54,15 @@
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => facturas.EmpleadoId)" />
+                </div>
+                <div class="col-md-6">
+                    <label>Sucursal:</label>
+                    <div> @ObtenerNombreSucursal()</div>
+                </div>
+                <div class="col-md-6">
+                    <label>Devoluci&oacute;n:</label>
+                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control" readonly disabled></InputNumber>
+                    <ValidationMessage For="@(() => facturas.Devolucion)" />
                 </div>
             </div>
         </div>
@@ -166,7 +153,6 @@
     public int ReducirProducido = 0;
     public bool idVacio;
     public bool cantidadCero;
-    public float Cobertura = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -226,7 +212,7 @@
         var precioProducto = producto!.Precio;
 
         // Verificar si hay un seguro médico asociado a la factura
-        if (facturas.SeguroMedicoId > 0)
+        if (facturas.SeguroMedicoId is not null)
         {
             // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
             var detallesSeguro = ListaSegurosDetalles
@@ -275,6 +261,44 @@
         return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Descripcion!;
     }
 
+    //Para el cliente y el empleado:
+    public string ObtenerNombreSeguroMedico()
+    {
+        var cliente = ListaClientes.FirstOrDefault(c => c.ClienteId == facturas.ClienteId);
+
+        if (cliente != null && cliente.SeguroMedicoId != null)
+        {
+            var seguroMedico = ListaSeguros.FirstOrDefault(s => s.SeguroMedicoId == cliente.SeguroMedicoId);
+            if (seguroMedico != null)
+            {
+                facturas.SeguroMedicoId = seguroMedico.SeguroMedicoId;
+                ActualizarPrecioT();
+                return seguroMedico.Nombre!;
+            }
+        }
+        facturas.SeguroMedicoId = null;
+        ActualizarPrecioT();
+        return "Sin Seguro";
+    }
+
+
+    public string ObtenerNombreSucursal()
+    {
+        var empleado = ListaEmpleados.FirstOrDefault(e => e.EmpleadoId == facturas.EmpleadoId);
+
+        if (empleado != null)
+        {
+            var sucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == empleado.SucursalId);
+            if (sucursal != null)
+            {
+                facturas.SucursalId = sucursal.SucursalId;
+                return sucursal.Nombre!;
+            }
+        }
+        facturas.SucursalId = 0;
+        return "Sin Sucursal";
+    }
+    //////////////////////
     public string ObtenerNombreLaboratorio(int Id)
     {
         var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);

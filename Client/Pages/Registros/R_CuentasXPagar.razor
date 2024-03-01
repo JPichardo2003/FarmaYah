@@ -68,19 +68,27 @@
             </div>
             <div class="card-body border border-1">
                 <div class="row">
-                    <div class="col-md-6">
-                        <label>Concepto</label>
-                        <InputText @bind-Value="DetallesPagar.Concepto" class="form-control"></InputText>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Pago</label>
-                        <div class="input-group">
-                            <InputNumber @bind-Value="DetallesPagar.pago" class="form-control" max="@PrecioT"></InputNumber>
-                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                    @if(PrecioT > 0)
+                    {
+                        <div class="col-md-6">
+                            <label>Concepto</label>
+                            <InputText @bind-Value="DetallesPagar.Concepto" class="form-control"></InputText>
                         </div>
-                    </div>
+                        <div class="col-md-6">
+                            <label>Pago</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="DetallesPagar.pago" class="form-control" max="@PrecioT"></InputNumber>
+                                <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                            </div>
+                        </div>
+                    }
+                    
                 </div>
             </div>
+
+
+
+
             <table class='table table-striped table-hover'>
                 <thead>
                     <tr>
@@ -97,14 +105,18 @@
                             <td>@detalle.Fecha.ToString("MM/dd/yyyy")</td>
                             <td>@detalle.Concepto</td>
                             <td>@detalle.pago</td>
-                            <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
-                        </tr>
+                            <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => MostrarConfirmacionEliminar(detalle))></button></td>
+                       </tr>
+                    
                     }
                     <tr>
                         <td>Monto Total:$ @PrecioT</td>
                     </tr>
-                </tbody>
+                </tbody>    
             </table>
+
+
+
             <div class="card-footer text-center">
            
                     <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
@@ -115,6 +127,38 @@
 
     </div>
 </EditForm>
+
+
+
+@if (mostrarConfirmacionEliminar)
+{
+    <div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border: 3px solid black; background-color: white; color: black;">
+                <div class="modal-header" style="background-color: #ff9800;">
+                    <h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️ Advertencia ⚠️</h5>
+                    <button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <h4 style="font-size: 18px; color: #ff0000;">¿Está seguro de que desea eliminar el detalle?</h4>
+                    <h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" class="form-control" @bind="contraseña" />
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center" style="background-color: #ff9800;">
+                    <button type="button" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: #ff9800; border-color: #ff9800; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick=@(EliminarDetalle) style="background-color: #ff0000; border-color: #ff0000; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 
 @code
 {
@@ -323,6 +367,7 @@
             compras = compraDevuelta;
             StateHasChanged();
             this.Nuevo();
+            NavigationManager.NavigateTo("MenuCompras");
         }
     }
 
@@ -386,21 +431,52 @@
 
     public bool ValidarDetalle()
     {
-        return true;
-    }
-
-    public void AgregarDetalle()
-    {
-        if (!ValidarDetalle())
+        var paso = true;
+        if (PrecioT < DetallesPagar.pago)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Error",
-                    Detail = "Llene los campos del detalle Correctamente",
+                    Detail = "El pago no puede ser mayor a la deuda",
                     Duration = 4_000
                 };
             notificationService.Notify(mensaje);
+            paso = false;
+
+        }
+        if (DetallesPagar.Concepto is null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Llene el concepto",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            paso = false;
+
+        } 
+        if(DetallesPagar.pago <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El pago no puede ser <= 0",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            paso = false;
+        }
+        return paso;
+    }
+
+    public void AgregarDetalle()
+    {
+        if (!ValidarDetalle())
+        {          
             return;
         }
 
@@ -426,10 +502,59 @@
         DetallesPagar = detalle;
         compras.CuentasPorPagar.Remove(detalle);
         DetallesRemovidosCxP.Add(detalle);
-        if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == detalle.CompraId))
+        if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == detalle.CuentasPorPagarId))
             ListaDetallesCxP.Remove(detalle);
         ActualizarPrecioT();
         StateHasChanged();
     }
-    
+
+    /*Para ventana emergente*/
+    private bool mostrarConfirmacionEliminar = false;
+    private string contraseña = "";
+
+    private void MostrarConfirmacionEliminar(CuentasPorPagar cuentasPorPagar)
+    {
+        DetallesPagar = cuentasPorPagar;
+        mostrarConfirmacionEliminar = true;
+    }
+
+    public void EliminarDetalle()
+    {
+        if (contraseña == "Admin123")
+        {
+            // Aquí implementa la lógica para remover el detalle
+            compras.CuentasPorPagar.Remove(DetallesPagar);
+            DetallesRemovidosCxP.Add(DetallesPagar);
+
+            if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == DetallesPagar.CuentasPorPagarId))
+                ListaDetallesCxP.Remove(DetallesPagar);
+
+            ActualizarPrecioT();
+            StateHasChanged();
+            mostrarConfirmacionEliminar = false;
+            contraseña = "";
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Contraseña Incorrecta",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+        }
+    }
+
+    private void OcultarConfirmacionEliminar()
+    {
+        mostrarConfirmacionEliminar = false;
+    }
+
+    private bool ValidarContraseña()
+    {
+        return contraseña == "Admin123";
+    }
+    /*Para ventana emergente*/
 }
