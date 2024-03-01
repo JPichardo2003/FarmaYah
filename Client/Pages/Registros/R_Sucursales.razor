@@ -1,0 +1,35 @@
+﻿@page "/RSucursales";
+@page "/RSucursales/{SurcusalId:int}";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="Sucursal" OnValidSubmit="Guardar">
+	<DataAnnotationsValidator />
+
+	 <div class="card">
+
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de Compras</h1>
+		</div>
+	</div>
+</EditForm>
+
+
+@code {
+
+	public Sucursales Sucursal { get; set; } = new Sucursales();
+
+
+	public async Task Guardar()
+	{
+		
+	}
+
+	private void VolverAtras()
+	{
+		NavigationManager.NavigateTo("/MenuSucursal");
+	}
+}

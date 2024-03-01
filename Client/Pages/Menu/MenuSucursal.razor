@@ -15,12 +15,7 @@
     <div class="card-body">
         <div class="row justify-content-center">
             <div class="col-md-4 text-center">
-                <button type="button" class="d-block mx-auto">
-                    <img src="Images/icons8-oficina-501.png" class="icon" />Registrar Sucursal
-                </button>
-            </div>
-            <div class="col-md-4 text-center">
-                <button class="d-block mx-auto">
+                <button @onclick="NavigateToConsulta" class="d-block mx-auto">
                     <img src="Images/icons8-oficina-50.png" class="icon" />Sucursales
                 </button>
             </div>
@@ -33,5 +28,10 @@
     public void Back()
     {
         NavigationManager.NavigateTo("MenuPrincipal");
+    }
+
+    public void NavigateToConsulta()
+    {
+        NavigationManager.NavigateTo("/C_Sucursales");
     }
 }
