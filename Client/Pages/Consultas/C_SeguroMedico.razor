@@ -10,11 +10,7 @@
     </div>
     <div class="card-body">
         <div class="input-group-text">
-            <label class="form-control-label col-1">Desde:</label>
-            <div class="col-md-3">
-                <input class="form-control" type="date" @bind="Desde" />
-            </div>
-            <label class="form-control-label col-1">Hasta:</label>
+            <label class="form-control-label col-1">Fecha:</label>
             <div class="col-md-3">
                 <input class="form-control" type="date" @bind="Hasta" />
             </div>
@@ -37,7 +33,6 @@
                 <thead>
                     <tr>
                         <th>Nombre</th>
-                        <th>Fecha</th>
                         <th>Cantidad de Productos</th>
                         <th></th>
                     </tr>
@@ -47,7 +42,6 @@
                     {
                         <tr>
                             <td>@seguro.Nombre</td>
-                            <td>@seguro.Fecha.ToString("MM/dd/yyyy")</td>
                             <td>@seguro.SegurosMedicosDetalles.Count()</td>
                             <td><a href="RSMedicos/@seguro.SeguroMedicoId"><i class="bi bi-eye-fill"></i></a></td>
                         </tr>
