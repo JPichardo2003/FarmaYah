@@ -6,7 +6,6 @@
 
 <EditForm Model="@producto" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <ValidationSummary />
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header ">
@@ -50,22 +49,25 @@
                         </InputSelect>
                         <ValidationMessage For="@(() => producto.Descripcion)" />
                     </div>
+                    <div class="col-md-4">
+                        <br />
+                        <label>Reorden</label>
+                        <input type="checkbox" @bind="producto.Reordenable" @onclick="ActualizarReOrden" />
+                    </div>
 
-
                 </div>
-                <div class="col-md-4">
-                    <label>Cantidad</label>
-                    <InputNumber @bind-Value="ProductoExistenciaAux" class="form-control" />
-                    <ValidationMessage For="@(() => producto.Existencia)" />
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Cantidad</label>
+                        <InputNumber @bind-Value="ProductoExistenciaAux" class="form-control" min="0" />
+                        <ValidationMessage For="@(() => producto.Existencia)" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Sumar</label>
+                        <InputNumber @bind-Value="ProductoSuma" class="form-control" min="0" />
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <label>Sumar</label>
-                    <InputNumber @bind-Value="ProductoSuma" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label>Reorden</label>
-                    <input type="checkbox" @bind="producto.Reordenable" @onclick="ActualizarReOrden" />
-                </div>
+               
                     
 
                 @*  <div class="row">
@@ -81,8 +83,6 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="Unidad">Unidad:</label>
-
-                        <ValidationMessage For="@(() => producto.UnidadId)" />
                         <InputSelect id="Unidad" @bind-Value="producto.UnidadId" class="form-select">
                             <option value="">Seleccione...</option>
                             @foreach (var unidad in Unidades ?? new List<Unidad>())
@@ -165,22 +165,19 @@
             </div>
             <br>
             <br>
-            <br>
-
-        </div>
-
-
-
-        @*Botones*@
-        <div class="row justify-content-center">
-            <div class="col-4">
-                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
-                <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
-                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
-                @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
-                <i class="io io-trash" /> Agregar laboratorio
-                </button> *@
+            @*Botones*@
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"> <i class="oi oi-file" /> Nuevo</button>
+                    <button type="submit" class="btn btn-outline-success"> <i class="oi oi-document" /> Guardar</button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="io io-trash" /> Eliminar</button>
+                    @* <button type="button" class="btn btn-outline-danger" @onclick="@(()=> Modal.Show<R_Laboratorio>("Registro Laboratorio",new ModalOptions(){Size = ModalSize.ExtraLarge}))">
+                    <i class="io io-trash" /> Agregar laboratorio
+                    </button> *@
+                </div>
             </div>
+            <br>
+            <br>
         </div>
     </div>
 
@@ -313,6 +310,7 @@
         Detalles = new ProveedorProducto();
         ProductoId = 0;
         ProductoSuma = 0;
+        ProductoExistenciaAux = 0;
         StateHasChanged();
     }
 

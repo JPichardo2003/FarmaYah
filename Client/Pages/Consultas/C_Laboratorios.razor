@@ -3,7 +3,7 @@
 @inject NotificationService notificationService
 @inject NavigationManager NavigationManager
 
-<div class="card-header mt-4">
+<div class="card mt-4">
 
     <div class="card-header d-flex align-items-center">
         <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
@@ -11,30 +11,33 @@
         <h1>Consulta Laboratorios</h1>
     </div>
 
-    <div class="row mt-2">
-        <label class="mt-2">Filtrar por:</label>
 
-        <div class="col">
-            <select class="form-select" @bind="opciones">
-                <option value="0" disabled selected>Elija una opci&oacute;n</option>
-                <option value="1">Nombre laboratorio</option>
-                <option value="2">Dirección</option>
-            </select>
+    <div class="card-body">
+         <div class="row mt-2">
+            <label class="mt-2">Filtrar por:</label>
+
+            <div class="col">
+                <select class="form-select" @bind="opciones">
+                    <option value="0" disabled selected>Elija una opci&oacute;n</option>
+                    <option value="1">Nombre laboratorio</option>
+                    <option value="2">Dirección</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                @if (opciones != 0)
+                {
+                    <input type="text" class="form-control" @bind="FiltroString"></input>
+                }
+            </div>
+
+            <div class="col col-md-4">
+                <button class="btn btn-primary ml-2" type="button" @onclick="Buscar">
+                    <i class="oi oi-magnifying-glass" />
+                </button>
+            </div>
         </div>
 
-        <div class="col-md-4">
-            @if (opciones != 0)
-            {
-                <input type="text" class="form-control" @bind="FiltroString"></input>
-            }
-        </div>
-
-        <div class="col col-md-4">
-            <button class="btn btn-primary ml-2" type="button" @onclick="Buscar">
-                <i class="oi oi-magnifying-glass" />
-            </button>
-        </div>
-        <div class="card-body">
             <div class="table-responsive ">
                 <table border="1" class="table table-bordered table-striped ">
                     <thead>
@@ -65,7 +68,6 @@
                     </tbody>
                 </table>
             </div>
-        </div>
 
     </div>
 

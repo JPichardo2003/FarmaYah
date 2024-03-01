@@ -113,29 +113,9 @@
 							<td>@item.Concepto</td>
 							<td>@item.Monto</td>
 							<td>
-								<button class="btn btn-danger" @onclick="MostrarConfirmacionEliminar"><i class="bi bi-trash"></i></button>
+								<button class="btn btn-danger" @onclick="() =>MostrarConfirmacionEliminar(item)"><i class="bi bi-trash"></i></button>
 							</td>
-						</tr>
-						<div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
-							<div class="modal-dialog modal-dialog-centered" role="document">
-								<div class="modal-content" style="border: 3px solid black; background-color: dimgrey; color: black;">
-									<div class="modal-header">
-										<h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️Advertencia⚠️</h5>
-										<button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
-										</button>
-									</div>
-									<div class="modal-body text-center">
-										<h4 style="font-size: 18px; color: #ff0000">¿Está seguro de que desea eliminar el detalle?</h4>
-										<h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
-									</div>
-									<div class="modal-footer justify-content-center">
-										<button type="button" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: dimgrey; border-color: black; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
-										<button type="button" class="btn btn-outline-danger" @onclick="() => EliminarDetalle(item)" style="background-color: #ff0000; border-color: black; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
-									</div>
-								</div>
-							</div>
-						</div>
+						</tr>				
 					}
 				</tbody>
 			</table>
@@ -145,6 +125,36 @@
 		</div>
 	</div>
 </div>
+
+@if (mostrarConfirmacionEliminar)
+{
+	<div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content" style="border: 3px solid black; background-color: white; color: black;">
+				<div class="modal-header" style="background-color: #ff9800;">
+					<h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️ Advertencia ⚠️</h5>
+					<button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body text-center">
+					<h4 style="font-size: 18px; color: #ff0000;">¿Está seguro de que desea eliminar el detalle?</h4>
+					<h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
+					<div class="form-group">
+						<label>Contraseña:</label>
+						<input type="password" class="form-control" @bind="contraseña" />
+					</div>
+				</div>
+				<div class="modal-footer justify-content-center" style="background-color: #ff9800;">
+					<button type="button" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: #ff9800; border-color: #ff9800; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+					<button type="button" class="btn btn-danger" @onclick=@(EliminarDetalle) style="background-color: #ff0000; border-color: #ff0000; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
 
 @code {
 	[Parameter]
@@ -163,7 +173,9 @@
 	public List<PagosCuentasPorCobrar> DetallesRemovidos { get; set; } = new List<PagosCuentasPorCobrar>();
 	public string? NombreSucursal { get; set; }
 	public string? NombreEmpleado { get; set; }
+	/*Para ventana emergente*/
 	private bool mostrarConfirmacionEliminar = false;
+	private string contraseña = "";
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -176,14 +188,14 @@
 		var producto = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
 
 		if(producto != null)
-        {
-            ListaProductos = producto;
-        }
+		{
+			ListaProductos = producto;
+		}
 
 		if (segurosDetalles != null)
-        {
-            ListaSegurosDetalles = segurosDetalles;
-        }
+		{
+			ListaSegurosDetalles = segurosDetalles;
+		}
 
 		if (facturas != null)
 		{
@@ -304,30 +316,30 @@
 	}
 
 	public float ObtenerPrecio(int Id)
-    {
-        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
-        var precioProducto = producto!.Precio;
+	{
+		var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+		var precioProducto = producto!.Precio;
 
         // Verificar si hay un seguro médico asociado a la factura
-        if (Factura.SeguroMedicoId > 0)
-        {
-            // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
-            var detallesSeguro = ListaSegurosDetalles
+		if (Factura.SeguroMedicoId > 0)
+		{
+		// Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
+			var detallesSeguro = ListaSegurosDetalles
 				.Where(d => d.ProductoId == producto.ProductoId && d.SeguroMedicoId == Factura.SeguroMedicoId)
-                .ToList();
+				.ToList();
 
-            // Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
-            if (detallesSeguro != null && detallesSeguro.Count > 0)
-            {
-                // Aplicar el descuento del detalle de seguro médico al precio del producto
-                foreach (var detalle in detallesSeguro)
-                {
-                    precioProducto -= (precioProducto * detalle.Descuento / 100);  
-                }
-            }
-        }
-        return precioProducto;
-    }
+				// Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
+			if (detallesSeguro != null && detallesSeguro.Count > 0)
+			{
+			// Aplicar el descuento del detalle de seguro médico al precio del producto
+				foreach (var detalle in detallesSeguro)
+				{
+					precioProducto -= (precioProducto * detalle.Descuento / 100);  
+				}
+			}
+		}
+		return precioProducto;
+	}
 	private Facturas BuscarFactura(int id)
 	{
 		var factura = ListaFactura.FirstOrDefault(f => f.FacturaId == id);
@@ -386,23 +398,43 @@
 		}
 		StateHasChanged();
 	}
-
-	private void EliminarDetalle(PagosCuentasPorCobrar detalle)
+	private void MostrarConfirmacionEliminar(PagosCuentasPorCobrar cuentasPorCobrar)
 	{
-		Detalles = detalle;
-		Factura.PagosCuentasPorCobrar.Remove(detalle);
-		DetallesRemovidos.Add(detalle);
-
-		ActualizarPago();
-		StateHasChanged();
-
-		OcultarConfirmacionEliminar();
-	}
-
-	public void MostrarConfirmacionEliminar()
-	{
+		Detalles = cuentasPorCobrar;
 		mostrarConfirmacionEliminar = true;
 	}
+
+	private void EliminarDetalle()
+	{
+		if (contraseña == "Admin123")
+		{
+			
+			Factura.PagosCuentasPorCobrar.Remove(Detalles);
+			DetallesRemovidos.Add(Detalles);
+
+			if (ListaDetalles.Any(d => d.CuentasPorCobrarId == Detalles.CuentasPorCobrarId))
+				ListaDetalles.Remove(Detalles);
+            
+
+			ActualizarPago();
+			StateHasChanged();
+			mostrarConfirmacionEliminar = false;
+			contraseña = "";
+		}
+		else
+        {
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "Contraseña incorrecta",
+                Duration = 4_000
+            };
+            notificationService.Notify(mensaje);
+        }
+	}
+
+	
 
 	public void OcultarConfirmacionEliminar()
 	{
@@ -413,5 +445,9 @@
 	{
 		var validacion = Detalles.Concepto is null || Detalles.Monto <= 0;
 		return validacion;
+	}
+	private bool ValidarContraseña()
+	{
+		return contraseña == "Admin123";
 	}
 }
