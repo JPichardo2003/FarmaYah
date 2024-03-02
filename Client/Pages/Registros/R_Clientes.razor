@@ -34,7 +34,7 @@
                 <div class="col-md-6">
                     <label>Seguro Medico:</label>
                     <InputSelect @bind-Value="clientes.SeguroMedicoId" class="form-select">
-                        <option value="">Null</option>
+                        <option value="">Sin Seguro</option>
                         @foreach (var s in ListaSeguros)
                         {
                             <option value="@s.SeguroMedicoId">@s.Nombre</option>
@@ -42,9 +42,12 @@
                     </InputSelect>
                 </div>
                 <div class="col-md-6">
-                    <label>Numero de Seguro Medico</label>
-                    <InputText @bind-Value="clientes.NumSeguroMedico" class="form-control" />
-                    <ValidationMessage For="@(() => clientes.NumSeguroMedico)" />
+                    @if(clientes.SeguroMedicoId is not null)
+                    {
+                         <label>Numero de Seguro Medico</label>
+                        <InputText @bind-Value="clientes.NumSeguroMedico" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.NumSeguroMedico)" />
+                    }
                 </div>
                 <div class="col-md-6">
                     <label>Dirección</label>

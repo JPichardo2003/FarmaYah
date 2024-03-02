@@ -379,7 +379,7 @@
 
         var facturasParaValidacion = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas");
         var facturasSinPagar = facturasParaValidacion!.Where(f => f.Estado == "Pendiente" && f.ClienteId == facturas.ClienteId).ToList().Count();
-        if(facturasSinPagar > 3)
+        if(facturasSinPagar >= 3)
         {
             var mensaje = new NotificationMessage
                 {

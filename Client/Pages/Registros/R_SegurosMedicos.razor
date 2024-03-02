@@ -340,7 +340,7 @@
     {
         idVacio = (Detalles.ProductoId <= 0);
         cantidadCero = (Detalles.Descuento <= 0);
-        return idVacio || cantidadCero;
+        return idVacio || cantidadCero || Detalles.Descuento > 100;
     }
 
     public async Task AgregarDetalle()

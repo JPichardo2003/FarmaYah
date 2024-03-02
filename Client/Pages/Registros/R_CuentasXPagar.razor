@@ -68,7 +68,7 @@
             </div>
             <div class="card-body border border-1">
                 <div class="row">
-                    @if(PrecioT > 0)
+                    @if (PrecioT > 0)
                     {
                         <div class="col-md-6">
                             <label>Concepto</label>
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     }
-                    
+
                 </div>
             </div>
 
@@ -106,21 +106,21 @@
                             <td>@detalle.Concepto</td>
                             <td>@detalle.pago</td>
                             <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => MostrarConfirmacionEliminar(detalle))></button></td>
-                       </tr>
-                    
+                        </tr>
+
                     }
                     <tr>
                         <td>Monto Total:$ @PrecioT</td>
                     </tr>
-                </tbody>    
+                </tbody>
             </table>
 
 
 
             <div class="card-footer text-center">
-           
-                    <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
-                    @* <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button> *@
+
+                <button type="submit" class="btn btn-success"><i class="oi oi-document" />Guardar</button>
+                @* <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button> *@
 
             </div>
         </div>
@@ -180,6 +180,7 @@
     public List<CuentasPorPagar> DetallesRemovidosCxP { get; set; } = new List<CuentasPorPagar>();
     public List<CuentasPorPagar> ListaDetallesCxP { get; set; } = new List<CuentasPorPagar>();
 
+    public CuentasPorPagar aux { get; set; } = new CuentasPorPagar();
     public bool idVacio;
     public bool cantidadCero;
     public float PrecioT { get; set; } = 0;
@@ -329,7 +330,14 @@
         {
             return;
         }
-        compras.CuentasPorPagar.Where(c => c.CuentasPorPagarId == DetallesPagar.CuentasPorPagarId).FirstOrDefault()!.Deuda = PrecioT;
+        var detalleExistente = compras.CuentasPorPagar.FirstOrDefault(c => c.CuentasPorPagarId == DetallesPagar.CuentasPorPagarId);
+
+        // Verificar si se encontró el detalle correspondiente
+        if (detalleExistente != null)
+        {
+            // Actualizar la propiedad Deuda del detalle encontrado
+            detalleExistente.Deuda = PrecioT;
+        }
 
         // Si es ya fue entregado la fecha recibida es guardada
         using var response = await httpClient.PostAsJsonAsync("api/Compras", compras);
@@ -457,8 +465,8 @@
             notificationService.Notify(mensaje);
             paso = false;
 
-        } 
-        if(DetallesPagar.pago <= 0)
+        }
+        if (DetallesPagar.pago <= 0)
         {
             var mensaje = new NotificationMessage
                 {
@@ -476,7 +484,7 @@
     public void AgregarDetalle()
     {
         if (!ValidarDetalle())
-        {          
+        {
             return;
         }
 
@@ -522,12 +530,13 @@
     {
         if (contraseña == "Admin123")
         {
+            aux = DetallesPagar;
             // Aquí implementa la lógica para remover el detalle
-            compras.CuentasPorPagar.Remove(DetallesPagar);
-            DetallesRemovidosCxP.Add(DetallesPagar);
+            compras.CuentasPorPagar.Remove(aux);
+            DetallesRemovidosCxP.Add(aux);
 
-            if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == DetallesPagar.CuentasPorPagarId))
-                ListaDetallesCxP.Remove(DetallesPagar);
+            if (ListaDetallesCxP.Any(d => d.CuentasPorPagarId == aux.CuentasPorPagarId))
+                ListaDetallesCxP.Remove(aux);
 
             ActualizarPrecioT();
             StateHasChanged();
