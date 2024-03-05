@@ -37,7 +37,7 @@
                     <div class="col-md-4">
                         <label >Decripci&oacute;n Producto:</label>
                         <InputSelect  @bind-Value="producto.Descripcion" class="form-select">
-                            <option value="TBA">TBA</option>
+                            <option value="Seleccione...">Seleccione...</option>
                             <option value="Analgésicos">Analgésicos</option>
                             <option value="Antiinflamatorios">Antiinflamatorios</option>
                             <option value="Antialérgicos">Antialérgicos</option>
@@ -50,10 +50,11 @@
                         <ValidationMessage For="@(() => producto.Descripcion)" />
                     </div>
                     <div class="col-md-4">
-                        <br />
-                        <label>Reorden</label>
-                        <input type="checkbox" @bind="producto.Reordenable" @onclick="ActualizarReOrden" />
+                        <label>Precio:</label>
+                        <InputNumber @bind-Value="producto.Precio" class="form-control" min="0"/>
+                        <ValidationMessage For="@(()=> producto.Precio)"/>
                     </div>
+                   
 
                 </div>
                 <div class="row">
@@ -65,6 +66,11 @@
                     <div class="col-md-4">
                         <label>Sumar</label>
                         <InputNumber @bind-Value="ProductoSuma" class="form-control" min="0" />
+                    </div>
+                    <div class="col-md-4">
+                        <br />
+                        <label>Reorden</label>
+                        <input type="checkbox" @bind="producto.Reordenable" @onclick="ActualizarReOrden" />
                     </div>
                 </div>
                
@@ -118,9 +124,9 @@
                         <div class="col-md-6">
                             <label>Proveedor:</label>
                             <div class="input-group">
-                                <InputSelect @bind-Value="Detalles.ProveedorId" class="form-select">
+                                <InputSelect @bind-Value="Detalles.ProveedorId" class="form-select" >
                                     <option value="@producto." hidden="hidden">Seleccione</option>
-                                    @foreach (var p in ListaProveerdor ?? new List<Proveedores>())
+                                    @foreach (var p in ListaProveedor ?? new List<Proveedores>())
                                     {
                                         <option value="@p.ProveedorId">@p.Nombre</option>
                                     }
@@ -189,7 +195,7 @@
     public Productos producto { get; set; } = new Productos();
     public Proveedores proveedores { get; set; } = new Proveedores();
 
-    public List<Proveedores> ListaProveerdor { get; set; } = new List<Proveedores>();
+    public List<Proveedores> ListaProveedor { get; set; } = new List<Proveedores>();
 
     public List<Laboratorios> Laboratorios { get; set; } = new();
 
@@ -215,7 +221,7 @@
         }
         if (proveerdor != null)
         {
-            ListaProveerdor = proveerdor;
+            ListaProveedor = proveerdor;
         }
 
         if (laboratorios != null)
@@ -418,41 +424,41 @@
 
     public string ObtenerNombre(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nombre!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nombre!;
     }
 
     public string ObtenerDireccion(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Direccion!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Direccion!;
     }
 
     public string ObtenerTelefono(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Telefono!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Telefono!;
     }
 
     public string ObtenerEmail(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Email!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Email!;
     }
 
     public string ObtenerCategoria(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Categoria!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Categoria!;
     }
 
     public string ObtenerRnc(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.RNC!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.RNC!;
     }
 
     public string ObtenerTipo(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.TipoContribuyente!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.TipoContribuyente!;
     }
 
     public string ObtenerNota(int Id)
     {
-        return ListaProveerdor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nota!;
+        return ListaProveedor.Where(p => p.ProveedorId == Id).FirstOrDefault()!.Nota!;
     }
 }

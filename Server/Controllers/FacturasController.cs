@@ -29,11 +29,19 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Facturas.Include(f => f.FacturasDetalles).Include(f => f.PagosCuentasPorCobrar).Where(p => p.Eliminado != true).ToListAsync();
+            return await _context.Facturas.Include(f => f.FacturasDetalles).Include(f => f.PagosCuentasPorCobrar).Where(p => p.Eliminado != true ).ToListAsync();
         }
-
-        // GET: api/Facturas/CuentasPorCobrar
-        [HttpGet("CuentasPorCobrar")]
+		[HttpGet("Pagos")]
+		public async Task<ActionResult<IEnumerable<PagosCuentasPorCobrar>>> pago()
+		{
+			if (_context.Facturas == null)
+			{
+				return NotFound();
+			}
+			return await _context.PagosCuentasPorCobrar.ToListAsync();
+		}
+		// GET: api/Facturas/CuentasPorCobrar
+		[HttpGet("CuentasPorCobrar")]
         public async Task<ActionResult<IEnumerable<Facturas>>> GetCuentasPorCobrar()
         {
             if (_context.Facturas == null)
@@ -161,8 +169,25 @@ namespace FarmaYah.Server.Controllers
 
             return Ok();
         }
+		[HttpDelete("DeleteCobrar/{id}")]
+		public async Task<IActionResult> DeleteDetallesCobrar(int id)
+		{
+			if (id <= 0)
+			{
+				return BadRequest();
+			}
+			var entradas = await _context.PagosCuentasPorCobrar.FirstOrDefaultAsync(td => td.CuentasPorCobrarId == id);
+			if (entradas is null)
+			{
+				return NotFound();
+			}
 
-        private bool FacturasExists(int id)
+			_context.PagosCuentasPorCobrar.Remove(entradas);
+			await _context.SaveChangesAsync();
+
+			return Ok();
+		}
+		private bool FacturasExists(int id)
         {
             return (_context.Facturas?.Any(e => e.FacturaId == id)).GetValueOrDefault();
         }

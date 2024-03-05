@@ -4,10 +4,10 @@
 @inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 <div class="card">
-	<div class="card-body">
+	<div class="card-header d-flex align-items-center">
 		<button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
-
-		<h1>Cuentas por pagar</h1>
+		<img src="Images/pngwing.com.png" class="img-logo" />
+		<h1>Cuentas por Cobrar</h1>
 	</div>
 	<div class="card-body">
 
@@ -179,7 +179,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		var facturas = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas");
+		var facturas = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas/CuentasPorCobrar");
 		var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
 		var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
 		var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
@@ -226,17 +226,9 @@
 
 	private void VolverAtras()
 	{
-		NavigationManager.NavigateTo("/MenuFacturas");
+		NavigationManager.NavigateTo("/C_CuentasPorCobrar");
 	}
-	public void ActualizarPago()
-	{
-		Factura.Pago = (float)(Factura.PagosCuentasPorCobrar.Sum(p => p.Monto));
-		Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
-		if (Factura.Pago >= Factura.MontoTotal)
-		{
-			Factura.Estado = "Pagado";
-		}
-	}
+	
 	public string ObetnerNombreSucursal(int id)
 	{
 		var sucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == id);
@@ -248,7 +240,7 @@
 	}
 	public async void Guardar()
 	{
-		ActualizarPago();
+		// ActualizarPago();
 		using var response = await httpClient.PostAsJsonAsync("api/Facturas", Factura);
 		if (!response.IsSuccessStatusCode)
 		{
@@ -262,6 +254,14 @@
 			notificationService.Notify(mensaje);
 			return;
 		}
+		if(DetallesRemovidos.Count > 0)
+		{
+			foreach (var detalle in DetallesRemovidos)
+			{
+				await httpClient.DeleteAsync($"api/Facturas/DeleteCobrar/{detalle.CuentasPorCobrarId}");
+			}
+		}
+
 		var FacturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
 		if (FacturaDevuelta is not null)
 		{
@@ -296,7 +296,6 @@
 			Cliente = clientes;
 			NombreEmpleado = ListaEmpleados.FirstOrDefault(e => e.EmpleadoId == facturas.EmpleadoId)?.Nombre;
 			NombreSucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == facturas.SucursalId)?.Nombre;
-			ActualizarPago();
 		}
 		if (DetallesRemovidos.Count > 0)
 		{
@@ -347,6 +346,14 @@
 	}
 	public async Task AgregarDetalle()
 	{
+		Factura.Pago += (float)Detalles.Monto;
+
+		Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
+		if (Factura.Pago >= Factura.MontoTotal)
+		{
+			Factura.Estado = "Pagado";
+		}
+
 		if (Validar())
 		{
 			var mensaje = new NotificationMessage
@@ -379,15 +386,14 @@
 
 		if (Factura != null)
 		{
-			var detalleEncontrado = await httpClient.GetFromJsonAsync<List<PagosCuentasPorCobrar>>($"api/Facturas");
+			var detalleEncontrado = await httpClient.GetFromJsonAsync<List<PagosCuentasPorCobrar>>($"api/Facturas/Pagos");
 			//aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
 			var detalleExiste = detalleEncontrado!.Any(d => d.CuentasPorCobrarId == Detalles.CuentasPorCobrarId);
 
 			Detalles.FacturaId = Factura.FacturaId;
 			Detalles.FormaDePago = "Efectivo";
 			Factura.PagosCuentasPorCobrar.Add(Detalles);
-			ActualizarPago();
-			if (detalleExiste)
+			if (!detalleExiste)
 			{
 				ListaDetalles.Add(Detalles);
 
@@ -416,7 +422,13 @@
 				ListaDetalles.Remove(Detalles);
             
 
-			ActualizarPago();
+			Factura.Pago -= (float)Detalles.Monto;
+
+			Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
+			if (Factura.Pago < Factura.MontoTotal)
+			{
+				Factura.Estado = "Pendiente";
+			}
 			StateHasChanged();
 			mostrarConfirmacionEliminar = false;
 			contraseña = "";
