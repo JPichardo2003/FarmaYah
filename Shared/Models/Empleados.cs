@@ -18,7 +18,16 @@ namespace FarmaYah.Shared.Models
 
         public string? Nombre { get; set; }
 
+        [Required(ErrorMessage = "El teléfono es obligatorio")]
+        [RegularExpression(@"^\d{3}-\d{3}-\d{4}$", ErrorMessage = "Escriba el teléfono correctamente xxx-xxx-xxxx")]
+        public string? Telefono { get; set; }
+
+        [Required(ErrorMessage = "Campo obligatorio")]
+        public string? Direccion { get; set; }
+
+        [Required(ErrorMessage = "Campo obligatorio")]
         public int SucursalId { get; set; }
+        public bool Eliminado { get; set; } = false;
 
         [ForeignKey("EmpleadoId")]
         public ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();

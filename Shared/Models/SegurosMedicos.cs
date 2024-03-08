@@ -27,5 +27,8 @@ namespace FarmaYah.Shared.Models
         [ForeignKey("SeguroMedicoId")]
         public ICollection<Facturas> Facturas { get; set; } = new List<Facturas>();
 
+        [ForeignKey("SeguroMedicoId")]
+        public ICollection<Clientes> Clientes { get; set; } = new List<Clientes>();
+
     }
 }
