@@ -5,128 +5,308 @@
 @inject NavigationManager NavigationManager;
 <EditForm Model="facturas" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <div class="card">
-        <div class="card-header d-flex align-items-center">
-            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
-            <img src="Images/pngwing.com.png" class="img-logo" />
-            <h1>Registro de facturas</h1>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                @* <label>Factura ID:</label>
-                <div class="input-group col-md-6">
-                    <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
-                    <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
-                </div> *@
-                
-                <div class="col-md-6">
-                    <label>Nombre del cliente</label>
-                    <InputSelect @bind-Value="facturas.ClienteId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var c in ListaClientes)
-                        {
-                            <option value="@c.ClienteId">@c.Nombre</option>
-
-                        }
-                    </InputSelect>
-                </div>
-                <div class="col-md-6">
-                    <label>Seguro Medico:</label>
-                    <div>@ObtenerNombreSeguroMedico()</div>
-                </div>
-                <div class="col-md-6">
-                    <label>Fecha:</label>
-                    <InputDate @bind-Value="facturas.Fecha" class="form-control" readonly></InputDate>
-                    <ValidationMessage For="@(() => facturas.Fecha)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Pago:</label>
-                    <InputNumber @bind-Value="facturas.Pago" class="form-control" @onblur="CalcularPagoYEstado"></InputNumber>
-                    <ValidationMessage For="@(() => facturas.Pago)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Empleado:</label>
-                    <InputSelect @bind-Value="facturas.EmpleadoId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var e in ListaEmpleados)
-                        {
-                            <option value="@e.EmpleadoId">@e.Nombre</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => facturas.EmpleadoId)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Sucursal:</label>
-                    <div> @ObtenerNombreSucursal()</div>
-                </div>
-                <div class="col-md-6">
-                    <label>Devoluci&oacute;n:</label>
-                    <InputNumber @bind-Value="facturas.Devolucion" class="form-control" readonly disabled></InputNumber>
-                    <ValidationMessage For="@(() => facturas.Devolucion)" />
-                </div>
+    @if(facturas.FacturaId > 0)
+    {
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+                <img src="Images/pngwing.com.png" class="img-logo" />
+                <h1>Registro de facturas</h1>
             </div>
-        </div>
-        @*Detalles:*@
-        <div class="card card-header">
-            <h3>Productos</h3>
-        </div>
-        <div class="card-body border border-1">
-            <div class="row">
-                <div class="col-md-6">
-                    <label>Producto</label>
-                    <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
-                        <option value="" hidden="hidden">Seleccione</option>
-                        @foreach (var p in ListaProductos)
+            <div class="card-body">
+                <div class="row">
+                    @* <label>Factura ID:</label>
+                <div class="input-group col-md-6">
+                <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
+                <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                </div> *@
+
+                    <div class="col-md-6">
+                        <label>Nombre del cliente</label>
+                        <InputSelect @bind-Value="facturas.ClienteId" class="form-control" disabled>
+                            <option value="" hidden="hidden">Seleccione</option>
+                            @foreach (var c in ListaClientes)
+                            {
+                                <option value="@c.ClienteId">@c.Nombre</option>
+
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Seguro Medico:</label>
+                        <div>@ObtenerNombreSeguroMedico()</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Fecha:</label>
+                        <InputDate @bind-Value="facturas.Fecha" class="form-control" readonly></InputDate>
+                        <ValidationMessage For="@(() => facturas.Fecha)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Pago:</label>
+                        <InputNumber @bind-Value="facturas.Pago" class="form-control" @onblur="CalcularPagoYEstado" disabled></InputNumber>
+                        <ValidationMessage For="@(() => facturas.Pago)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Empleado:</label>
+                        <InputSelect @bind-Value="facturas.EmpleadoId" class="form-control" disabled>
+                            <option value="" hidden="hidden">Seleccione</option>
+                            @foreach (var e in ListaEmpleados)
+                            {
+                                <option value="@e.EmpleadoId">@e.Nombre</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => facturas.EmpleadoId)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Sucursal:</label>
+                        <div> @ObtenerNombreSucursal()</div>
+                    </div>
+                    <div class="col-md-6">
+                        @if (facturas.Devolucion < 0)
                         {
-                            <option value="@p.ProductoId">@p.Nombre</option>
+                            <label>Debe:</label>
                         }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => Detalles.ProductoId)" />
-                </div>
-                <div class="col-md-6">
-                    <label>Cantidad</label>
-                    <div class="input-group">
-                        <InputNumber @bind-Value="Detalles.Cantidad" class="form-control"></InputNumber>
-                        <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
-                        <ValidationMessage For="@(() => Detalles.Cantidad)" />
+                        else
+                        {
+                            <label>Devoluci&oacute;n:</label>
+                        }
+                        <InputNumber @bind-Value="facturas.Devolucion" class="form-control" readonly disabled></InputNumber>
+                        <ValidationMessage For="@(() => facturas.Devolucion)" />
                     </div>
                 </div>
             </div>
-        </div>
-        <table class='table table-striped table-hover'>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripci&oacute;n</th>
-                    <th>Laboratorio</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var detalle in facturas.FacturasDetalles)
-                {
+            @*Detalles:*@
+            <div class="card card-header">
+                <h3>Productos</h3>
+            </div>
+            <div class="card-body border border-1">
+                <div class="row">
+                    
+                    
+                </div>
+            </div>
+            <table class='table table-striped table-hover'>
+                <thead>
                     <tr>
-                        <td>@ObtenerNombre(detalle.ProductoId)</td>
-                        <td>@ObtenerDescripción(detalle.ProductoId)</td>
-                        <td>@ObtenerNombreLaboratorio(detalle.ProductoId)</td>
-                        <td>@detalle.Cantidad</td>
-                        <td>@ObtenerPrecio(detalle.ProductoId)</td>
-                        <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                        <th>Nombre</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Laboratorio</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Cobertura</th>
+                        <th>Importe</th>
                     </tr>
-                }
-                <tr>
-                    <td>Monto Total:$ @PrecioT</td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="card-footer text-center">
-            <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
-            <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
-            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in facturas.FacturasDetalles)
+                    {
+                        subtotalStatic = ObtenerPrecioSinSeguro(detalle.ProductoId);
+                        var seguro = ObtenerSeguroMedico(facturas.SeguroMedicoId);
+
+                        if (seguro != null)
+                        {
+                            var detalleSeguro = ObtenerDetalleSeguro(seguro.SeguroMedicoId, detalle.ProductoId);
+                            if (detalleSeguro != null)
+                            {
+                                descuento += ObtenerPrecioSinSeguro(detalle.ProductoId) * detalle.Cantidad * (detalleSeguro.Descuento / 100);
+                                descuentoStatic = ObtenerPrecioSinSeguro(detalle.ProductoId) * detalle.Cantidad * (detalleSeguro.Descuento / 100);
+                                total = ObtenerPrecioSinSeguro(detalle.ProductoId) * detalle.Cantidad - descuentoStatic;
+                            }
+                            else
+                            {
+                                subtotalStatic = ObtenerPrecio(detalle.ProductoId);
+                                descuentoStatic = 0;
+                                total = ObtenerPrecio(detalle.ProductoId) * detalle.Cantidad;
+                            }
+                        }
+                        else
+                        {
+                            subtotalStatic = ObtenerPrecio(detalle.ProductoId);
+                            descuentoStatic = 0;
+                            total = ObtenerPrecio(detalle.ProductoId) * detalle.Cantidad;
+                        }
+                        <tr>
+                            <td>@ObtenerNombre(detalle.ProductoId)</td>
+                            <td>@ObtenerDescripción(detalle.ProductoId)</td>
+                            <td>@ObtenerNombreLaboratorio(detalle.ProductoId)</td>
+                            <td>@detalle.Cantidad</td>
+                            <td>@subtotalStatic.ToString("N2")</td>
+                            <td>@descuentoStatic.ToString("N2")</td>
+                            <td>@total.ToString("N2")</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Monto Total:$ @PrecioT</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="card-footer text-center">
+   
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+                <img src="Images/pngwing.com.png" class="img-logo" />
+                <h1>Registro de facturas</h1>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @* <label>Factura ID:</label>
+                <div class="input-group col-md-6">
+                <InputNumber @bind-Value="facturas.FacturaId" class="id-input"></InputNumber>
+                <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                </div> *@
+
+                    <div class="col-md-6">
+                        <label>Nombre del cliente</label>
+                        <InputSelect @bind-Value="facturas.ClienteId" class="form-select">
+                            <option value="" hidden="hidden">Seleccione</option>
+                            @foreach (var c in ListaClientes)
+                            {
+                                <option value="@c.ClienteId">@c.Nombre</option>
+
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Seguro Medico:</label>
+                        <div>@ObtenerNombreSeguroMedico()</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Fecha:</label>
+                        <InputDate @bind-Value="facturas.Fecha" class="form-control" readonly></InputDate>
+                        <ValidationMessage For="@(() => facturas.Fecha)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Pago:</label>
+                        <InputNumber @bind-Value="facturas.Pago" class="form-control" @onblur="CalcularPagoYEstado"></InputNumber>
+                        <ValidationMessage For="@(() => facturas.Pago)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Empleado:</label>
+                        <InputSelect @bind-Value="facturas.EmpleadoId" class="form-select">
+                            <option value="" hidden="hidden">Seleccione</option>
+                            @foreach (var e in ListaEmpleados)
+                            {
+                                <option value="@e.EmpleadoId">@e.Nombre</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => facturas.EmpleadoId)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Sucursal:</label>
+                        <div> @ObtenerNombreSucursal()</div>
+                    </div>
+                    <div class="col-md-6">
+                        @if (facturas.Devolucion < 0)
+                        {
+                            <label>Debe:</label>
+                        }
+                        else
+                        {
+                            <label>Devoluci&oacute;n:</label>
+                        }
+                        <InputNumber @bind-Value="facturas.Devolucion" class="form-control" readonly disabled></InputNumber>
+                        <ValidationMessage For="@(() => facturas.Devolucion)" />
+                    </div>
+                </div>
+            </div>
+            @*Detalles:*@
+            <div class="card card-header">
+                <h3>Productos</h3>
+            </div>
+            <div class="card-body border border-1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Producto</label>
+                        <InputSelect @bind-Value="Detalles.ProductoId" class="form-select">
+                            <option value="" hidden="hidden">Seleccione</option>
+                            @foreach (var p in ListaProductos)
+                            {
+                                <option value="@p.ProductoId">@p.Nombre</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => Detalles.ProductoId)" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cantidad</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="Detalles.Cantidad" class="form-control"></InputNumber>
+                            <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
+                            <ValidationMessage For="@(() => Detalles.Cantidad)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class='table table-striped table-hover'>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Laboratorio</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Cobertura</th>
+                        <th>Importe</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in facturas.FacturasDetalles)
+                    {
+                        subtotalStatic = ObtenerPrecioSinSeguro(detalle.ProductoId);
+                        var seguro = ObtenerSeguroMedico(facturas.SeguroMedicoId);
+
+                        if (seguro != null)
+                        {
+                            var detalleSeguro = ObtenerDetalleSeguro(seguro.SeguroMedicoId, detalle.ProductoId);
+                            if (detalleSeguro != null)
+                            {
+                                descuento += ObtenerPrecioSinSeguro(detalle.ProductoId) * detalle.Cantidad * (detalleSeguro.Descuento / 100);
+                                descuentoStatic = ObtenerPrecioSinSeguro(detalle.ProductoId) * detalle.Cantidad * (detalleSeguro.Descuento / 100);
+                                total = ObtenerPrecioSinSeguro(detalle.ProductoId) * detalle.Cantidad - descuentoStatic;
+                            }
+                            else
+                            {
+                                subtotalStatic = ObtenerPrecio(detalle.ProductoId);
+                                descuentoStatic = 0;
+                                total = ObtenerPrecio(detalle.ProductoId) * detalle.Cantidad;
+                            }
+                        }
+                        else
+                        {
+                            subtotalStatic = ObtenerPrecio(detalle.ProductoId);
+                            descuentoStatic = 0;
+                            total = ObtenerPrecio(detalle.ProductoId) * detalle.Cantidad;
+                        }
+                        <tr>
+                            <td>@ObtenerNombre(detalle.ProductoId)</td>
+                            <td>@ObtenerDescripción(detalle.ProductoId)</td>
+                            <td>@ObtenerNombreLaboratorio(detalle.ProductoId)</td>
+                            <td>@detalle.Cantidad</td>
+                            <td>@subtotalStatic.ToString("N2")</td>
+                            <td>@descuentoStatic.ToString("N2")</td>
+                            <td>@total.ToString("N2")</td>
+                            <td><button type="button" class="btn btn-danger oi oi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Monto Total:$ @PrecioT</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+            </div>
+        </div>
+    }
+   
 </EditForm>
 
 @code
@@ -153,6 +333,12 @@
     public int ReducirProducido = 0;
     public bool idVacio;
     public bool cantidadCero;
+
+    public float subtotal = 0;
+    public float subtotalStatic = 0;
+    public float descuento = 0;
+    public float descuentoStatic = 0;
+    public float total = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -231,6 +417,29 @@
         }
         return precioProducto;
     }    
+    public float ObtenerPrecioSinSeguro(int Id)
+    {
+        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+        var precioProducto = producto!.Precio;
+        return precioProducto;
+    }
+
+    public SegurosMedicos ObtenerSeguroMedico(int? seguroMedicoId)
+    {
+        // Buscar el seguro médico por su ID en la lista de seguros médicos
+        var seguroMedico = ListaSeguros.FirstOrDefault(s => s.SeguroMedicoId == seguroMedicoId)!;
+
+        return seguroMedico; // Retorna el seguro médico encontrado o null si no se encuentra
+    }
+
+
+    public SegurosMedicosDetalles? ObtenerDetalleSeguro(int seguroMedicoId, int productoId)
+    {
+        // Buscar el detalle del seguro médico por su ID en la lista de detalles de seguros médicos
+        var detalleSeguro = ListaSegurosDetalles.FirstOrDefault(d => d.SeguroMedicoId == seguroMedicoId && d.ProductoId == productoId);
+
+        return detalleSeguro; // Retorna el detalle del seguro médico encontrado o null si no se encuentra
+    }
 
 
     private async Task<Facturas> BuscarFactura(int FacturaId)
@@ -475,6 +684,11 @@
         DetallesRemovidos = new List<FacturasDetalles>();
         ListaDetalles = new List<FacturasDetalles>();
         PrecioT = 0;
+        subtotal = 0;
+        subtotalStatic = 0;
+        descuento = 0;
+        descuentoStatic = 0;
+        total = 0;
     }
 
     public async Task Eliminar()

@@ -74,7 +74,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>Deudas Totales: @TotalPesos $</td>
+                        <td>Deudas Adq.:$ @TotalPesos</td>
+                        <td>Deudas Restantes:$ @DeudaRestante</td>
                     </tr>
                 </tbody>
             </table>
@@ -99,6 +100,7 @@
 
     public int Conteo { get; set; }
     public float TotalPesos { get; set; }
+    public float DeudaRestante { get; set; }
     public string? EmpleadoName { get; set; }
     public string? SeguroName { get; set; }
     public string? SucursalName { get; set; }
@@ -158,6 +160,7 @@
         }
         Conteo = ListaCompras != null ? ListaCompras!.Where(c => c.Tipo == "Credito").Count() : 0;
         TotalPesos = ListaCompras != null ? ListaCompras!.Where(c => c.Tipo == "Credito").Sum(f => f.MontoTotal) : 0;
+        DeudaRestante = ListaCompras != null ? ListaCompras!.Where(c => c.Tipo == "Credito").Sum(f => CalcularDeudaRestante(f)) : 0;
     }
 
     private void VolverAtras()

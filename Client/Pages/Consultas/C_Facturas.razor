@@ -265,7 +265,14 @@
                                 <span>RD$ @facturas.Pago</span>
                             </div>
                             <div class="text-end">
-                                <label class="fw-bold">Devuelta:</label>
+                                @if(facturas.Devolucion < 0)
+                                {
+                                    <label class="fw-bold">Usted Debe:</label>
+                                }
+                                else
+                                {
+                                    <label class="fw-bold">Devuelta:</label>
+                                }
                                 <span>RD$ @facturas.Devolucion</span>
                             </div>
                         </div>
