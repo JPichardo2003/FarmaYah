@@ -12,55 +12,55 @@ namespace FarmaYah.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MermasController : ControllerBase
+    public class AveriasController : ControllerBase
     {
         private readonly Contexto _context;
 
-        public MermasController(Contexto context)
+        public AveriasController(Contexto context)
         {
             _context = context;
         }
 
-        // GET: api/Mermas
+        // GET: api/Averias
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Mermas>>> GetMermas()
+        public async Task<ActionResult<IEnumerable<Averias>>> GetAverias()
         {
-          if (_context.Mermas == null)
+          if (_context.Averias == null)
           {
               return NotFound();
           }
-            return await _context.Mermas.ToListAsync();
+            return await _context.Averias.ToListAsync();
         }
 
-        // GET: api/Mermas/5
+        // GET: api/Averias/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Mermas>> GetMermas(int id)
+        public async Task<ActionResult<Averias>> GetAverias(int id)
         {
-          if (_context.Mermas == null)
+          if (_context.Averias == null)
           {
               return NotFound();
           }
-            var mermas = await _context.Mermas.FindAsync(id);
+            var averias = await _context.Averias.FindAsync(id);
 
-            if (mermas == null)
+            if (averias == null)
             {
                 return NotFound();
             }
 
-            return mermas;
+            return averias;
         }
 
-        // PUT: api/Mermas/5
+        // PUT: api/Averias/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMermas(int id, Mermas mermas)
+        public async Task<IActionResult> PutAverias(int id, Averias averias)
         {
-            if (id != mermas.MermaId)
+            if (id != averias.AveriaId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(mermas).State = EntityState.Modified;
+            _context.Entry(averias).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +68,7 @@ namespace FarmaYah.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!MermasExists(id))
+                if (!AveriasExists(id))
                 {
                     return NotFound();
                 }
@@ -81,43 +81,44 @@ namespace FarmaYah.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Mermas
+        // POST: api/Averias
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Mermas>> PostMermas(Mermas mermas)
+        public async Task<ActionResult<Averias>> PostAverias(Averias averias)
         {
-			if (!MermasExists(mermas.MermaId))
-				_context.Mermas.Add(mermas);
-			else
-				_context.Mermas.Update(mermas);
+          if (_context.Averias == null)
+          {
+              return Problem("Entity set 'Contexto.Averias'  is null.");
+          }
+            _context.Averias.Add(averias);
+            await _context.SaveChangesAsync();
 
-			await _context.SaveChangesAsync();
-			return Ok(mermas);
-		}
+            return CreatedAtAction("GetAverias", new { id = averias.AveriaId }, averias);
+        }
 
-        // DELETE: api/Mermas/5
+        // DELETE: api/Averias/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMermas(int id)
+        public async Task<IActionResult> DeleteAverias(int id)
         {
-            if (_context.Mermas == null)
+            if (_context.Averias == null)
             {
                 return NotFound();
             }
-            var mermas = await _context.Mermas.FindAsync(id);
-            if (mermas == null)
+            var averias = await _context.Averias.FindAsync(id);
+            if (averias == null)
             {
                 return NotFound();
             }
 
-            _context.Mermas.Remove(mermas);
+            _context.Averias.Remove(averias);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool MermasExists(int id)
+        private bool AveriasExists(int id)
         {
-            return (_context.Mermas?.Any(e => e.MermaId == id)).GetValueOrDefault();
+            return (_context.Averias?.Any(e => e.AveriaId == id)).GetValueOrDefault();
         }
     }
 }

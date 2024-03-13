@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FarmaYah.Server.DAL;
 using FarmaYah.Shared.Models;
+using FarmaYah.Client.Pages.Registros;
 
 namespace FarmaYah.Server.Controllers
 {
@@ -29,7 +30,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Empleados.ToListAsync();
+            return await _context.Empleados.Where(c => c.Eliminado != true).ToListAsync();
         }
 
         // GET: api/Empleados/5
@@ -40,8 +41,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            var empleados = await _context.Empleados.FindAsync(id);
-
+            var empleados = await _context.Empleados.Where(c => c.Eliminado != true).FirstOrDefaultAsync();
             if (empleados == null)
             {
                 return NotFound();
@@ -86,7 +86,12 @@ namespace FarmaYah.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Empleados>> PostEmpleados(Empleados empleados)
         {
-          if (!EmpleadosExists(empleados.EmpleadoId))
+            var empleadoTelefono = _context.Empleados.Where(c => c.Telefono == empleados.Telefono && c.EmpleadoId != empleados.EmpleadoId).FirstOrDefault();
+            if (empleadoTelefono != null)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un empleado con el mismo número de teléfono");
+            }
+            if (!EmpleadosExists(empleados.EmpleadoId))
                 _context.Empleados.Add(empleados);
             else
                 _context.Empleados.Update(empleados);

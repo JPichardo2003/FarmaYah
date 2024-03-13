@@ -40,7 +40,7 @@ namespace FarmaYah.Server.Controllers
           {
               return NotFound();
           }
-            var clientes = await _context.Clientes.Where(c => c.Eliminado != true).FirstOrDefaultAsync();
+            var clientes = await _context.Clientes.Where(c => c.Eliminado != true && c.ClienteId == id).FirstOrDefaultAsync();
 
             if (clientes == null)
             {
