@@ -71,6 +71,8 @@
                         <th>Sucursal</th>
                         <th>Estado</th>
                         <th>Monto</th>
+                        <th>Pagodo</th>
+                        <th>Restante</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -85,11 +87,14 @@
                             <td>@ObtenerNombreSucursal(facturas.SucursalId)</td>
                             <td>@facturas.Estado</td>
                             <td>@facturas.MontoTotal</td>
+                            <td>@facturas.Pago</td>
+                            <td>@ObtenerRestante(facturas.FacturaId)</td>
                             <td><a class="btn btn-primary" href="R_CuentasPorCobrar/@facturas.FacturaId">Cobrar</a></td>
                         </tr>
                     }
                     <tr>
                         <td>Conteo: @Conteo</td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -219,6 +224,12 @@
         return sucursal?.Nombre ?? "Nombre no encontrado";
     }
 
+    public float ObtenerRestante(int id)
+    {
+        var factura = FacturasPendientes?.FirstOrDefault(p => p.FacturaId == id);
+        var pagos = factura?.MontoTotal - factura?.Pago;
+        return pagos?? 0;
+    }
     public string ObtenerNombreSeguro(int? Id)
     {
         var seguro = ListaSeguros.FirstOrDefault(p => p.SeguroMedicoId == Id);

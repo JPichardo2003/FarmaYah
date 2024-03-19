@@ -1,5 +1,5 @@
-﻿@page "/RProducto"
-@page "/RProducto/{ProductoId:int}"
+﻿@page "/RInventario"
+@page "/RInventario/{ProductoId:int}"
 @inject HttpClient HttpClient
 @inject NavigationManager navigationManager
 @inject NotificationService notificationService
@@ -10,11 +10,11 @@
         <div class="card shadow-lg">
             <div class="card-header ">
                 <div class="col">
-                    <button type="button" @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
+                    <button @onclick="Back"><i class="bi bi-arrow-left-circle"></i></button>
                 </div>
                 <div class="col d-flex align-items-center justify-content-center">
                     <img src="Images/pngwing.com.png" class="img-logo" />
-                    <h1>Registro Producto</h1>
+                    <h1>Inventario</h1>
                 </div>
             </div>
 
@@ -28,15 +28,10 @@
                     <button type="button" class="btn btn-primary" @onclick="Buscar">Buscar</button>
                     </div>
                     </div> *@
-                    <div class="input-group">
-                        <div class="col-md-4">
-                            <label for="Nombre">Nombre Producto:</label>
-                            <InputText id="Nombre" @bind-Value="producto.Nombre" class="form-control" />
-                            <ValidationMessage For="@(() => producto.Nombre)" />
-                        </div>
-                        @* <button type="button" class="btn btn-primary" @onclick="OpenModal"><i class="bi bi-search"></i></button> *@
-
-                        @* <button type="button" class="btn btn-primary" @onclick="MostrarConfirmacionEliminar">Buscar</button> *@
+                    <div class="col-md-4">
+                        <label for="Nombre">Nombre Producto:</label>
+                        <InputText id="Nombre" @bind-Value="producto.Nombre" class="form-control" />
+                        <ValidationMessage For="@(() => producto.Nombre)" />
                     </div>
 
                     <div class="col-md-4">
@@ -65,10 +60,13 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label>Cantidad</label>
-                        <InputNumber @bind-Value="producto.Existencia" class="form-control" min="0" />
+                        <InputNumber @bind-Value="ProductoExistenciaAux" class="form-control" min="0" />
                         <ValidationMessage For="@(() => producto.Existencia)" />
                     </div>
-
+                    <div class="col-md-4">
+                        <label>Sumar</label>
+                        <InputNumber @bind-Value="ProductoSuma" class="form-control" min="0" />
+                    </div>
                     <div class="col-md-4">
                         <br />
                         <label>Reorden</label>
@@ -108,7 +106,7 @@
                 <option >Seleccione...</option>
                             @foreach (var laboratorio in Laboratorios ?? new List<Laboratorios>())
                             {
-                                         <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
+                                             <option value="@laboratorio.LaboratorioId">@laboratorio.Nombre</option>
                             }
                 </InputSelect>
                 <ValidationMessage For="@(() => producto.LaboratorioId)" />
@@ -124,29 +122,17 @@
                 <div class="card-body border border-1">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="row">
-                                <div class="col">
-                                    <label>Proveedor:</label>
-                                    <InputSelect @bind-Value="Detalles.ProveedorId" class="form-select">
-                                        <option hidden="hidden">Seleccione</option>
-                                        @foreach (var p in ListaProveedor ?? new List<Proveedores>())
-                                        {
-                                            <option value="@p.ProveedorId">@p.Nombre</option>
-                                        }
-                                    </InputSelect>
-                                    <ValidationMessage For="@(() => Detalles.ProveedorId)" />
-                                </div>
-                                <div class="col">
-                                    <label>Precio de compra</label>
-                                    <InputNumber class="form-control" @bind-Value="Detalles.PrecioCompra" min="0"></InputNumber>
-                                    <ValidationMessage For="@(() => Detalles.PrecioCompra)" />
-                                </div>
-                                <div class="col">
-                                    <br />
-                                    <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
-
-                                </div>
-
+                            <label>Proveedor:</label>
+                            <div class="input-group">
+                                <InputSelect @bind-Value="Detalles.ProveedorId" class="form-select">
+                                    <option value="@producto." hidden="hidden">Seleccione</option>
+                                    @foreach (var p in ListaProveedor ?? new List<Proveedores>())
+                                    {
+                                        <option value="@p.ProveedorId">@p.Nombre</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => Detalles.ProveedorId)" />
+                                <button type="button" class="btn btn-success" @onclick="AgregarDetalle"><i class="oi oi-plus" />Add</button>
                             </div>
                         </div>
                     </div>
@@ -164,8 +150,7 @@
                             <th>Email</th>
                             <th>Categoria</th>
                             <th>RNC</th>
-                            <th>Tipo de contribuyente</th>
-                            <th>Precio</th>
+                            <th>TipoContribuyente</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -179,10 +164,6 @@
                                 <td>@ObtenerCategoria(proveedor.ProveedorId)</td>
                                 <td>@ObtenerRnc(proveedor.ProveedorId)</td>
                                 <td>@ObtenerTipo(proveedor.ProveedorId)</td>
-                                <td>@ObtenerPrecioProveedor(proveedor.ProveedorId)</td>
-                                <td>
-                                    <button class="btn btn-danger" @onclick="() =>MostrarConfirmacionEliminar(proveedor)"><i class="bi bi-trash"></i></button>
-                                </td>
                             </tr>
                         }
                     </tbody>
@@ -207,56 +188,17 @@
     </div>
 
 </EditForm>
-@if (mostrarConfirmacionEliminar)
-{
-    <div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content" style="border: 3px solid black; background-color: white; color: black;">
-                <div class="modal-header" style="background-color: #ff9800;">
-                    <h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️ Advertencia ⚠️</h5>
-                    <button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body text-center">
-                    <h4 style="font-size: 18px; color: #ff0000;">¿Está seguro de que desea eliminar el detalle?</h4>
-                    <h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
-                    <div class="form-group">
-                        <label>Contraseña:</label>
-                        <input type="password" class="form-control" @bind="contraseña" />
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-center" style="background-color: #ff9800;">
-                    <button type="reset" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: #ff9800; border-color: #ff9800; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
-                    <button type="button" class="btn btn-danger" @onclick=@(EliminarDetalle) style="background-color: #ff0000; border-color: #ff0000; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-@*
-<BlazorModal IsOpened="IsOpened">
-    <ModalBody>
-        <FarmaYah.Client.Pages.Consultas.C_Productos  IsOpened="OpenModal" PasarId="BuscarProductoChild" />
-    </ModalBody>
-
-</BlazorModal> *@
 
 @code {
     [Parameter]
-
     public int ProductoId { get; set; }
-
-    private bool mostrarConfirmacionEliminar = false;
-    private string contraseña = "";
-
     public Productos producto { get; set; } = new Productos();
     public Proveedores proveedores { get; set; } = new Proveedores();
-    public bool IsOpened { get; set; } = false;
 
     public List<Proveedores> ListaProveedor { get; set; } = new List<Proveedores>();
 
     public List<Laboratorios> Laboratorios { get; set; } = new();
+
 
     public List<ProveedorProducto> ListaDetalles { get; set; } = new List<ProveedorProducto>();
     public List<ProveedorProducto> DetallesRemovidos { get; set; } = new List<ProveedorProducto>();
@@ -265,7 +207,8 @@
 
     public ProveedorProducto Detalles { get; set; } = new ProveedorProducto();
     public bool idVacio { get; set; }
-    public bool PrecioProveedorCero { get; set; }
+    public int ProductoSuma { get; set; }
+    public int ProductoExistenciaAux { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var proveerdor = await HttpClient.GetFromJsonAsync<List<Proveedores>>("api/Proveedores");
@@ -293,84 +236,23 @@
         }
 
     }
-    public void OcultarConfirmacionEliminar()
-    {
-        mostrarConfirmacionEliminar = false;
-    }
-    private void EliminarDetalle()
-    {
-        if (contraseña == "Admin123")
-        {
 
-            producto.ProveedorProducto.Remove(Detalles);
-            DetallesRemovidos.Add(Detalles);
-
-            if (ListaDetalles.Any(d => d.ProveedorProductoId == Detalles.ProveedorProductoId))
-                ListaDetalles.Remove(Detalles);
-
-            StateHasChanged();
-            mostrarConfirmacionEliminar = false;
-            contraseña = "";
-        }
-        else
-        {
-            var mensaje = new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "Error",
-                    Detail = "Contraseña incorrecta",
-                    Duration = 4_000
-                };
-            notificationService.Notify(mensaje);
-        }
-    }
-    private void MostrarConfirmacionEliminar(ProveedorProducto proveedorProducto)
-    {
-        Detalles = proveedorProducto;
-        mostrarConfirmacionEliminar = true;
-    }
     public void Back()
     {
         navigationManager.NavigateTo("MenuProductos");
     }
-    void OpenModal()
-    {
-        IsOpened = !IsOpened;
-        StateHasChanged();
 
-    }
-    public void BuscarProductoChild(int id)
-    {
-        producto.ProductoId = id;
-        Buscar();
-
-        // OpenModal();
-    }
     private void ActualizarReOrden()
     {
         producto.Reordenable = !producto.Reordenable;
     }
-    private decimal ObtenerPrecioProveedor(int id)
-    {
-        var precio = producto.ProveedorProducto.Where(p => p.ProveedorId == id).FirstOrDefault()!.PrecioCompra;
-        return precio;
-    }
 
-    private string ObtenerNombreLaboratorio(int id)
-    {
-        return Laboratorios.Where(l => l.LaboratorioId == id).FirstOrDefault()!.Nombre!;
-    }
-    private async Task<IEnumerable<Productos>?> SearchFilms(string searchText)
-    {
-        var response = await HttpClient.GetFromJsonAsync<List<Productos>>($"api/Productos");
-        if (searchText == null)
-        {
-            return response;
-        }
-        return response.Where(p => p.Nombre!.Contains(searchText)).AsEnumerable();
-    }
     public async void Guardar()
     {
+        if (ProductoExistenciaAux > 0)
+            producto.Existencia = ProductoExistenciaAux;
+        if (ProductoSuma > 0)
+            producto.Existencia += ProductoSuma;
         using var response = await HttpClient.PostAsJsonAsync("api/Productos", producto);
         if (!response.IsSuccessStatusCode)
         {
@@ -433,6 +315,8 @@
         producto = new Productos();
         Detalles = new ProveedorProducto();
         ProductoId = 0;
+        ProductoSuma = 0;
+        ProductoExistenciaAux = 0;
         StateHasChanged();
     }
 
@@ -465,42 +349,22 @@
     public bool Validar()
     {
         idVacio = (Detalles.ProveedorId <= 0);
-        PrecioProveedorCero = (Detalles.PrecioCompra <= 0);
 
-        return idVacio || PrecioProveedorCero;
+        return idVacio;
     }
 
     public async Task AgregarDetalle()
     {
         if (Validar())
         {
-            if (idVacio)
-            {
-                var mensaje = new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Error,
-                        Summary = "Error",
-                        Detail = "Debes elegir un proveedor",
-                        Duration = 4_000
-                    };
-                notificationService.Notify(mensaje);
-
-
-            }
-
-            if (PrecioProveedorCero)
-            {
-                var mensaje = new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Error,
-                        Summary = "Error",
-                        Detail = "El precio de compra no puede ser cero",
-                        Duration = 4_000
-                    };
-
-                notificationService.Notify(mensaje);
-            }
-
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debes elegir un proveedor",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
             return;
         }
         var proveedor = await BuscarProveedores(Detalles.ProveedorId);

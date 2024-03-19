@@ -4,10 +4,10 @@
 @inject HttpClient httpClient
 @inject NavigationManager NavigationManager
 <div class="card">
-	<div class="card-body">
+	<div class="card-header d-flex align-items-center">
 		<button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
-
-		<h1>Cuentas por pagar</h1>
+		<img src="Images/pngwing.com.png" class="img-logo" />
+		<h1>Cuentas por Cobrar</h1>
 	</div>
 	<div class="card-body">
 
@@ -19,7 +19,7 @@
 
 			<div class="form-group col-md-4">
 				<label>Teléfono:</label>
-				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10"/>
+				<InputText disabled @bind-Value="Cliente.Teléfono" class="form-control" maxlength="10" />
 			</div>
 		</div>
 		<div class="row">
@@ -113,29 +113,9 @@
 							<td>@item.Concepto</td>
 							<td>@item.Monto</td>
 							<td>
-								<button class="btn btn-danger" @onclick="MostrarConfirmacionEliminar"><i class="bi bi-trash"></i></button>
+								<button class="btn btn-danger" @onclick="() =>MostrarConfirmacionEliminar(item)"><i class="bi bi-trash"></i></button>
 							</td>
 						</tr>
-						<div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
-							<div class="modal-dialog modal-dialog-centered" role="document">
-								<div class="modal-content" style="border: 3px solid black; background-color: dimgrey; color: black;">
-									<div class="modal-header">
-										<h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️Advertencia⚠️</h5>
-										<button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">&times;</span>
-										</button>
-									</div>
-									<div class="modal-body text-center">
-										<h4 style="font-size: 18px; color: #ff0000">¿Está seguro de que desea eliminar el detalle?</h4>
-										<h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
-									</div>
-									<div class="modal-footer justify-content-center">
-										<button type="button" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: dimgrey; border-color: black; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
-										<button type="button" class="btn btn-outline-danger" @onclick="() => EliminarDetalle(item)" style="background-color: #ff0000; border-color: black; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
-									</div>
-								</div>
-							</div>
-						</div>
 					}
 				</tbody>
 			</table>
@@ -145,6 +125,36 @@
 		</div>
 	</div>
 </div>
+
+@if (mostrarConfirmacionEliminar)
+{
+	<div class="modal fade @(mostrarConfirmacionEliminar ? "show" : "")" style="display: @(mostrarConfirmacionEliminar ? "block" : "none")" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content" style="border: 3px solid black; background-color: white; color: black;">
+				<div class="modal-header" style="background-color: #ff9800;">
+					<h5 class="modal-title text-center mx-auto"><i class="fas fa-exclamation-triangle text-warning"></i>⚠️ Advertencia ⚠️</h5>
+					<button type="button" @onclick="OcultarConfirmacionEliminar" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body text-center">
+					<h4 style="font-size: 18px; color: #ff0000;">¿Está seguro de que desea eliminar el detalle?</h4>
+					<h4 style="font-size: 16px; color: black;">Esta acción no se puede deshacer.</h4>
+					<div class="form-group">
+						<label>Contraseña:</label>
+						<input type="password" class="form-control" @bind="contraseña" />
+					</div>
+				</div>
+				<div class="modal-footer justify-content-center" style="background-color: #ff9800;">
+					<button type="button" class="btn btn-warning" @onclick="OcultarConfirmacionEliminar" style="background-color: #ff9800; border-color: #ff9800; color: white;" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+					<button type="button" class="btn btn-danger" @onclick=@(EliminarDetalle) style="background-color: #ff0000; border-color: #ff0000; color: white;"><i class="fas fa-trash-alt"></i> Eliminar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
 
 @code {
 	[Parameter]
@@ -163,11 +173,13 @@
 	public List<PagosCuentasPorCobrar> DetallesRemovidos { get; set; } = new List<PagosCuentasPorCobrar>();
 	public string? NombreSucursal { get; set; }
 	public string? NombreEmpleado { get; set; }
+	/*Para ventana emergente*/
 	private bool mostrarConfirmacionEliminar = false;
+	private string contraseña = "";
 
 	protected override async Task OnInitializedAsync()
 	{
-		var facturas = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas");
+		var facturas = await httpClient.GetFromJsonAsync<List<Facturas>>("api/Facturas/CuentasPorCobrar");
 		var clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
 		var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
 		var sucursales = await httpClient.GetFromJsonAsync<List<Sucursales>>("api/Sucursales");
@@ -175,15 +187,15 @@
 		var segurosDetalles = await httpClient.GetFromJsonAsync<List<SegurosMedicosDetalles>>("api/SegurosMedicosDetalles");
 		var producto = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
 
-		if(producto != null)
-        {
-            ListaProductos = producto;
-        }
+		if (producto != null)
+		{
+			ListaProductos = producto;
+		}
 
 		if (segurosDetalles != null)
-        {
-            ListaSegurosDetalles = segurosDetalles;
-        }
+		{
+			ListaSegurosDetalles = segurosDetalles;
+		}
 
 		if (facturas != null)
 		{
@@ -214,17 +226,9 @@
 
 	private void VolverAtras()
 	{
-		NavigationManager.NavigateTo("/MenuFacturas");
+		NavigationManager.NavigateTo("/C_CuentasPorCobrar");
 	}
-	public void ActualizarPago()
-	{
-		Factura.Pago = (float)(Factura.PagosCuentasPorCobrar.Sum(p => p.Monto));
-		Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
-		if (Factura.Pago >= Factura.MontoTotal)
-		{
-			Factura.Estado = "Pagado";
-		}
-	}
+
 	public string ObetnerNombreSucursal(int id)
 	{
 		var sucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == id);
@@ -236,7 +240,7 @@
 	}
 	public async void Guardar()
 	{
-		ActualizarPago();
+		// ActualizarPago();
 		using var response = await httpClient.PostAsJsonAsync("api/Facturas", Factura);
 		if (!response.IsSuccessStatusCode)
 		{
@@ -250,6 +254,14 @@
 			notificationService.Notify(mensaje);
 			return;
 		}
+		if (DetallesRemovidos.Count > 0)
+		{
+			foreach (var detalle in DetallesRemovidos)
+			{
+				await httpClient.DeleteAsync($"api/Facturas/DeleteCobrar/{detalle.CuentasPorCobrarId}");
+			}
+		}
+
 		var FacturaDevuelta = await response.Content.ReadFromJsonAsync<Facturas>();
 		if (FacturaDevuelta is not null)
 		{
@@ -284,7 +296,6 @@
 			Cliente = clientes;
 			NombreEmpleado = ListaEmpleados.FirstOrDefault(e => e.EmpleadoId == facturas.EmpleadoId)?.Nombre;
 			NombreSucursal = ListaSucursales.FirstOrDefault(s => s.SucursalId == facturas.SucursalId)?.Nombre;
-			ActualizarPago();
 		}
 		if (DetallesRemovidos.Count > 0)
 		{
@@ -304,30 +315,30 @@
 	}
 
 	public float ObtenerPrecio(int Id)
-    {
-        var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
-        var precioProducto = producto!.Precio;
+	{
+		var producto = ListaProductos.FirstOrDefault(p => p.ProductoId == Id);
+		var precioProducto = producto!.Precio;
 
-        // Verificar si hay un seguro médico asociado a la factura
-        if (Factura.SeguroMedicoId > 0)
-        {
-            // Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
-            var detallesSeguro = ListaSegurosDetalles
+		// Verificar si hay un seguro médico asociado a la factura
+		if (Factura.SeguroMedicoId > 0)
+		{
+			// Buscar los detalles del seguro médico asociados al producto y al seguro médico de la factura
+			var detallesSeguro = ListaSegurosDetalles
 				.Where(d => d.ProductoId == producto.ProductoId && d.SeguroMedicoId == Factura.SeguroMedicoId)
-                .ToList();
+				.ToList();
 
-            // Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
-            if (detallesSeguro != null && detallesSeguro.Count > 0)
-            {
-                // Aplicar el descuento del detalle de seguro médico al precio del producto
-                foreach (var detalle in detallesSeguro)
-                {
-                    precioProducto -= (precioProducto * detalle.Descuento / 100);  
-                }
-            }
-        }
-        return precioProducto;
-    }
+			// Verificar si se encontraron detalles de seguro médico específicos para este producto y seguro médico
+			if (detallesSeguro != null && detallesSeguro.Count > 0)
+			{
+				// Aplicar el descuento del detalle de seguro médico al precio del producto
+				foreach (var detalle in detallesSeguro)
+				{
+					precioProducto -= (precioProducto * detalle.Descuento / 100);
+				}
+			}
+		}
+		return precioProducto;
+	}
 	private Facturas BuscarFactura(int id)
 	{
 		var factura = ListaFactura.FirstOrDefault(f => f.FacturaId == id);
@@ -335,6 +346,14 @@
 	}
 	public async Task AgregarDetalle()
 	{
+		Factura.Pago += (float)Detalles.Monto;
+
+		Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
+		if (Factura.Pago >= Factura.MontoTotal)
+		{
+			Factura.Estado = "Pagado";
+		}
+
 		if (Validar())
 		{
 			var mensaje = new NotificationMessage
@@ -367,15 +386,14 @@
 
 		if (Factura != null)
 		{
-			var detalleEncontrado = await httpClient.GetFromJsonAsync<List<PagosCuentasPorCobrar>>($"api/Facturas");
+			var detalleEncontrado = await httpClient.GetFromJsonAsync<List<PagosCuentasPorCobrar>>($"api/Facturas/Pagos");
 			//aqui cuando se modifica una cantidad utilizada de un producto si es el mismo que ya estaba no se vuelve a descontar de la BD
 			var detalleExiste = detalleEncontrado!.Any(d => d.CuentasPorCobrarId == Detalles.CuentasPorCobrarId);
 
 			Detalles.FacturaId = Factura.FacturaId;
 			Detalles.FormaDePago = "Efectivo";
 			Factura.PagosCuentasPorCobrar.Add(Detalles);
-			ActualizarPago();
-			if (detalleExiste)
+			if (!detalleExiste)
 			{
 				ListaDetalles.Add(Detalles);
 
@@ -386,23 +404,49 @@
 		}
 		StateHasChanged();
 	}
-
-	private void EliminarDetalle(PagosCuentasPorCobrar detalle)
+	private void MostrarConfirmacionEliminar(PagosCuentasPorCobrar cuentasPorCobrar)
 	{
-		Detalles = detalle;
-		Factura.PagosCuentasPorCobrar.Remove(detalle);
-		DetallesRemovidos.Add(detalle);
-
-		ActualizarPago();
-		StateHasChanged();
-
-		OcultarConfirmacionEliminar();
-	}
-
-	public void MostrarConfirmacionEliminar()
-	{
+		Detalles = cuentasPorCobrar;
 		mostrarConfirmacionEliminar = true;
 	}
+
+	private void EliminarDetalle()
+	{
+		if (contraseña == "Admin123")
+		{
+
+			Factura.PagosCuentasPorCobrar.Remove(Detalles);
+			DetallesRemovidos.Add(Detalles);
+
+			if (ListaDetalles.Any(d => d.CuentasPorCobrarId == Detalles.CuentasPorCobrarId))
+				ListaDetalles.Remove(Detalles);
+
+
+			Factura.Pago -= (float)Detalles.Monto;
+
+			Factura.Devolucion = (float)(Factura.Pago - Factura.MontoTotal);
+			if (Factura.Pago < Factura.MontoTotal)
+			{
+				Factura.Estado = "Pendiente";
+			}
+			StateHasChanged();
+			mostrarConfirmacionEliminar = false;
+			contraseña = "";
+		}
+		else
+		{
+			var mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error",
+					Detail = "Contraseña incorrecta",
+					Duration = 4_000
+				};
+			notificationService.Notify(mensaje);
+		}
+	}
+
+
 
 	public void OcultarConfirmacionEliminar()
 	{
@@ -413,5 +457,9 @@
 	{
 		var validacion = Detalles.Concepto is null || Detalles.Monto <= 0;
 		return validacion;
+	}
+	private bool ValidarContraseña()
+	{
+		return contraseña == "Admin123";
 	}
 }

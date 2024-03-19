@@ -15,5 +15,7 @@ namespace FarmaYah.Shared.Models
         //public Proveedores? Proveedor { get; set; }
         public int ProductoId { get; set; }
         //public Productos? Producto { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0")]
+        public decimal PrecioCompra { get; set; }
     }
 }
