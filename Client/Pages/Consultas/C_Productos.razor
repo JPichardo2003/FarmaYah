@@ -1,4 +1,5 @@
 ﻿@page "/c_productos"
+@page "/c_productos/{ProductoId:int}"
 @inject HttpClient HttpClient
 @inject NavigationManager navigationManager
 <div class="card">
@@ -17,8 +18,8 @@
 	<div class="card-body">
 		<div class="row">
 			@* <div class="col-3">
-				<label for="id">Buscar por ID:</label>
-				<input type="number" id="id" @bind="filtroId" class="form-control" />
+			<label for="id">Buscar por ID:</label>
+			<input type="number" id="id" @bind="filtroId" class="form-control" />
 			</div> *@
 			<div class="col-3">
 				<label for="nombre">Buscar por nombre:</label>
@@ -27,6 +28,16 @@
 			<div class="col-3">
 				<label for="precioMin">Precio Mínimo:</label>
 				<input type="number" id="precioMin" @bind="filtroPrecioMin" class="form-control" />
+			</div>
+			<div class="col-3">
+				<label>Unidad:</label>
+				<InputSelect class="form-select" @bind-Value="filtroUnidad">
+					<option value="0" disabled selected>Elija una opci&oacute;n</option>
+					@foreach (var unidad in Unidades ?? new List<Unidad>())
+					{
+						<option value="@unidad.UnidadId">@unidad.Descripcion</option>
+					}
+				</InputSelect>
 			</div>
 			<div class="col-3">
 				<label for="precioMax">Precio Máximo:</label>
@@ -47,10 +58,10 @@
 			<table class="table">
 				<thead>
 					<tr>
-					
+						@* <th>Producto ID</th> *@
 						<th>Nombre</th>
 						<th>Descripción</th>
-						<th>Laboratorio</th>
+						<th>Laboratorio </th>
 						<th>Precio</th>
 						<th>Existencia</th>
 						<th>Unidad</th>
@@ -60,14 +71,16 @@
 					@foreach (var producto in productosFiltrados)
 					{
 						<tr>
-							
+							@* <td>@producto.ProductoId</td> *@
 							<td>@producto.Nombre</td>
 							<td>@producto.Descripcion</td>
-							<td>@ObtenerNombreLaboratorio(producto.ProductoId)</td>
+							<td>@NombreLaboratorio(producto.LaboratorioId)</td>
 							<td>@producto.Precio</td>
 							<td>@producto.Existencia</td>
 							<td>@NombreUnidad(producto.UnidadId)</td>
-                            <td><button class="btn btn-outline-info"><a href="RProducto/@producto.ProductoId">Editar</a></button></td>
+							<td><a type="reset" class="btn btn-outline-info" href="RProducto/@producto.ProductoId">Editar</a></td>
+							<td><a class="btn btn-outline-success" href="RInventario/@producto.ProductoId">Inventario</a></td>
+							<td><a class="btn btn-outline-danger" href="RMermasYAveria/p/@producto.ProductoId"> Falla</a></td>
 						</tr>
 					}
 				</tbody>
@@ -81,70 +94,78 @@
 </div>
 
 @code {
-	public List<Productos> productos = new List<Productos>();
-	public List<Productos> productosFiltrados = new List<Productos>();
-	public List<Laboratorios> ListaLaboratorios { get; set; } = new List<Laboratorios>();
+	[Parameter]
+	public int ProductoId { get; set; }
 
-	public List<Unidad> Unidades = new List<Unidad>();
+	// [Parameter]
+	// public Action? IsOpened { get; set; }
+
+
+	// [Parameter]
+	// public Action<int>? PasarId { get; set; }
+
+	List<Productos>? productos { get; set; }
+	List<Productos>? productosFiltrados { get; set; }
+	List<Unidad>? Unidades { get; set; }
+	List<Laboratorios>? Laboratorios { get; set; }
 	public int? filtroId;
 	public string filtroNombre = "";
 	public float? filtroPrecioMin;
 	public float? filtroPrecioMax;
-
+	public int filtroUnidad;
 	protected override async Task OnInitializedAsync()
 	{
-
-		productos = await HttpClient.GetFromJsonAsync<List<Productos>>("api/Productos")?? new List<Productos>();
+		productos ??= await HttpClient.GetFromJsonAsync<List<Productos>>("api/Productos") ?? new List<Productos>();
 		productosFiltrados = productos;
-		Unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades")?? new List<Unidad>();
-		var laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios")?? new List<Laboratorios>();
-		if (laboratorios is not null)
+		Unidades = await HttpClient.GetFromJsonAsync<List<Unidad>>("api/Unidades") ?? new List<Unidad>();
+		Laboratorios = await HttpClient.GetFromJsonAsync<List<Laboratorios>>("api/Laboratorios") ?? new List<Laboratorios>();
+		if (ProductoId > 0)
 		{
-			ListaLaboratorios = laboratorios;
+			productosFiltrados = productos.Where(p => p.ProductoId == ProductoId).ToList();
 		}
 	}
 	public void Back()
-    {
-        navigationManager.NavigateTo("MenuProductos");
-    }
-	public string NombreUnidad(int id)
 	{
-        var unidad = Unidades.FirstOrDefault(u => u.UnidadId == id);
-        return unidad?.Descripcion ?? "";
-    }
-	public string ObtenerNombreLaboratorio(int Id)
-	{
-		var producto = productos.FirstOrDefault(p => p.ProductoId == Id);
-
-		if (producto != null)
-		{
-			var laboratorio = ListaLaboratorios.FirstOrDefault(l => l.LaboratorioId == producto.LaboratorioId);
-
-			if (laboratorio != null)
-			{
-				return laboratorio.Nombre!;
-			}
-		}
-
-		return "Lab Not Found";
+		navigationManager.NavigateTo("MenuProductos");
 	}
-
-	public void Buscar()
+	public string? NombreUnidad(int id)
 	{
+		var unidad = Unidades?.FirstOrDefault(u => u.UnidadId == id);
+		return unidad?.Descripcion ?? "";
+	}
+	public string? NombreLaboratorio(int id)
+	{
+		var laboratorio = Laboratorios?.FirstOrDefault(u => u.LaboratorioId == id);
+		return laboratorio?.Nombre ?? "";
+	}
+	// private void Cerrar()
+	// {
+	// 	IsOpened?.Invoke();
+	// }
+	// private void BuscarChild(int id)
+	// {
+	// 	// Llama a la función del padre pasándole un string
+	// 	PasarId?.Invoke(id);
+	// 	Cerrar();
+	// }
+	public async Task Buscar()
+	{
+		productos = await HttpClient.GetFromJsonAsync<List<Productos>>("api/Productos") ?? new List<Productos>();
+
 		productosFiltrados = productos
-			.Where(p => (!filtroId.HasValue || p.ProductoId == filtroId) &&
-						(string.IsNullOrEmpty(filtroNombre) || p.Nombre.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase))
+			.Where(p => (string.IsNullOrEmpty(filtroNombre) || p.Nombre.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase))
 						&& (!filtroPrecioMin.HasValue || p.Precio >= filtroPrecioMin)
-						&& (!filtroPrecioMax.HasValue || p.Precio <= filtroPrecioMax))
+						&& (!filtroPrecioMax.HasValue || p.Precio <= filtroPrecioMax)
+						&& (filtroUnidad == 0 || p.UnidadId == filtroUnidad))
 			.ToList();
 	}
 
 	public void VaciarInputs()
 	{
-		filtroId = null;
 		filtroNombre = "";
 		filtroPrecioMin = null;
 		filtroPrecioMax = null;
+		filtroUnidad = 0;
 		productosFiltrados = productos;
 	}
 }

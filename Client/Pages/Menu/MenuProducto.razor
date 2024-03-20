@@ -21,7 +21,20 @@
                 </button>
             </div>
         </div>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToRegistroMermas">
+                    <img src="Images/icons8-frágil-100.png" class="icon" />Registrar Mermas/Aver&iacute;a
+                </button>
+            </div>
+            <div class="col-md-4 text-center">
+                <button class="d-block mx-auto" @onclick="NavigateToConsultaMermas">
+                    <img src="Images/icons8-no-deje-caer-100.png" class="icon" />Consulta Mermas/Aver&iacute;a
+                </button>
+            </div>
+        </div>
     </div>
+
 </div>
 
 
@@ -40,5 +53,15 @@
     public void NavigateToConsultaProductos()
     {
         NavigationManager.NavigateTo("c_productos");
+    }
+
+    public void NavigateToRegistroMermas()
+    {
+        NavigationManager.NavigateTo("RMermasYAveria");
+    }
+
+    public void NavigateToConsultaMermas()
+    {
+        NavigationManager.NavigateTo("C_MermasYAveria");
     }
 }

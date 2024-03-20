@@ -1,0 +1,510 @@
+﻿@page "/RMermasYAveria";
+@page "/RMermasYAveria/m/{MermasId:int}";
+@page "/RMermasYAveria/p/{ProductoId:int}"
+@page "/RMermasYAveria/a/{AveriaId:int}"
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+
+<EditForm Model="mermas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+            <img src="Images/pngwing.com.png" class="img-logo" />
+            <h1>Registro de Mermas y Aver&iacute;a</h1>
+        </div>
+    </div>
+
+    <div class="card card-header">
+        <div class="card-body border border-1">
+
+            <div class="col-md-2 mb-3">
+                <RadzenLabel Text="Tipo de registro" class="form-label" />
+                <InputSelect @bind-Value="opcionesMermaOAveria" class="form-select">
+                    <option value="0" hidden="hidden">[Seleccione un tipo]</option>
+                    <option value="1">Merma</option>
+                    <option value="2">Avería</option>
+                </InputSelect>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-2">
+                    <label>Filtro:</label>
+                    <InputText @bind-Value="Filtro" class="form-control" @onblur="FiltrarProductos!" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-group">
+                        <label>Productos</label>
+                        <div>
+                            <InputSelect @bind-Value="mermas.ProductoId" class="form-select">
+                                <option value="" hidden="hidden">[Seleccione un producto]</option>
+                                @foreach (var p in ListaProductos)
+                                {
+                                    <option value="@p.ProductoId">@p.Nombre</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label>Cantidad da&ntilde;ada</label>
+                    <div class="input-group">
+                        <InputNumber @bind-Value="mermas.Cantidad" class="form-control" min="0"></InputNumber>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label>Fecha:</label>
+                    <InputDate @bind-Value="mermas.Fecha" class="form-control" readonly></InputDate>
+                    <ValidationMessage For="@(() => mermas.Fecha)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <label>Motivo</label>
+                    <InputText @bind-Value="mermas.Motivo" class="form-control"></InputText>
+                </div>
+
+                <div class="col-md-5 mb-3">
+                    <label>Observaci&oacute;n</label>
+                    <InputText @bind-Value="mermas.Observaciones" class="form-control"></InputText>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-center">
+
+            @if (!EsNuevo && AveriaId > 0 && !averias.huboRembolso)
+            {
+                <div class="text-left">
+                    <label>¿Se Reembolsó? </label>
+                    <input type="checkbox" @bind="Reembolsado" class="form-check-input" />
+                </div>
+            }
+            @if (Reembolsado && !averias.huboRembolso)
+            {
+                <button class="btn btn-info" @onclick="Reembolso">Confirmar <i class="oi oi-document" /></button>
+            }
+            <button type="button" class="btn btn-primary md-3" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            @if (EsNuevo)
+            {
+                <button class="btn btn-success">Guardar <i class="oi oi-document" /></button>
+            }
+            @if (!EsNuevo && !averias.huboRembolso)
+            {
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+            }
+
+        </div>
+
+    </div>
+
+</EditForm>
+
+
+
+
+@code {
+    [Parameter]
+    public int MermasId { get; set; }
+    [Parameter]
+    public int ProductoId { get; set; }
+    [Parameter]
+    public int AveriaId { get; set; }
+
+    public Mermas mermas { get; set; } = new Mermas();
+    public Averias averias { get; set; } = new Averias();
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public string Filtro { get; set; } = "";
+    public bool EsNuevo { get; set; } = true;
+    public bool Reembolsado { get; set; } = false;
+    public int opcionesMermaOAveria { get; set; } = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        if (MermasId > 0)
+        {
+            opcionesMermaOAveria = 1;
+            EsNuevo = false;
+            this.mermas.MermaId = MermasId;
+            await Buscar();
+        }
+        if (ProductoId > 0)
+        {
+            mermas.ProductoId = ProductoId;
+            return;
+        }
+        if (AveriaId > 0)
+        {
+            opcionesMermaOAveria = 2;
+            EsNuevo = false;
+            this.averias.AveriaId = AveriaId;
+            await Buscar();
+            mermas.Cantidad = averias.Cantidad;
+            mermas.Fecha = averias.Fecha;
+            mermas.Motivo = averias.Motivo;
+            mermas.Observaciones = averias.Observaciones;
+            mermas.ProductoId = averias.ProductoId;
+            return;
+        }
+
+    }
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuProductos");
+    }
+
+
+
+    public async Task Reembolso()
+    {
+        if (Reembolsado)
+        {
+            var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+            var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == mermas.ProductoId).FirstOrDefault()!;
+            Producto_A_Actualizar.Existencia += averias.Cantidad;
+            using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{Producto_A_Actualizar.ProductoId}", Producto_A_Actualizar);
+            averias.huboRembolso = Reembolsado;
+            using var response = await httpClient.PostAsJsonAsync("api/Averias", averias);
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = response.RequestMessage + "No se pudo Guardar correctamente, verifique los campos",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                Nuevo();
+                return;
+            }
+            Nuevo();
+            StateHasChanged();
+        }
+    }
+    public async Task Guardar()
+    {
+        @if (opcionesMermaOAveria == 0 && AveriaId != 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Elija si es merma o averia",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return;
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        else if (opcionesMermaOAveria == 1)
+        {
+            if (!(await ValidarGuardar()))
+            {
+                return;
+            }
+            using var response = await httpClient.PostAsJsonAsync("api/Mermas", mermas);
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = response.RequestMessage + "No se pudo Guardar correctamente, verifique los campos",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+            var MermaDevuelta = await response.Content.ReadFromJsonAsync<Mermas>();
+            if (MermaDevuelta is not null)
+            {
+
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Éxito",
+                        Detail = "Mermas Guardada Correctamente",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+
+                StateHasChanged();
+                var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+                var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == mermas.ProductoId).FirstOrDefault()!;
+                Producto_A_Actualizar.Existencia -= mermas.Cantidad;
+                using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{mermas.ProductoId}", Producto_A_Actualizar);
+                this.Nuevo();
+            }
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        else if (opcionesMermaOAveria == 2)
+        {
+            if (AveriaId == 0)
+            {
+                averias.ProductoId = mermas.ProductoId;
+                averias.Cantidad = mermas.Cantidad;
+                averias.Fecha = mermas.Fecha;
+                averias.Motivo = mermas.Motivo;
+                averias.Observaciones = mermas.Observaciones;
+            }
+            averias.ProductoId = mermas.ProductoId;
+            averias.Cantidad = mermas.Cantidad;
+            if (!(await ValidarGuardar()))
+            {
+                return;
+            }
+            using var response = await httpClient.PostAsJsonAsync("api/Averias", averias);
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = response.RequestMessage + "No se pudo Guardar correctamente, verifique los campos",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                return;
+            }
+            var AveriaDevuelta = await response.Content.ReadFromJsonAsync<Mermas>();
+            if (AveriaDevuelta is not null)
+            {
+
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Éxito",
+                        Detail = "Averia Guardada Correctamente",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+
+                StateHasChanged();
+                var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+                var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == averias.ProductoId).FirstOrDefault()!;
+                Producto_A_Actualizar.Existencia -= averias.Cantidad;
+                using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{averias.ProductoId}", Producto_A_Actualizar);
+                this.Nuevo();
+            }
+        }
+
+
+    }
+
+
+    private async Task<bool> ValidarGuardar()
+    {
+        if (mermas.Cantidad <= 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "La cantidad no puede ser menor a 0",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        if (string.IsNullOrEmpty(mermas.Motivo))
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Debe haber un motivo",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+        var Producto_A_Revisar = productos!.Where(p => p.ProductoId == mermas.ProductoId).FirstOrDefault()!;
+        Producto_A_Revisar.Existencia -= mermas.Cantidad;
+        if (Producto_A_Revisar.Existencia < 0)
+        {
+
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "Está eliminando más de los que hay",
+                    Duration = 4_000
+                };
+            notificationService.Notify(mensaje);
+            return false;
+        }
+        return true;
+    }
+
+
+    public void Nuevo()
+    {
+        EsNuevo = true;
+        mermas = new Mermas();
+        averias = new Averias();
+        Reembolsado = false;
+        AveriaId = 0;
+        MermasId = 0;
+    }
+
+    public async Task Buscar()
+    {
+        if (MermasId > 0)
+        {
+            try
+            {
+                await httpClient.GetFromJsonAsync<Mermas>($"api/Mermas/{MermasId}");
+            }
+            catch (Exception)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "No se pudo encontrar la Merma",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                Nuevo();
+                return;
+            }
+            var MermasEncontrada = await httpClient.GetFromJsonAsync<Mermas>($"api/Mermas/{MermasId}");
+            if (MermasEncontrada != null)
+            {
+                if (MermasEncontrada.Activo = true)
+                {
+                    this.mermas = MermasEncontrada;
+                    StateHasChanged();
+                }
+            }
+        }
+        else if (AveriaId > 0)
+        {
+            try
+            {
+                await httpClient.GetFromJsonAsync<Averias>($"api/Averias/{AveriaId}");
+            }
+            catch (Exception)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "No se pudo encontrar la Averia",
+                        Duration = 4_000
+                    };
+                notificationService.Notify(mensaje);
+                Nuevo();
+                return;
+            }
+            var AveriaEncontrada = await httpClient.GetFromJsonAsync<Averias>($"api/Averias/{AveriaId}");
+            if (AveriaEncontrada != null)
+            {
+                if (AveriaEncontrada.Activo = true)
+                {
+                    this.averias = AveriaEncontrada;
+                    Reembolsado = averias.huboRembolso;
+                }
+                StateHasChanged();
+            }
+
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        if (opcionesMermaOAveria == 1)
+        {
+            var mermatemporal = mermas;
+            mermas.Activo = false;
+            using var response = await httpClient.PostAsJsonAsync($"api/Mermas", mermas);
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "Error al eliminar el Merma",
+                        Duration = 5_000
+                    };
+                notificationService.Notify(mensaje);
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Eliminado",
+                        Detail = "Merma eliminado con éxito",
+                        Duration = 5000
+                    };
+                notificationService.Notify(mensaje);
+                Nuevo();
+            }
+            var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+            var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == mermatemporal.ProductoId).FirstOrDefault()!;
+            Producto_A_Actualizar.Existencia += mermatemporal.Cantidad;
+            using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{mermatemporal.ProductoId}", Producto_A_Actualizar);
+        }
+        if (opcionesMermaOAveria == 2)
+        {
+            var AveriaTemp = averias;
+            averias.Activo = false;
+            using var response = await httpClient.PostAsJsonAsync($"api/Averia", mermas);
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "Error",
+                        Detail = "Error al eliminar el Averia",
+                        Duration = 5_000
+                    };
+                notificationService.Notify(mensaje);
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Eliminado",
+                        Detail = "Averia eliminada con éxito",
+                        Duration = 5000
+                    };
+                notificationService.Notify(mensaje);
+                Nuevo();
+            }
+            var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos")!;
+            var Producto_A_Actualizar = productos!.Where(p => p.ProductoId == AveriaTemp.ProductoId).FirstOrDefault()!;
+            Producto_A_Actualizar.Existencia += AveriaTemp.Cantidad;
+            using var responseDetalleAgregado = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{AveriaTemp.ProductoId}", Producto_A_Actualizar);
+        }
+
+    }
+
+    public async Task? FiltrarProductos()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (string.IsNullOrEmpty(Filtro))
+        {
+            ListaProductos = productos!;
+            return;
+        }
+        productos = productos?.Where(p => p.Nombre!.ToLower().Contains(Filtro.ToLower())).ToList();
+        ListaProductos = productos!;
+    }
+
+
+}

@@ -12,8 +12,9 @@ namespace FarmaYah.Shared.Models
         [Key]
         public int ProveedorProductoId { get; set; }
         public int ProveedorId { get; set; }
-        //public Proveedores? Proveedor { get; set; }
         public int ProductoId { get; set; }
-        //public Productos? Producto { get; set; }
+
+        [Range(1,int.MaxValue,ErrorMessage ="El precio de compra debe ser mayor a 0")]
+        public decimal PrecioCompra { get; set; }
     }
 }
