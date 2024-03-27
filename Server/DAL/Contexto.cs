@@ -23,6 +23,8 @@ namespace FarmaYah.Server.DAL
         public DbSet<PagosCuentasPorCobrar> PagosCuentasPorCobrar { get; set; }
         public DbSet<Clientes> Clientes { get; set; }   
         public DbSet<Configuracion> Configuracion { get; set; }
+        public DbSet<Mermas> Mermas { get; set; }
+        public DbSet<Averias> Averias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

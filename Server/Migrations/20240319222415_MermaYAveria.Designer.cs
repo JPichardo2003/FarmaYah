@@ -3,6 +3,7 @@ using System;
 using FarmaYah.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,47 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaYah.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20240319222415_MermaYAveria")]
+    partial class MermaYAveria
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.16");
-
-            modelBuilder.Entity("FarmaYah.Shared.Models.Averias", b =>
-                {
-                    b.Property<int>("AveriaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("MermaId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Motivo")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Observaciones")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("huboRembolso")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("AveriaId");
-
-                    b.ToTable("Averias");
-                });
 
             modelBuilder.Entity("FarmaYah.Shared.Models.Clientes", b =>
                 {
@@ -353,35 +321,6 @@ namespace FarmaYah.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("FarmaYah.Shared.Models.Mermas", b =>
-                {
-                    b.Property<int>("MermaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Motivo")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Observaciones")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("MermaId");
-
-                    b.ToTable("Mermas");
-                });
-
             modelBuilder.Entity("FarmaYah.Shared.Models.PagosCuentasPorCobrar", b =>
                 {
                     b.Property<int>("CuentasPorCobrarId")
@@ -616,21 +555,21 @@ namespace FarmaYah.Server.Migrations
                         {
                             SeguroMedicoId = 1,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 3, 19, 18, 36, 31, 21, DateTimeKind.Local).AddTicks(1994),
+                            Fecha = new DateTime(2024, 3, 19, 18, 24, 15, 67, DateTimeKind.Local).AddTicks(7366),
                             Nombre = "ARS Humano"
                         },
                         new
                         {
                             SeguroMedicoId = 2,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 3, 19, 18, 36, 31, 21, DateTimeKind.Local).AddTicks(2014),
+                            Fecha = new DateTime(2024, 3, 19, 18, 24, 15, 67, DateTimeKind.Local).AddTicks(7385),
                             Nombre = "ARS Palic"
                         },
                         new
                         {
                             SeguroMedicoId = 3,
                             Eliminado = false,
-                            Fecha = new DateTime(2024, 3, 19, 18, 36, 31, 21, DateTimeKind.Local).AddTicks(2015),
+                            Fecha = new DateTime(2024, 3, 19, 18, 24, 15, 67, DateTimeKind.Local).AddTicks(7386),
                             Nombre = "ARS Universal"
                         });
                 });

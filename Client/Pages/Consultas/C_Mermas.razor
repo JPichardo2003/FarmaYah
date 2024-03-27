@@ -1,0 +1,222 @@
+﻿@page "/C_MermasYAveria";
+@inject HttpClient httpClient
+@inject NotificationService notificationService;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Consulta Mermas y Aver&iacute;a</PageTitle>
+
+<div class="card card-header">
+    <div class="card-header d-flex align-items-center">
+        <button @onclick="VolverAtras"><i class="bi bi-arrow-left-circle"></i></button>
+        <img src="Images/pngwing.com.png" class="img-logo" />
+        <h1>Consultas de Mermas y Aver&iacute;a</h1>
+    </div>
+
+    <div class="card-body">
+        <div class="input-group-text">
+            <label class="form-control-label col-1">Desde:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Desde" />
+            </div>
+            <label class="form-control-label col-1">Hasta:</label>
+            <div class="col-md-3">
+                <input class="form-control" type="date" @bind="Hasta" />
+            </div>
+        </div>
+    </div>
+
+    @* Arreglar que el tipo no se vea cuando se cambia a otra casilla*@
+
+    <div class="row">
+        <div class="col-3">
+            <label >Filtrar por:</label>
+            <select class="form-select" @bind="opciones">
+                <option value="0" disabled selected>Elija una opci&oacute;n</option>
+                <option value="1">Motivo</option>
+                <option value="2">Producto</option>
+                <option value="3">Tipos</option>
+                <option value="4">Solo Fe cha</option>
+            </select>
+        </div>
+
+        @if (opciones == 1 || opciones == 2)
+        {
+            <div class="col-3 mt-4">
+                <input type="text" class="form-control" @bind="FiltroString"></input>
+            </div>
+        }
+
+        @if(opciones == 3)
+		{
+			<div class="col-3 mt-4">
+				<select class="form-select" @bind="FiltroString">
+					<option value="0" disabled selected>Elija una opci&oacute;n</option>
+					<option value="Mermas001">Mermas</option>
+                    <option value="Averias001">Aver&iacute;a</option>
+				</select>
+			</div>
+		}
+
+        <div class="col-2 d-flex align-items-center mt-4">
+            <button class="btn btn-primary ml-2" type="button" @onclick="Buscar">
+                <i class="oi oi-magnifying-glass" />
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad dañada</th>
+                    <th>Motivo</th>
+                    <th>Observaci&oacute;n</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!(FiltroString == "Averias001"))
+                {
+                    @if (ListaAverias.Count > 0)
+                    {
+                        @foreach (var averias in ListaAverias)
+                        {
+                            <tr>
+                                <td>Averia</td>
+                                <td>@averias.Fecha</td>
+                                <td>@ObtenerNombreProducto(averias.ProductoId)</td>
+                                <td>@averias.Cantidad</td>
+                                <td>@averias.Motivo</td>
+                                <td>@averias.Observaciones</td>
+                                <td>
+                                    <a href="
+									    @($"RMermasYAveria/a/{averias.AveriaId}")
+                                                                " class="btn btn-outline-primary">
+                                        <i class="oi oi-eye" />
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+                @if (!(FiltroString == "Mermas001"))
+                {
+                    @foreach (var merma in ListaMermas)
+                    {
+                        <tr>
+                            <td>Merma</td>
+                            <td>@merma.Fecha</td>
+                            <td>@ObtenerNombreProducto(merma.ProductoId)</td>
+                            <td>@merma.Cantidad</td>
+                            <td>@merma.Motivo</td>
+                            <td>@merma.Observaciones</td>
+                            <td>
+                                <a href="
+                                        @($"RMermasYAveria/m/{merma.MermaId}")
+                                                        " class="btn btn-outline-primary">
+                                    <i class="oi oi-eye" />
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+
+    public DateTime Desde { get; set; }
+    public DateTime Hasta { get; set; }
+    public string FiltroString { get; set; } = "";
+    public int opciones { get; set; } = 0;
+    public int Conteo { get; set; }
+
+    public List<Productos> ListaProductos { get; set; } = new List<Productos>();
+    public List<Mermas> ListaMermas { get; set; } = new List<Mermas>();
+    public List<Averias> ListaAverias { get; set; } = new List<Averias>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productos = await httpClient.GetFromJsonAsync<List<Productos>>("api/Productos");
+        if (productos is not null)
+        {
+            ListaProductos = productos;
+        }
+        Desde = DateTime.Now.AddMonths(-1);
+        Hasta = DateTime.Now;
+        await Buscar();
+    }
+
+
+    private void VolverAtras()
+    {
+        NavigationManager.NavigateTo("/MenuProductos");
+    }
+
+    public async Task Buscar()
+    {
+        ListaAverias = await httpClient.GetFromJsonAsync<List<Averias>>($"api/Averias") ?? new List<Averias>();
+        ListaMermas = await httpClient.GetFromJsonAsync<List<Mermas>>($"api/Mermas") ?? new List<Mermas>();
+        Conteo = ListaMermas != null ? ListaMermas!.Count() : 0;
+
+        if (Conteo == 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No tiene registros guardados.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+
+            return;
+        }
+        var ListaTemporalMerma = ListaMermas;
+        var ListaTemporalAverias = ListaAverias;
+        if (opciones == 1)
+        {
+            ListaMermas = ListaTemporalMerma!.Where(m => m.Activo == true && (string.IsNullOrEmpty(FiltroString) || m.Motivo!.ToLower().Contains(FiltroString.ToLower()))).ToList() ?? new List<Mermas>();
+        }
+        else if (opciones == 2)
+        {
+            var IdDeProductos = ListaProductos.Where(p => p.Nombre.ToLower().Contains(FiltroString.ToLower())).Select(p => p.ProductoId).ToList();
+            ListaMermas = ListaTemporalMerma!.Where(m => m.Activo == true && IdDeProductos.Contains(m.ProductoId)).ToList() ?? new List<Mermas>();
+        }
+        else
+        {
+            ListaMermas = ListaTemporalMerma!.Where(m => m.Activo == true && m.Fecha >= Desde && m.Fecha <= Hasta).ToList() ?? new List<Mermas>();
+        }
+
+        Conteo = ListaMermas != null ? ListaMermas!.Count() : 0;
+        if (Conteo == 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha encontrado ningún registro",
+                    Detail = "Revise los parámetros utilizados.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+        }
+        StateHasChanged();
+    }
+
+    public string ObtenerNombreProducto(int Id)
+    {
+        return ListaProductos.Where(p => p.ProductoId == Id).FirstOrDefault()!.Nombre!;
+    }
+
+    public void CleanFiltroString()
+	{
+		FiltroString = "";
+	}
+}
+
